@@ -2,6 +2,7 @@
 @import "./tokens.css";
 @import "./primitives.css";
 @import "./motion.css";
+@import "./preloader.css";
 @import "lenis/dist/lenis.css";
 
 /*

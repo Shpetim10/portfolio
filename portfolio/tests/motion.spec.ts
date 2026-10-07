@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 
 /*
  * P0-03 motion kit. Runs against the static export like every other suite.

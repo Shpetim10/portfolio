@@ -1,0 +1,129 @@
+/*
+ * T01 preloader: the carbon calibration screen (src/components/chrome/Preloader.tsx).
+ * Static geometry only; GSAP animates transform and opacity. Tokens only.
+ * Without JS the overlay is never shown (a <noscript> style); if JS is late,
+ * the failsafe below hides it at --preloader-cap after it first renders.
+ */
+
+@layer components {
+  .preloader {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-preloader);
+    display: grid;
+    place-items: center;
+    animation: preloader-failsafe 1ms linear var(--preloader-cap) forwards;
+  }
+
+  /* Repeat visit in this tab session (set by the inline script before first paint). */
+  .preloader[data-state="skip"] {
+    display: none;
+  }
+
+  /* JS owns the timing from here; it enforces the same cap. */
+  .preloader[data-state="live"],
+  .preloader[data-state="exit"] {
+    animation: none;
+  }
+
+  /* From the first frame of the exit the page underneath takes input. */
+  .preloader[data-state="exit"] {
+    pointer-events: none;
+  }
+
+  .preloader__screen {
+    position: absolute;
+    inset: 0;
+    background-color: var(--color-carbon);
+  }
+
+  .preloader__instrument {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: calc(var(--spacing) * 4);
+    width: min(100vw - var(--grid-margin) * 2, var(--preloader-gauge));
+  }
+
+  .preloader__readout {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 3);
+    color: var(--color-dust);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  .preloader__value {
+    color: var(--color-bone);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Signal LED: an unlit hairline socket; the light inside blinks at 100. */
+  .preloader__led {
+    position: relative;
+    width: var(--preloader-led);
+    height: var(--preloader-led);
+    border: var(--line) solid var(--color-hairline);
+    border-radius: 50%;
+  }
+
+  .preloader__led-light {
+    position: absolute;
+    inset: calc(var(--line) * -1);
+    border-radius: 50%;
+    background-color: var(--color-signal);
+    opacity: 0;
+  }
+
+  /* Hairline progress line between two end ticks, like a dimension line. */
+  .preloader__gauge {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: var(--dimension-tick);
+  }
+
+  .preloader__tick {
+    position: absolute;
+    left: 0;
+    width: var(--line);
+    height: var(--dimension-tick);
+    background-color: var(--color-dust);
+  }
+
+  .preloader__tick--end {
+    right: 0;
+    left: auto;
+  }
+
+  .preloader__rule {
+    width: 100%;
+    height: var(--line);
+    background-color: var(--color-bone);
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+
+  /* Reduced: no counter; the line stands complete. */
+  @media (prefers-reduced-motion: reduce) {
+    .preloader__value {
+      display: none;
+    }
+
+    .preloader__rule {
+      transform: none;
+    }
+  }
+
+  @keyframes preloader-failsafe {
+    to {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+}

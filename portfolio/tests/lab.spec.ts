@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 // Viewport sweeps set their own sizes, so they run once (desktop project).
 test.describe("/lab primitives", () => {

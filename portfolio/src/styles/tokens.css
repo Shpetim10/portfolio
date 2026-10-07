@@ -134,6 +134,11 @@
   --cursor-ring: 28px;
   --cursor-lens: 64px; /* grown ring with a mono label over interactive media */
 
+  /* Preloader (T01) */
+  --preloader-cap: 2500ms; /* never blocks longer, even on slow 4G */
+  --preloader-gauge: 40rem; /* max length of the calibration line */
+  --preloader-led: 6px;
+
   /* Focus */
   --focus-width: 2px;
   --focus-offset: 3px;
