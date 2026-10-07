@@ -1,4 +1,4 @@
-import { isTodo } from "@/content";
+import { isTodo } from "@/content/todo";
 import type { ElementType } from "react";
 
 type ContentProps = {

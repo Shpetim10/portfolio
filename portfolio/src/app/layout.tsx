@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Preloader } from "@/components/chrome/Preloader";
+import { SiteHeader } from "@/components/chrome/SiteHeader";
 import { getProfile, isTodo } from "@/content";
 import { Cursor } from "@/motion/Cursor";
 import { MotionProvider } from "@/motion/MotionProvider";
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </a>
         <MotionProvider>
           <Preloader />
+          <SiteHeader name={profile.name} availability={profile.availability} timezone={profile.timezone} />
           <main id="main" tabIndex={-1}>
             {children}
           </main>

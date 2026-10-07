@@ -139,6 +139,12 @@
   --preloader-gauge: 40rem; /* max length of the calibration line */
   --preloader-led: 6px;
 
+  /* Header + menu (T02) */
+  --header-height: 64px;
+  --monogram-size: 40px;
+  --status-dot: 6px;
+  --menu-figure-height: min(64vh, 36rem);
+
   /* Focus */
   --focus-width: 2px;
   --focus-offset: 3px;
