@@ -1,0 +1,514 @@
+/*
+ * Primitive styles (P0-02): Button, Link, Tag, Counter, annotations, SectionShell.
+ * Interactive state matrices and drawing geometry live here; components only
+ * pick classes and data attributes. Tokens only — every value is a var().
+ *
+ * Hover rules sit behind (hover: hover) so touch devices never get stuck states.
+ * Movement sits behind (prefers-reduced-motion: no-preference); under reduce,
+ * the same states arrive as a short opacity fade or not at all.
+ *
+ * [data-preview~="hover|focus|active"] forces a state for /lab specimens.
+ */
+
+@layer components {
+  /* Shared mono label type -------------------------------------------- */
+  .button,
+  .tag,
+  .part-label,
+  .dimension,
+  .section-index,
+  .counter__suffix,
+  .counter__label {
+    font-family: var(--font-mono);
+    font-weight: var(--font-weight-regular);
+    text-transform: uppercase;
+  }
+
+  .button,
+  .section-index,
+  .counter__suffix,
+  .counter__label {
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+  }
+
+  .tag,
+  .part-label,
+  .dimension,
+  .leader {
+    font-size: var(--text-micro);
+    line-height: var(--text-micro--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+  }
+
+  /* Focus preview mirrors the global :focus-visible ring (globals.css). */
+  [data-preview~="focus"] {
+    outline: var(--focus-width) solid var(--color-signal);
+    outline-offset: var(--focus-offset);
+  }
+
+  /* Button ------------------------------------------------------------- */
+  .button {
+    position: relative;
+    isolation: isolate;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: --spacing(6);
+    min-height: var(--button-height);
+    max-width: 100%;
+    padding-inline: --spacing(6);
+    border: var(--line) solid transparent;
+    text-align: start;
+    text-decoration: none;
+    cursor: pointer;
+    user-select: none;
+    transition: transform var(--duration-micro) var(--ease-snap);
+  }
+
+  /* Hover fill is an overlay so only opacity animates. */
+  .button::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity var(--duration-micro) var(--ease-snap);
+  }
+
+  .button__arrow {
+    flex: none;
+    transition: transform var(--duration-small) var(--ease-settle);
+  }
+
+  .button[data-variant="primary"] {
+    background-color: var(--color-signal);
+    color: var(--color-ink);
+  }
+
+  .button[data-variant="secondary"] {
+    border-color: var(--color-hairline);
+    color: var(--color-bone);
+  }
+
+  .button[data-variant="secondary"]::before {
+    background-color: var(--color-gunmetal);
+  }
+
+  .button[data-variant="secondary"]:focus-visible::before,
+  .button[data-variant="secondary"][data-preview~="hover"]::before {
+    opacity: 1;
+  }
+
+  @media (hover: hover) {
+    .button[data-variant="secondary"]:hover::before {
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .button:focus-visible .button__arrow,
+    .button[data-preview~="hover"] .button__arrow {
+      transform: translateX(var(--nudge));
+    }
+
+    .button:active,
+    .button[data-preview~="active"] {
+      transform: translateY(var(--line));
+    }
+  }
+
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .button:hover .button__arrow {
+      transform: translateX(var(--nudge));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .button::before {
+      transition-duration: var(--duration-reduced);
+    }
+  }
+
+  .button:disabled,
+  .button[aria-disabled="true"] {
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .button:disabled .button__arrow,
+  .button[aria-disabled="true"] .button__arrow {
+    transform: none;
+  }
+
+  .button[data-variant="primary"]:disabled,
+  .button[data-variant="primary"][aria-disabled="true"] {
+    background-color: var(--color-gunmetal);
+    color: var(--color-dust);
+  }
+
+  .button[data-variant="secondary"]:disabled,
+  .button[data-variant="secondary"][aria-disabled="true"] {
+    color: var(--color-dust);
+  }
+
+  .button[data-variant="secondary"]:disabled::before,
+  .button[data-variant="secondary"][aria-disabled="true"]::before {
+    opacity: 0;
+  }
+
+  /* Link --------------------------------------------------------------- */
+  /*
+   * A dust rule is always present (links never rely on colour alone, WCAG 1.4.1);
+   * the bone rule draws over it left → right and leaves to the right.
+   * inline-block keeps both rules under the label; Link is for labels and
+   * short phrases, not multi-line prose.
+   */
+  .link {
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
+    padding-bottom: --spacing(0.5);
+    color: var(--color-bone);
+    text-decoration: none;
+  }
+
+  .link::before,
+  .link::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: var(--line);
+    pointer-events: none;
+  }
+
+  .link::before {
+    background-color: var(--color-dust);
+  }
+
+  .link::after {
+    background-color: var(--color-bone);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform var(--duration-small) var(--ease-settle);
+  }
+
+  .link:focus-visible::after,
+  .link[data-preview~="hover"]::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  @media (hover: hover) {
+    .link:hover::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .link::after,
+    .link:hover::after,
+    .link:focus-visible::after,
+    .link[data-preview~="hover"]::after {
+      transform: none;
+      opacity: 0;
+      transition: opacity var(--duration-reduced) linear;
+    }
+
+    .link:focus-visible::after,
+    .link[data-preview~="hover"]::after {
+      opacity: 1;
+    }
+  }
+
+  @media (hover: hover) and (prefers-reduced-motion: reduce) {
+    .link:hover::after {
+      opacity: 1;
+    }
+  }
+
+  .link__external {
+    display: inline-block;
+    margin-inline-start: --spacing(1);
+  }
+
+  /* Tag ---------------------------------------------------------------- */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+    padding: var(--tag-pad-y) var(--tag-pad-x);
+    border: var(--line) solid var(--color-hairline);
+    border-radius: var(--radius-tag);
+    color: var(--color-dust);
+    overflow-wrap: anywhere;
+  }
+
+  /* Counter ------------------------------------------------------------ */
+  .counter {
+    display: inline-flex;
+    flex-direction: column;
+    gap: --spacing(3);
+  }
+
+  .counter__figure {
+    display: flex;
+    align-items: flex-start;
+    gap: --spacing(2);
+  }
+
+  .counter__value {
+    font-family: var(--font-display);
+    font-weight: var(--font-weight-black);
+    font-variant-numeric: tabular-nums;
+    text-transform: uppercase;
+    color: var(--color-bone);
+  }
+
+  .counter__suffix,
+  .counter__label {
+    color: var(--color-dust);
+  }
+
+  .counter__label {
+    max-width: var(--container-measure);
+  }
+
+  /* Annotation · part label ------------------------------------------- */
+  .part-label {
+    color: var(--color-bone);
+    white-space: nowrap;
+  }
+
+  .part-label__number {
+    color: var(--color-dust);
+  }
+
+  /* Annotation · leader line ------------------------------------------ */
+  /*
+   * Grid: [leg | run | label]. The leg is a square (width = height = --leader-rise)
+   * so the angled segment is always 45°, at any viewport. The run is the
+   * horizontal elbow and absorbs any extra width. Lines are 1px at every size.
+   * The dot marks the target and sits exactly on the component's corner:
+   * up-right → bottom-left, up-left → bottom-right, down-* → top-*.
+   */
+  .leader {
+    --leader-half-line: calc(var(--text-micro) * var(--text-micro--line-height) / 2);
+    display: grid;
+    grid-template-columns: var(--leader-rise) minmax(var(--leader-run), 1fr) auto;
+    grid-template-rows: auto calc(var(--leader-rise) - var(--leader-half-line));
+    color: var(--color-dust);
+  }
+
+  .leader[data-direction$="left"] {
+    grid-template-columns: auto minmax(var(--leader-run), 1fr) var(--leader-rise);
+  }
+
+  .leader[data-direction^="down"] {
+    grid-template-rows: calc(var(--leader-rise) - var(--leader-half-line)) auto;
+  }
+
+  .leader__leg {
+    position: relative;
+    grid-column: 1;
+    grid-row: 1 / 3;
+    margin-top: var(--leader-half-line);
+  }
+
+  .leader[data-direction$="left"] .leader__leg {
+    grid-column: 3;
+  }
+
+  .leader[data-direction^="down"] .leader__leg {
+    margin-top: 0;
+    margin-bottom: var(--leader-half-line);
+  }
+
+  .leader__leg svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    stroke: currentColor;
+    stroke-width: var(--line);
+  }
+
+  .leader__run {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+    height: var(--line);
+    background-color: currentColor;
+  }
+
+  .leader[data-direction^="down"] .leader__run,
+  .leader[data-direction^="down"] .leader__label {
+    grid-row: 2;
+  }
+
+  .leader__label {
+    grid-column: 3;
+    grid-row: 1;
+    padding-inline-start: var(--annotation-gap);
+    white-space: nowrap;
+  }
+
+  .leader[data-direction$="left"] .leader__label {
+    grid-column: 1;
+    padding-inline: 0 var(--annotation-gap);
+  }
+
+  .leader__dot {
+    position: absolute;
+    width: var(--leader-dot);
+    height: var(--leader-dot);
+    border-radius: 50%;
+    background-color: var(--color-signal);
+  }
+
+  .leader[data-direction="up-right"] .leader__dot {
+    left: 0;
+    bottom: 0;
+    transform: translate(-50%, 50%);
+  }
+
+  .leader[data-direction="up-left"] .leader__dot {
+    right: 0;
+    bottom: 0;
+    transform: translate(50%, 50%);
+  }
+
+  .leader[data-direction="down-right"] .leader__dot {
+    left: 0;
+    top: 0;
+    transform: translate(-50%, -50%);
+  }
+
+  .leader[data-direction="down-left"] .leader__dot {
+    right: 0;
+    top: 0;
+    transform: translate(50%, -50%);
+  }
+
+  /* Annotation · dimension line --------------------------------------- */
+  .dimension {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    color: var(--color-dust);
+  }
+
+  .dimension__tick {
+    flex: none;
+    width: var(--line);
+    height: var(--dimension-tick);
+    background-color: var(--color-dust);
+  }
+
+  .dimension__rule {
+    flex: 1 1 0;
+    min-width: 0;
+    height: var(--line);
+    background-color: var(--color-hairline);
+  }
+
+  /* Real values are short and stay on one line; long TODO placeholders wrap instead of overflowing. */
+  .dimension__value {
+    flex: 0 1 auto;
+    min-width: 0;
+    padding-inline: var(--annotation-gap);
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  /* Annotation · registration mark ------------------------------------ */
+  .registration-mark {
+    display: block;
+    width: var(--registration-mark);
+    height: var(--registration-mark);
+    color: var(--color-dust);
+    opacity: var(--registration-opacity);
+    stroke: currentColor;
+    stroke-width: var(--line);
+    pointer-events: none;
+  }
+
+  /* Corner placement: the cross centre sits half a page margin in from each edge. */
+  .registration-mark[data-corner] {
+    --registration-inset: calc(var(--grid-margin) / 2);
+    position: absolute;
+  }
+
+  .registration-mark[data-corner^="top"] {
+    top: var(--registration-inset);
+  }
+
+  .registration-mark[data-corner^="bottom"] {
+    bottom: var(--registration-inset);
+  }
+
+  .registration-mark[data-corner$="left"] {
+    left: var(--registration-inset);
+    translate: -50% 0;
+  }
+
+  .registration-mark[data-corner$="right"] {
+    right: var(--registration-inset);
+    translate: 50% 0;
+  }
+
+  .registration-mark[data-corner^="top"][data-corner$="left"] {
+    translate: -50% -50%;
+  }
+
+  .registration-mark[data-corner^="top"][data-corner$="right"] {
+    translate: 50% -50%;
+  }
+
+  .registration-mark[data-corner^="bottom"][data-corner$="left"] {
+    translate: -50% 50%;
+  }
+
+  .registration-mark[data-corner^="bottom"][data-corner$="right"] {
+    translate: 50% 50%;
+  }
+
+  /* Annotation · section index ---------------------------------------- */
+  .section-index {
+    display: flex;
+    align-items: center;
+    gap: --spacing(4);
+    margin: 0;
+    color: var(--color-dust);
+  }
+
+  .section-index__title {
+    min-width: 0;
+    color: var(--color-bone);
+  }
+
+  .section-index__rule {
+    flex: 1 1 0;
+    min-width: --spacing(4);
+    height: var(--line);
+    background-color: var(--color-hairline);
+  }
+
+  .section-index__number,
+  .section-index__rev {
+    flex: none;
+  }
+
+  /* SectionShell ------------------------------------------------------- */
+  .section-shell {
+    position: relative;
+  }
+
+  .section-shell__header {
+    padding-top: var(--grid-margin);
+  }
+}

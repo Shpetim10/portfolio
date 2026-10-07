@@ -104,9 +104,23 @@
   --grid-margin: 20px;
   --section-pad-y: clamp(96px, 14vw, 224px);
 
+  /* Lines: every drawn line (borders, leaders, dimension lines, ticks) is 1px. */
+  --line: 1px;
+
   /* Annotation geometry */
   --leader-dot: 4px;
+  --leader-rise: clamp(24px, 3vw, 64px); /* 45° leg of a leader line: width = height */
+  --leader-run: 32px; /* minimum horizontal elbow */
+  --dimension-tick: 8px; /* end ticks on dimension lines */
   --registration-mark: 12px;
+  --registration-opacity: 0.4;
+  --annotation-gap: 8px; /* line → label */
+
+  /* Components */
+  --button-height: 48px;
+  --nudge: 4px; /* hover slide of arrow glyphs */
+  --tag-pad-y: 6px;
+  --tag-pad-x: 10px;
 
   /* Focus */
   --focus-width: 2px;
