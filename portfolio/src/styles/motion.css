@@ -1,0 +1,150 @@
+/*
+ * Motion layer styles (P0-03): REVEAL masks, the INVERT surface, the cursor.
+ * Only static geometry lives here; GSAP animates transform and opacity.
+ * Tokens only — every value is a var().
+ */
+
+@layer components {
+  /* REVEAL ------------------------------------------------------------- */
+  /*
+   * SplitText clips each line mask with inline `overflow: clip`. Display lines
+   * sit on line-heights under 1, so cap tops and tails overhang the line box;
+   * a clip-path with an overhang keeps them whole. The bottom edge is the one
+   * lines rise from, so it extends by --reveal-overhang only, and the rise
+   * starts below it (see LINE_START in src/motion/signatures/reveal.tsx).
+   */
+  .reveal {
+    --reveal-overhang: 0.15em;
+  }
+
+  /* Split lines are spans (valid inside headings); they must be boxes to take a transform. */
+  .reveal__line,
+  .reveal__line-mask {
+    display: block;
+  }
+
+  .reveal__line-mask {
+    overflow: visible !important;
+    clip-path: inset(-1em -1em calc(var(--reveal-overhang) * -1) -1em);
+  }
+
+  /* INVERT ------------------------------------------------------------- */
+  /* (Class .inversion: Tailwind already owns .invert, a filter utility.) */
+  /*
+   * A paper surface. Inside it the dark-surface tokens are remapped so every
+   * primitive (bone text, dust annotations, hairlines) reads as ink on paper:
+   * dust → ink keeps small annotation text above 4.5:1 on paper.
+   */
+  [data-surface="paper"] {
+    --color-bone: var(--color-ink);
+    --color-dust: var(--color-ink);
+    --color-hairline: color-mix(in srgb, var(--color-ink) 16%, transparent);
+    --color-graphite: var(--color-paper);
+    --color-gunmetal: color-mix(in srgb, var(--color-ink) 8%, var(--color-paper));
+  }
+
+  .inversion {
+    position: relative;
+    isolation: isolate;
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+  }
+
+  /* Collapsed by default: no JS (or a reverted motion) shows the paper section. */
+  .inversion__plate {
+    position: absolute;
+    inset: 0;
+    z-index: var(--z-content);
+    background-color: var(--color-carbon);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    pointer-events: none;
+  }
+
+  /* Cursor ------------------------------------------------------------- */
+  .cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: var(--z-cursor);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .cursor[data-surface="paper"] {
+    --color-bone: var(--color-ink);
+    --color-dust: var(--color-ink);
+    --color-carbon: var(--color-paper);
+  }
+
+  /* Text fields keep the native caret; the custom cursor steps aside. */
+  .cursor[data-state="text"] {
+    visibility: hidden;
+  }
+
+  .cursor__dot,
+  .cursor__follower {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  .cursor__dot {
+    width: var(--cursor-dot);
+    height: var(--cursor-dot);
+    border-radius: 50%;
+    background-color: var(--color-bone);
+  }
+
+  .cursor__follower {
+    width: var(--cursor-lens);
+    height: var(--cursor-lens);
+  }
+
+  .cursor__ring {
+    position: absolute;
+    inset: 0;
+    width: var(--cursor-ring);
+    height: var(--cursor-ring);
+    margin: auto;
+    fill: none;
+    stroke: var(--color-dust);
+    stroke-width: var(--line);
+  }
+
+  .cursor__lens {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    border: var(--line) solid var(--color-dust);
+    border-radius: 50%;
+    background-color: var(--color-carbon);
+    color: var(--color-bone);
+    opacity: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    line-height: var(--text-micro--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  /* The native pointer hides only while the custom cursor is live (set by <Cursor>). */
+  @media (forced-colors: none) {
+    html[data-cursor="custom"],
+    html[data-cursor="custom"] * {
+      cursor: none;
+    }
+
+    html[data-cursor="custom"] :is(input, textarea, select, [contenteditable="true"]) {
+      cursor: auto;
+    }
+  }
+
+  /* High-contrast modes keep the system cursor, which honours the user's size and colour. */
+  @media (forced-colors: active) {
+    .cursor {
+      display: none;
+    }
+  }
+}

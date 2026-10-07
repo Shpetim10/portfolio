@@ -5,8 +5,9 @@ import { cx } from "./cx";
 /*
  * The annotation layer: drawing marks that carry information (design-system.md
  * § Annotation system). All lines are 1px at every viewport; geometry lives in
- * src/styles/primitives.css. `data-anim` / `data-anim-part` are hooks for
- * ANNOTATE and CALIBRATE (P0-03); without JS everything renders fully drawn.
+ * src/styles/primitives.css. `data-anim` / `data-anim-part` are the hooks
+ * ANNOTATE and CALIBRATE (src/motion/signatures) animate; without JS, or
+ * outside an <Annotate> / <Calibrate> scope, everything renders fully drawn.
  */
 
 /* Part label ---------------------------------------------------------- */
@@ -55,17 +56,12 @@ export function LeaderLine({ direction = "up-right", children, className, ...res
   return (
     <span {...rest} className={cx("leader", className)} data-direction={direction} data-anim="annotate">
       <span className="leader__leg" aria-hidden="true">
-        <svg viewBox="0 0 1 1" preserveAspectRatio="none" focusable="false">
-          <line
-            x1={x1}
-            y1={y1}
-            x2={x2}
-            y2={y2}
-            pathLength={1}
-            vectorEffect="non-scaling-stroke"
-            data-anim-part="leg"
-          />
-        </svg>
+        {/* The stroke box clips the leg so ANNOTATE can draw it by sliding along its own axis. */}
+        <span className="leader__stroke" data-anim-part="leg">
+          <svg viewBox="0 0 1 1" preserveAspectRatio="none" focusable="false">
+            <line x1={x1} y1={y1} x2={x2} y2={y2} vectorEffect="non-scaling-stroke" />
+          </svg>
+        </span>
         <span className="leader__dot" data-anim-part="dot" />
       </span>
       <span className="leader__run" aria-hidden="true" data-anim-part="run" />
@@ -88,7 +84,7 @@ type DimensionLineProps = {
 export function DimensionLine({ value, className }: DimensionLineProps) {
   return (
     <span className={cx("dimension", className)} data-anim="dimension">
-      <span className="dimension__tick" aria-hidden="true" />
+      <span className="dimension__tick" aria-hidden="true" data-anim-part="tick" />
       <span className="dimension__rule" aria-hidden="true" data-anim-part="rule" />
       <span className="dimension__value" data-anim-part="value">
         <span aria-hidden="true">← </span>
@@ -96,7 +92,7 @@ export function DimensionLine({ value, className }: DimensionLineProps) {
         <span aria-hidden="true"> →</span>
       </span>
       <span className="dimension__rule" aria-hidden="true" data-anim-part="rule" />
-      <span className="dimension__tick" aria-hidden="true" />
+      <span className="dimension__tick" aria-hidden="true" data-anim-part="tick" />
     </span>
   );
 }

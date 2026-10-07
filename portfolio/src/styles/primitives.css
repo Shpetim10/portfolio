@@ -327,6 +327,13 @@
     margin-bottom: var(--leader-half-line);
   }
 
+  /* Clips the leg (with room for the 1px stroke at its ends) so it can draw by translating. */
+  .leader__stroke {
+    position: absolute;
+    inset: 0;
+    clip-path: inset(calc(var(--line) * -1));
+  }
+
   .leader__leg svg {
     position: absolute;
     inset: 0;

@@ -68,15 +68,20 @@
   --radius-*: initial;
   --radius-tag: 2px; /* radius is 0 everywhere else */
 
-  /* Motion ------------------------------------------------------------ */
+  --animate-*: initial;
+  --shadow-*: initial;
+  --blur-*: initial;
+}
+
+/*
+ * Motion easings. `static` keeps every ease on :root even when no utility uses
+ * it: GSAP reads them at runtime (src/motion/tokens.ts), Tailwind can't see that.
+ */
+@theme static {
   --ease-*: initial;
   --ease-settle: cubic-bezier(0.16, 1, 0.3, 1); /* reveals, text, UI */
   --ease-machine: cubic-bezier(0.76, 0, 0.24, 1); /* explode, panels, page wipes */
   --ease-snap: cubic-bezier(0.2, 0, 0, 1); /* micro-interactions */
-
-  --animate-*: initial;
-  --shadow-*: initial;
-  --blur-*: initial;
 }
 
 @theme inline {
@@ -87,13 +92,14 @@
 }
 
 :root {
-  /* Motion durations & staggers. GSAP code reads these through /src/motion (P0-03). */
+  /* Motion durations & staggers. GSAP code reads these through src/motion/tokens.ts. */
   --duration-micro: 180ms;
   --duration-small: 320ms;
   --duration-medium: 600ms;
   --duration-large: 1000ms;
   --duration-cinematic: 1400ms;
   --duration-reduced: 200ms; /* reduced-motion opacity fade */
+  --duration-decode: 400ms; /* ANNOTATE mono label scramble — never longer */
   --stagger-chars: 0.02s;
   --stagger-lines: 0.08s;
   --stagger-items: 0.06s;
@@ -121,6 +127,12 @@
   --nudge: 4px; /* hover slide of arrow glyphs */
   --tag-pad-y: 6px;
   --tag-pad-x: 10px;
+  --magnet-max: 6px; /* magnetic pull ceiling (pointer: fine only) */
+
+  /* Cursor (pointer: fine only) */
+  --cursor-dot: 6px;
+  --cursor-ring: 28px;
+  --cursor-lens: 64px; /* grown ring with a mono label over interactive media */
 
   /* Focus */
   --focus-width: 2px;

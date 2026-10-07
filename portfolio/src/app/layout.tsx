@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { getProfile, isTodo } from "@/content";
+import { Cursor } from "@/motion/Cursor";
 import { MotionProvider } from "@/motion/MotionProvider";
 import { fontVariables } from "@/styles/fonts";
 import "@/styles/globals.css";
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <main id="main" tabIndex={-1}>
             {children}
           </main>
+          <Cursor />
         </MotionProvider>
       </body>
     </html>

@@ -9,7 +9,10 @@ test.describe("/lab primitives", () => {
       await page.setViewportSize({ width, height: 900 });
       await page.goto("/lab/");
       await page.evaluate(() => document.fonts.ready);
-      for (const id of ["button", "link", "tag", "counter", "annotation", "section-shell"]) {
+      for (const id of [
+        ...["button", "link", "tag", "counter", "annotation", "section-shell"],
+        ...["motion-score", "reveal", "annotate", "calibrate", "invert", "magnetic", "cursor"],
+      ]) {
         await expect(page.locator(`section#${id}`)).toBeVisible();
       }
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);

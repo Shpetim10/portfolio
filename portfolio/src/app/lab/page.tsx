@@ -13,6 +13,13 @@ import { Counter } from "@/components/ui/Counter";
 import { Link } from "@/components/ui/Link";
 import { SectionShell } from "@/components/ui/SectionShell";
 import { Tag } from "@/components/ui/Tag";
+import { CursorTargets, MotionScore } from "./MotionSpecimens";
+import { Replay } from "./Replay";
+import { Magnetic } from "@/motion/Magnetic";
+import { Annotate } from "@/motion/signatures/annotate";
+import { Calibrate } from "@/motion/signatures/calibrate";
+import { Invert } from "@/motion/signatures/invert";
+import { Reveal } from "@/motion/signatures/reveal";
 
 export const metadata: Metadata = {
   title: "Lab",
@@ -20,10 +27,12 @@ export const metadata: Metadata = {
 };
 
 /*
- * Primitive specimen sheet. Every value shown is a fact about the design system
- * itself (breakpoints, tokens, layer names) — nothing here is about the owner.
- * Hover / focus / active are forced with data-preview so each state is visible
- * at once; the live components respond to real input as usual.
+ * Primitive + motion specimen sheet. Every value shown is a fact about the
+ * design system itself (breakpoints, tokens, layer names) — nothing here is
+ * about the owner. Hover / focus / active are forced with data-preview so each
+ * state is visible at once; the live components respond to real input as usual.
+ * Sections 01–06 are static (the no-JS / reduced state of every primitive);
+ * 07–13 run the motion kit from src/motion.
  */
 
 const STATES = [
@@ -34,6 +43,13 @@ const STATES = [
 ] as const;
 
 const LAYERS = ["Interface", "API", "Services", "Data", "Infrastructure"] as const;
+
+const SPECIMENS = [
+  ["P0-02 · Primitives", ["Button", "Link", "Tag", "Counter", "Annotation", "Section shell"]],
+  ["P0-03 · Motion", ["Motion score", "Reveal", "Annotate", "Calibrate", "Invert", "Magnetic", "Cursor"]],
+] as const;
+
+const slug = (name: string) => name.toLowerCase().replace(" ", "-");
 
 function Specimen({
   label,
@@ -60,6 +76,21 @@ function RowLabel({ children }: { children: ReactNode }) {
   return <h3 className="col-span-full mt-12 font-mono text-label text-dust uppercase">{children}</h3>;
 }
 
+/** Five plates of the Instrument; each leader's dot sits on its plate's right edge. */
+function Assembly() {
+  return (
+    <ol className="flex w-8 flex-col gap-12 md:w-1/3">
+      {LAYERS.map((layer, i) => (
+        <li key={layer} className="relative h-3 border border-hairline bg-gunmetal">
+          <LeaderLine className="absolute bottom-1/2 left-full">
+            <PartLabel number={`P/N 0${i + 1}`} name={layer} />
+          </LeaderLine>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 /** A dimension line whose value is the column count it actually spans at each breakpoint. */
 function GridDimension({
   span,
@@ -82,20 +113,30 @@ export default function LabPage() {
   return (
     <>
       <header className="layout-grid gap-y-6 pt-24 pb-12">
-        <p className="col-span-full font-mono text-label text-dust uppercase">P0-02 · Primitives</p>
+        <p className="col-span-full font-mono text-label text-dust uppercase">
+          P0-02 · Primitives / P0-03 · Motion
+        </p>
         <h1 className="col-span-full font-display text-display-l font-black uppercase">Lab</h1>
         <p className="col-span-full max-w-measure text-body-l md:col-span-6">
-          Specimen sheet for the primitive layer. States are pinned so they read side by side; every value on
-          this sheet is a design-system fact.
+          Specimen sheet for the primitive and motion layers. States are pinned so they read side by side;
+          every value on this sheet is a design-system fact.
         </p>
-        <nav aria-label="Specimens" className="col-span-full">
-          <ul className="flex flex-wrap gap-x-6 gap-y-3 font-mono text-label uppercase">
-            {["Button", "Link", "Tag", "Counter", "Annotation", "Section shell"].map((name) => (
-              <li key={name}>
-                <Link href={`#${name.toLowerCase().replace(" ", "-")}`}>{name}</Link>
-              </li>
-            ))}
-          </ul>
+        <nav aria-label="Specimens" className="col-span-full flex flex-col gap-4">
+          {SPECIMENS.map(([group, names]) => (
+            <div key={group} className="flex flex-col gap-3 md:flex-row md:gap-6">
+              <p className="font-mono text-micro text-dust uppercase md:w-48">{group}</p>
+              <ul className="flex flex-wrap gap-x-6 gap-y-3 font-mono text-label uppercase">
+                {names.map((name) => (
+                  <li key={name}>
+                    <Link href={`#${slug(name)}`}>{name}</Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+          <p className="font-mono text-label uppercase">
+            <Link href="/">← Index</Link>
+          </p>
         </nav>
       </header>
 
@@ -204,16 +245,7 @@ export default function LabPage() {
         <RowLabel>Assembly · leader lines + part labels</RowLabel>
         <figure className="col-span-full">
           <div className="border border-hairline bg-graphite px-4 py-16 md:px-12">
-            {/* Five plates of the Instrument; each leader's dot sits on its plate's right edge. */}
-            <ol className="flex w-8 flex-col gap-12 md:w-1/3">
-              {LAYERS.map((layer, i) => (
-                <li key={layer} className="relative h-3 border border-hairline bg-gunmetal">
-                  <LeaderLine className="absolute bottom-1/2 left-full">
-                    <PartLabel number={`P/N 0${i + 1}`} name={layer} />
-                  </LeaderLine>
-                </li>
-              ))}
-            </ol>
+            <Assembly />
           </div>
           <figcaption className="mt-2 font-mono text-micro text-dust uppercase">
             45° leg holds at every width · 1px lines · 5 annotations (max 6 per viewport)
@@ -290,6 +322,118 @@ export default function LabPage() {
             className={`h-12 border border-hairline bg-graphite ${i >= 8 ? "hidden lg:block" : i >= 4 ? "hidden md:block" : ""}`}
           />
         ))}
+      </SectionShell>
+      <SectionShell id="motion-score" index={7} title="Motion score" rev="REV.26" contentClassName="gap-y-6">
+        <SpecimenHeading>Motion score</SpecimenHeading>
+        <p className="col-span-full max-w-measure md:col-span-6">
+          The signature motions and pointer layer, as built in src/motion. Every value is a motion token from
+          the design system. Each specimen below plays once as it scrolls into view; Replay remounts it.
+        </p>
+        <MotionScore />
+      </SectionShell>
+
+      <SectionShell id="reveal" index={8} title="Reveal" rev="REV.26" contentClassName="gap-y-6">
+        <SpecimenHeading>Reveal</SpecimenHeading>
+        <RowLabel>Display L · masked lines · settle 1000ms · 80ms line stagger</RowLabel>
+        <Replay label="reveal">
+          <Reveal as="p" className="col-span-full font-display text-display-l font-black uppercase">
+            Interface API Services Data Infrastructure
+          </Reveal>
+        </Replay>
+      </SectionShell>
+
+      <SectionShell id="annotate" index={9} title="Annotate" rev="REV.26" contentClassName="gap-y-6">
+        <SpecimenHeading>Annotate</SpecimenHeading>
+        <RowLabel>Line draws 320ms · dot lands · label decodes ≤ 400ms · 60ms per leader</RowLabel>
+        <Replay label="annotate">
+          <Annotate className="col-span-full border border-hairline bg-graphite px-4 py-16 md:px-12">
+            <Assembly />
+          </Annotate>
+        </Replay>
+      </SectionShell>
+
+      <SectionShell id="calibrate" index={10} title="Calibrate" rev="REV.26" contentClassName="gap-y-6">
+        <SpecimenHeading>Calibrate</SpecimenHeading>
+        <RowLabel>Count + dimension extend · settle 1000ms · starts 60% in view</RowLabel>
+        <Replay label="calibrate">
+          <Calibrate className="col-span-full grid grid-cols-1 gap-12">
+            <div>
+              <Counter value={4} suffix="col" label="Grid columns at this width" className="md:hidden" />
+              <Counter
+                value={8}
+                suffix="col"
+                label="Grid columns at this width"
+                className="hidden md:inline-flex lg:hidden"
+              />
+              <Counter
+                value={12}
+                suffix="col"
+                label="Grid columns at this width"
+                className="hidden lg:inline-flex"
+              />
+            </div>
+            <GridDimension span="w-full" cols={[4, 8, 12]} />
+          </Calibrate>
+        </Replay>
+        <RowLabel>Count only · decimals keep their places</RowLabel>
+        <Replay label="decimal count">
+          <Calibrate className="col-span-full">
+            <Counter value={1.6} size="l" suffix="s" label="Longest UI animation" />
+          </Calibrate>
+        </Replay>
+      </SectionShell>
+
+      <Replay label="invert" className="px-(--grid-margin) pt-6">
+        <Invert>
+          <SectionShell id="invert" index={11} title="Invert" rev="REV.26" contentClassName="gap-y-6">
+            <SpecimenHeading>Invert</SpecimenHeading>
+            <p className="col-span-full max-w-measure md:col-span-6">
+              A full-section wipe from carbon to paper on machine easing, 1000ms, once the section top reaches
+              60% of the viewport. Inside, the surface tokens remap so every primitive reads as ink on paper.
+            </p>
+            <ul className="col-span-full flex flex-wrap gap-2">
+              {LAYERS.map((layer) => (
+                <Tag key={layer} as="li">
+                  {layer}
+                </Tag>
+              ))}
+            </ul>
+            <div className="col-span-full flex flex-wrap gap-6">
+              <Button href="#magnetic">Next specimen</Button>
+              <Button variant="secondary" href="#calibrate" arrow={false}>
+                Previous
+              </Button>
+            </div>
+          </SectionShell>
+        </Invert>
+      </Replay>
+
+      <SectionShell id="magnetic" index={12} title="Magnetic" rev="REV.26" contentClassName="gap-y-6">
+        <SpecimenHeading>Magnetic</SpecimenHeading>
+        <p className="col-span-full max-w-measure md:col-span-6">
+          Primary buttons lean toward a fine pointer, up to 6px at their edges, and settle back over 320ms.
+          Touch, coarse pointers and reduced motion get no pull.
+        </p>
+        <Magnetic className="col-span-full grid grid-cols-1 gap-6 sm:grid-cols-3">
+          <Specimen label="Primary · magnetic">
+            <Button>Get in touch</Button>
+          </Specimen>
+          <Specimen label="Secondary · static">
+            <Button variant="secondary">Get in touch</Button>
+          </Specimen>
+          <Specimen label="Disabled · static">
+            <Button disabled>Get in touch</Button>
+          </Specimen>
+        </Magnetic>
+      </SectionShell>
+
+      <SectionShell id="cursor" index={13} title="Cursor" rev="REV.26" contentClassName="gap-y-6">
+        <SpecimenHeading>Cursor</SpecimenHeading>
+        <p className="col-span-full max-w-measure md:col-span-6">
+          Fine pointers only: a 6px dot with a trailing 28px crosshair ring. Over interactive media the ring
+          becomes a 64px lens with a label. Touch devices keep their native behaviour.
+        </p>
+        <CursorTargets />
       </SectionShell>
     </>
   );
