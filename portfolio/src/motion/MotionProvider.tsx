@@ -52,7 +52,9 @@ export function MotionProvider({ children }: { children: ReactNode }) {
     const lenis = new Lenis({ autoRaf: false, anchors: true, stopInertiaOnNavigate: true });
     const offScroll = lenis.on("scroll", ScrollTrigger.update);
     const tick = (time: number) => lenis.raf(time * 1000);
-    gsap.ticker.add(tick);
+    // Prioritised: Lenis steps first in every tick, so anything else on the ticker
+    // (the hero's renderer, T03) reads this frame's scroll, never the last one's.
+    gsap.ticker.add(tick, false, true);
     gsap.ticker.lagSmoothing(0);
     publishLenis(lenis);
 

@@ -1,9 +1,9 @@
 import { isTodo } from "@/content/todo";
-import type { ElementType } from "react";
+import type { ElementType, ReactNode } from "react";
 
 type ContentProps = {
   value: string;
-  as?: ElementType;
+  as?: ElementType<{ className?: string; children?: ReactNode; "data-todo"?: string }>;
   className?: string;
 };
 

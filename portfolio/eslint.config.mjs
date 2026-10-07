@@ -22,6 +22,12 @@ const eslintConfig = defineConfig([
       ],
     },
   },
+  {
+    // R3F scenes mutate three.js objects (positions, uniforms, camera) inside useFrame —
+    // the documented React Three Fiber pattern; those objects are never React state.
+    files: ["src/components/three/**/*.{ts,tsx}"],
+    rules: { "react-hooks/immutability": "off" },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

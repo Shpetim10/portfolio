@@ -138,19 +138,8 @@ test.describe("preloader · first visit", () => {
   test("lands the line on the hero horizon and hands the page back", async ({ page, isMobile }) => {
     test.skip(isMobile, "same choreography; geometry is checked once");
     await page.goto("/");
-    // Inject a horizon (the hero ships its own in T03) before the exit measures it.
-    await page.evaluate(() => {
-      const horizon = document.createElement("div");
-      horizon.dataset.horizon = "";
-      Object.assign(horizon.style, {
-        position: "fixed",
-        left: "10px",
-        top: "600px",
-        width: "800px",
-        height: "1px",
-      });
-      document.body.append(horizon);
-    });
+    // The hero's horizon (T03): the line it lands on.
+    const horizon = (await page.locator("[data-horizon]").boundingBox())!;
     await expect(page.locator("#preloader[data-state='exit']")).toBeAttached({ timeout: CAP });
     // Blocking ends at the exit: the page takes clicks through the overlay.
     expect(await preloader(page).evaluate((n) => getComputedStyle(n).pointerEvents)).toBe("none");
@@ -169,9 +158,9 @@ test.describe("preloader · first visit", () => {
           sample();
         }),
     );
-    expect(Math.abs(landed.x - 10)).toBeLessThan(2);
-    expect(Math.abs(landed.width - 800)).toBeLessThan(4);
-    expect(Math.abs(landed.y - 600.5)).toBeLessThan(2);
+    expect(Math.abs(landed.x - horizon.x)).toBeLessThan(2);
+    expect(Math.abs(landed.width - horizon.width)).toBeLessThan(4);
+    expect(Math.abs(landed.y - (horizon.y + horizon.height / 2))).toBeLessThan(2);
     await expect(preloader(page)).toHaveCount(0, { timeout: 500 });
   });
 });

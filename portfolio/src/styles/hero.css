@@ -1,0 +1,333 @@
+/*
+ * T03 hero (src/components/sections/hero) and the Instrument figure
+ * (src/components/three). Static geometry only; GSAP and the renderers animate
+ * transform and opacity. Tokens only.
+ *
+ * Modes, on .hero:
+ *   (none)               static — reduced motion or no JS: content in flow, the
+ *                        Instrument exploded with every label drawn.
+ *   data-mode="live"     set before first paint by an inline script: the stage
+ *                        pins (sticky) for --hero-pin of scroll; the Instrument
+ *                        starts assembled and the labels wait for the explode.
+ *
+ * Grid rows: name · figure · horizon · footer (mobile, static).
+ * Desktop live: name and figure share the first row, the figure in front.
+ */
+
+@layer components {
+  .hero {
+    position: relative;
+  }
+
+  .hero[data-mode="live"] {
+    height: calc(100svh + var(--hero-pin));
+  }
+
+  .hero__stage {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+    grid-template-rows: auto auto auto auto;
+    align-content: start;
+    column-gap: var(--grid-gutter);
+    min-height: 100svh;
+    padding: calc(var(--header-height) + --spacing(6)) var(--grid-margin) --spacing(8);
+    overflow-x: clip;
+  }
+
+  .hero[data-mode="live"] .hero__stage {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    min-height: 0;
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    align-content: stretch;
+    overflow: clip;
+  }
+
+  /* Name ----------------------------------------------------------------- */
+  /* In front of the Instrument on mobile, behind it on desktop. */
+  .hero__name {
+    position: relative;
+    z-index: calc(var(--z-content) + 1);
+    grid-column: 1 / -1;
+    grid-row: 1;
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-display-xl);
+    font-weight: var(--font-weight-black);
+    line-height: var(--text-display-xl--line-height);
+    letter-spacing: var(--text-display-xl--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  .hero__text {
+    display: block;
+  }
+
+  /*
+   * Live: SplitText lines, each in its own mask. The mask clips top and bottom
+   * only (room for caps and tails), never sideways: a line longer than the grid
+   * bleeds, and the stage clips it.
+   */
+  .hero__line,
+  .hero__line-mask {
+    display: block;
+  }
+
+  .hero__line-mask {
+    overflow: visible !important; /* SplitText sets overflow: clip inline; clip-path does the masking */
+    clip-path: inset(calc(var(--hero-overhang) * -1) -100vw);
+  }
+
+  /* No name supplied yet: the placeholder holds the name's size and place, clearly marked. */
+  .hero__name[data-todo] {
+    color: var(--color-dust);
+  }
+
+  .hero__todo {
+    display: table; /* own line, shrink-wrapped */
+    margin-bottom: --spacing(3);
+    padding: var(--tag-pad-y) var(--tag-pad-x);
+    border: var(--line) dashed var(--color-dust);
+    border-radius: var(--radius-tag);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    font-weight: var(--font-weight-regular);
+    line-height: var(--text-micro--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+  }
+
+  /* Figure --------------------------------------------------------------- */
+  .hero__figure {
+    position: relative;
+    z-index: var(--z-content);
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: center;
+    width: min(100%, var(--hero-figure-static));
+    aspect-ratio: 4 / 5;
+    margin: --spacing(8) 0 0;
+  }
+
+  /* Live, mobile: fills the space between name and horizon, tucked a little under the name. */
+  .hero[data-mode="live"] .hero__figure {
+    justify-self: stretch;
+    width: auto;
+    min-height: 0;
+    aspect-ratio: auto;
+    margin: calc(var(--text-display-xl) * -0.25) 0 0;
+  }
+
+  .hero__canvas {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Horizon + footer ----------------------------------------------------- */
+  .hero__horizon {
+    grid-column: 1 / -1;
+    grid-row: -3 / -2;
+    height: var(--line);
+    background-color: var(--color-dust);
+  }
+
+  .hero__footer {
+    grid-column: 1 / -1;
+    grid-row: -2 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+    row-gap: --spacing(4);
+    padding-top: --spacing(4);
+  }
+
+  .hero__positioning {
+    grid-column: 1 / -1;
+    max-width: 34ch;
+    margin: 0;
+    font-size: var(--text-body-l);
+    line-height: var(--text-body-l--line-height);
+  }
+
+  /* Status block: role · availability + local time · scroll cue, in small mono. */
+  .hero__status {
+    grid-column: 1 / -1;
+    display: grid;
+    align-content: start;
+    justify-items: start;
+    gap: --spacing(2);
+    color: var(--color-dust);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    line-height: var(--text-micro--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  .hero__role {
+    margin: 0;
+    color: var(--color-bone);
+  }
+
+  .hero__cue {
+    display: inline-flex;
+    gap: --spacing(2);
+    margin: 0;
+  }
+
+  .hero__cue-arrow {
+    display: inline-block;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hero[data-mode="live"] .hero__cue-arrow {
+      animation: hero-cue var(--duration-cinematic) var(--ease-settle) infinite;
+    }
+  }
+
+  @media (width >= 64rem) {
+    .hero__name {
+      z-index: var(--z-base);
+    }
+
+    .hero__positioning {
+      grid-column: 1 / span 6;
+    }
+
+    .hero__status {
+      grid-column: 9 / -1;
+      justify-items: end;
+      text-align: end;
+    }
+
+    .hero[data-mode="live"] .hero__stage {
+      grid-template-rows: minmax(0, 1fr) auto auto;
+    }
+
+    .hero[data-mode="live"] .hero__name {
+      align-self: center;
+    }
+
+    .hero[data-mode="live"] .hero__figure {
+      grid-row: 1;
+      grid-column: 6 / -1;
+      margin: 0;
+    }
+  }
+
+  /* The drawing ---------------------------------------------------------- */
+  .instrument-drawing {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  /* Live: hidden until the hero fades the active renderer in after the preloader. */
+  .hero[data-mode="live"] .instrument-drawing {
+    opacity: 0;
+  }
+
+  .instrument-drawing__fill {
+    fill: var(--color-carbon);
+  }
+
+  .instrument-drawing__line {
+    fill: none;
+    stroke: var(--color-dust);
+    stroke-width: var(--line);
+    stroke-linejoin: round;
+  }
+
+  .instrument-drawing__led {
+    fill: var(--color-signal);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hero[data-mode="live"] .instrument-drawing__led {
+      animation: hero-led calc(var(--led-cycle) / 2) var(--ease-machine) infinite alternate;
+    }
+  }
+
+  /* Labels --------------------------------------------------------------- */
+  .instrument-notes {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    pointer-events: none;
+  }
+
+  /* Static: placed in % of the static figure. Live: placed by transform every frame. */
+  .instrument-note {
+    position: absolute;
+    left: var(--note-x);
+    top: var(--note-y);
+    width: max-content;
+  }
+
+  .hero[data-mode="live"] .instrument-note {
+    left: 0;
+    top: 0;
+    opacity: 0;
+  }
+
+  /* The leader's target corner (bottom-left) sits on the note's origin: the part. */
+  .instrument-note__body {
+    position: relative;
+    translate: 0 -100%;
+  }
+
+  /* The plain-language line, under the part label (outside it: only mono labels decode). */
+  .instrument-note__line {
+    position: absolute;
+    top: calc(var(--text-micro) * var(--text-micro--line-height) * var(--note-label-lines, 1) + --spacing(1));
+    left: calc(var(--leader-rise) + var(--leader-run) + var(--annotation-gap));
+    width: max-content;
+    max-width: 22ch;
+    color: var(--color-dust);
+    font-size: var(--text-small);
+    line-height: var(--text-small--line-height);
+  }
+
+  /* Compact: part number above the name, so the longest label fits beside the Instrument. */
+  @media (width < 64rem) {
+    .instrument-note {
+      --note-label-lines: 2;
+    }
+
+    .instrument-note__label .part-label__number {
+      display: block;
+    }
+
+    .instrument-note__line {
+      max-width: 14ch;
+    }
+  }
+
+  @keyframes hero-led {
+    from {
+      opacity: 0.35;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes hero-cue {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(var(--nudge));
+    }
+  }
+}

@@ -145,6 +145,12 @@
   --status-dot: 6px;
   --menu-figure-height: min(64vh, 36rem);
 
+  /* Hero (T03) */
+  --hero-pin: 100vh; /* scroll length the stage stays pinned for (150vh from lg) */
+  --hero-overhang: 0.15em; /* name line masks: room for cap tops and tails on a 0.82 line-height */
+  --hero-figure-static: 32rem; /* max width of the static (exploded) figure */
+  --led-cycle: 2.4s; /* indicator LED breathing period */
+
   /* Focus */
   --focus-width: 2px;
   --focus-offset: 3px;
@@ -171,5 +177,6 @@
     --grid-columns: 12;
     --grid-gutter: 24px;
     --grid-margin: clamp(24px, 4vw, 64px);
+    --hero-pin: 150vh;
   }
 }
