@@ -1,0 +1,138 @@
+/*
+ * Exploded View — design tokens. Source of truth: /docs/design-system.md.
+ * Every token is defined exactly once, here. Tailwind's default palette,
+ * radii, easings and breakpoints are cleared so only these exist.
+ * Components use the generated utilities (bg-carbon, text-display-xl,
+ * ease-settle, …) or var(--token). No raw values in components.
+ */
+
+@theme {
+  /* Color ------------------------------------------------------------- */
+  --color-*: initial;
+  --color-carbon: #0b0a08; /* page background */
+  --color-graphite: #151412; /* surfaces */
+  --color-gunmetal: #1e1c19; /* elevated / hover */
+  --color-hairline: rgb(237 232 223 / 0.1); /* borders, drawing lines */
+  --color-bone: #ede8df; /* primary text on dark */
+  --color-dust: #8f8a80; /* secondary text, annotations */
+  --color-signal: #ff4f00; /* the ONLY accent */
+  --color-coolant: #9db4c0; /* diagram / data lines only */
+  --color-paper: #efeae0; /* inverted sections */
+  --color-ink: #0b0a08; /* text on paper */
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  /* Type scale -------------------------------------------------------- */
+  --text-*: initial;
+  --text-display-xl: clamp(4.5rem, 16vw, 18rem);
+  --text-display-xl--line-height: 0.82;
+  --text-display-xl--letter-spacing: -0.01em;
+  --text-display-l: clamp(3rem, 9vw, 9rem);
+  --text-display-l--line-height: 0.88;
+  --text-display-m: clamp(2.25rem, 5vw, 4.5rem);
+  --text-display-m--line-height: 0.95;
+  --text-heading: clamp(1.5rem, 2.4vw, 2rem);
+  --text-heading--line-height: 1.15;
+  --text-heading--font-weight: 500;
+  --text-body-l: 1.25rem;
+  --text-body-l--line-height: 1.5;
+  --text-body: 1.0625rem;
+  --text-body--line-height: 1.6;
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.5;
+  --text-label: 0.75rem;
+  --text-label--line-height: 1.2;
+  --text-label--letter-spacing: 0.08em;
+  --text-micro: 0.6875rem;
+  --text-micro--line-height: 1.2;
+  --text-micro--letter-spacing: 0.1em;
+
+  --font-weight-*: initial;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-black: 800;
+
+  --container-measure: 68ch; /* max body line length */
+
+  /* Layout ------------------------------------------------------------ */
+  --breakpoint-*: initial;
+  --breakpoint-sm: 30rem; /* 480 */
+  --breakpoint-md: 48rem; /* 768 */
+  --breakpoint-lg: 64rem; /* 1024 */
+  --breakpoint-xl: 90rem; /* 1440 */
+  --breakpoint-2xl: 120rem; /* 1920 */
+
+  /* Spacing: Tailwind's 4px base unit produces the 4·8·12·16·24·32·48·64·96·128·192·256 scale. */
+  --spacing: 0.25rem;
+
+  --radius-*: initial;
+  --radius-tag: 2px; /* radius is 0 everywhere else */
+
+  /* Motion ------------------------------------------------------------ */
+  --ease-*: initial;
+  --ease-settle: cubic-bezier(0.16, 1, 0.3, 1); /* reveals, text, UI */
+  --ease-machine: cubic-bezier(0.76, 0, 0.24, 1); /* explode, panels, page wipes */
+  --ease-snap: cubic-bezier(0.2, 0, 0, 1); /* micro-interactions */
+
+  --animate-*: initial;
+  --shadow-*: initial;
+  --blur-*: initial;
+}
+
+@theme inline {
+  --font-*: initial;
+  --font-display: var(--font-display-face);
+  --font-text: var(--font-text-face);
+  --font-mono: var(--font-mono-face);
+}
+
+:root {
+  /* Motion durations & staggers. GSAP code reads these through /src/motion (P0-03). */
+  --duration-micro: 180ms;
+  --duration-small: 320ms;
+  --duration-medium: 600ms;
+  --duration-large: 1000ms;
+  --duration-cinematic: 1400ms;
+  --duration-reduced: 200ms; /* reduced-motion opacity fade */
+  --stagger-chars: 0.02s;
+  --stagger-lines: 0.08s;
+  --stagger-items: 0.06s;
+
+  /* Grid: 4 col < 768 · 8 col 768–1023 · 12 col ≥ 1024 */
+  --grid-columns: 4;
+  --grid-gutter: 16px;
+  --grid-margin: 20px;
+  --section-pad-y: clamp(96px, 14vw, 224px);
+
+  /* Annotation geometry */
+  --leader-dot: 4px;
+  --registration-mark: 12px;
+
+  /* Focus */
+  --focus-width: 2px;
+  --focus-offset: 3px;
+
+  /* Z-index */
+  --z-base: 0;
+  --z-content: 10;
+  --z-sticky: 100;
+  --z-header: 200;
+  --z-overlay: 300;
+  --z-cursor: 400;
+  --z-preloader: 500;
+}
+
+@media (width >= 48rem) {
+  :root {
+    --grid-columns: 8;
+    --grid-gutter: 20px;
+  }
+}
+
+@media (width >= 64rem) {
+  :root {
+    --grid-columns: 12;
+    --grid-gutter: 24px;
+    --grid-margin: clamp(24px, 4vw, 64px);
+  }
+}

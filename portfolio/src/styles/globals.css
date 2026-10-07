@@ -1,0 +1,87 @@
+@import "tailwindcss";
+@import "./tokens.css";
+@import "lenis/dist/lenis.css";
+
+/*
+ * Metric-matched fallback for the mono face (see src/styles/fonts.ts).
+ * Martian Mono: 0.7em advance, ascent 1.0, descent 0.2, no line gap.
+ * The local faces below all advance 0.6em → size-adjust 0.7 / 0.6.
+ * Overrides are divided by size-adjust because it scales them too.
+ * TODO(fonts): recompute when Berkeley Mono replaces Martian Mono.
+ */
+@font-face {
+  font-family: "Mono Fallback";
+  src:
+    local("Courier New"), local("CourierNewPSMT"), local("Liberation Mono"), local("Cousine"),
+    local("Roboto Mono"), local("Droid Sans Mono");
+  size-adjust: 116.667%;
+  ascent-override: 85.714%;
+  descent-override: 17.143%;
+  line-gap-override: 0%;
+}
+
+@layer base {
+  html {
+    background-color: var(--color-carbon);
+    color: var(--color-bone);
+    font-family: var(--font-text);
+    font-size: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    min-height: 100svh;
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+  }
+
+  ::selection {
+    background-color: var(--color-signal);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: var(--focus-width) solid var(--color-signal);
+    outline-offset: var(--focus-offset);
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-weight: var(--font-weight-medium);
+  }
+}
+
+@layer utilities {
+  /* Display numbers sit on tabular figures. */
+  .font-display {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* 4 / 8 / 12 column layout grid with token gutters and margins. */
+@utility layout-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+  column-gap: var(--grid-gutter);
+  padding-inline: var(--grid-margin);
+}
+
+@utility section-pad {
+  padding-block: var(--section-pad-y);
+}
+
+/* Visually hidden until focused (skip link). */
+@utility sr-only-focusable {
+  &:not(:focus) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

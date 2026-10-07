@@ -1,0 +1,12 @@
+.next
+out
+node_modules
+pnpm-lock.yaml
+playwright-report
+test-results
+.lighthouseci
+next-env.d.ts
+*.woff2
+src/styles/fonts/*.txt
+docs
+*.md
