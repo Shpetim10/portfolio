@@ -43,6 +43,15 @@
     --color-gunmetal: color-mix(in srgb, var(--color-ink) 8%, var(--color-paper));
   }
 
+  /*
+   * Focus on paper: signal on paper is under 3:1 (WCAG 1.4.11), so the ring
+   * gets an ink band between it and the element. The band is the 3px offset
+   * gap, so the ring keeps its size and place; ink on paper is ~16:1.
+   */
+  [data-surface="paper"] :focus-visible {
+    box-shadow: 0 0 0 var(--focus-offset) var(--color-ink);
+  }
+
   .inversion {
     position: relative;
     isolation: isolate;
@@ -59,6 +68,21 @@
     transform: scaleY(0);
     transform-origin: bottom;
     pointer-events: none;
+  }
+
+  /*
+   * The exit plate (Invert exit): painted after the content, so it covers it.
+   * While it covers, it takes the pointer — the paper content under it is out of
+   * sight — and the cursor reads it as carbon. Focus inside the section puts it
+   * aside, so a focused element is never obscured (WCAG 2.4.11).
+   */
+  .inversion__plate--exit {
+    pointer-events: auto;
+  }
+
+  /* !important: the reduced fade drives visibility inline (GSAP autoAlpha). */
+  .inversion:focus-within .inversion__plate--exit {
+    visibility: hidden !important;
   }
 
   /* VIEW TRANSITIONS --------------------------------------------------- */

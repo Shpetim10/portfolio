@@ -106,9 +106,32 @@ function validate(): void {
     if (!metric.label.trim()) throw new ContentError(`Metric ${metric.value} is missing its label.`);
   }
 
-  const featuredAwards = awards.filter((award) => award.featured).length;
-  if (awards.length > 0 && featuredAwards !== 1) {
+  // T10 files the awards as one featured certificate and a record grouped by category.
+  checkAwards(awards);
+}
+
+/** Exactly one featured award; every award titled, issued, dated and justified; proofs are absolute links. */
+export function checkAwards(list: Award[]): void {
+  const featuredAwards = list.filter((award) => award.featured).length;
+  if (list.length > 0 && featuredAwards !== 1) {
     throw new ContentError(`Exactly one award must be featured (found ${featuredAwards}).`);
+  }
+  const latest = new Date().getFullYear() + 1;
+  for (const award of list) {
+    const name = isTodo(award.title) ? "An award" : `Award "${award.title}"`;
+    if (!award.title.trim() || !award.issuer.trim() || !award.why.trim()) {
+      throw new ContentError(`${name} needs a title, an issuer and a why line.`);
+    }
+    // 0 is the numeric TODO placeholder (see ./todo.ts).
+    if (award.year !== 0 && (!Number.isInteger(award.year) || award.year < 1950 || award.year > latest)) {
+      throw new ContentError(`${name} has year ${award.year}: write it as YYYY.`);
+    }
+    if (award.proof && (!award.proof.label.trim() || !/^https?:\/\//.test(award.proof.href))) {
+      throw new ContentError(`${name} needs a proof label and an absolute http(s) link.`);
+    }
+    if (award.media && !award.media.alt.trim()) {
+      throw new ContentError(`Media "${award.media.src}" of ${name.toLowerCase()} is missing alt text.`);
+    }
   }
 }
 

@@ -187,6 +187,18 @@
   --rev-col: 7.5rem; /* REV column: the rail + "REV AA" in label mono */
   --rev-date-col: 10rem; /* DATE column: "SEP 2023 —" / "PRESENT", breaking after the dash */
 
+  /* Awards (T10) */
+  --seal-size: clamp(
+    6.5rem,
+    22vw,
+    17rem
+  ); /* the certificate's seal: beside the stamp on phones, its own column from lg */
+  --seal-type: 8.5px; /* text ring, in user units of the 200-unit seal drawing */
+  --seal-relief: 1.5px; /* emboss: the faint second line, offset down-right (user units) */
+  --seal-relief-opacity: 0.3;
+  --certificate-inset: 8px; /* inner rule of the certificate's double frame */
+  --stamp-inset: 3px; /* …and of a category stamp */
+
   /* Focus */
   --focus-width: 2px;
   --focus-offset: 3px;

@@ -1,0 +1,593 @@
+/*
+ * T10 awards — the qualification record (src/components/sections/awards).
+ * The section sits on the paper surface (Invert): bone, dust and hairline are
+ * remapped to ink there (src/styles/motion.css), so every colour below reads
+ * as ink on paper. Signal is the seal's centre only. Static geometry only;
+ * AwardsStage animates transform and opacity. Tokens only.
+ *
+ * Layout
+ *   < 64rem   label · certificate (stamp + seal side by side, then title,
+ *             fields in two columns, why, VERIFY) · filter tabs scrolling
+ *             sideways edge to edge · groups, cards in one column (two from 48rem).
+ *   ≥ 64rem   label · certificate (title beside the seal, fields in one row,
+ *             why beside VERIFY) · filter tabs wrapping · groups, three cards a row.
+ */
+
+@layer components {
+  .awards {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: --spacing(16);
+  }
+
+  .awards__label {
+    margin: 0;
+    color: var(--color-dust);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    font-weight: var(--font-weight-regular);
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  .awards__todo {
+    margin: 0;
+  }
+
+  /* Shared mono type --------------------------------------------------------- */
+  .stamp,
+  .certificate__kind,
+  .certificate__field dt,
+  .proof,
+  .record__filter,
+  .record__heading,
+  .award__year,
+  .award__meta dt {
+    font-family: var(--font-mono);
+    font-weight: var(--font-weight-regular);
+    text-transform: uppercase;
+  }
+
+  .certificate__kind,
+  .proof__link,
+  .record__filter,
+  .record__heading,
+  .award__year {
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+  }
+
+  .certificate__field dt,
+  .proof__source,
+  .record__count,
+  .award__meta dt {
+    font-size: var(--text-micro);
+    line-height: var(--text-micro--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+  }
+
+  /* Stamp: the category mark, double-ruled ------------------------------------ */
+  .stamp {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    padding: --spacing(2) --spacing(3);
+    border: var(--line) solid var(--color-ink);
+    color: var(--color-ink);
+    white-space: nowrap;
+  }
+
+  .stamp::before {
+    content: "";
+    position: absolute;
+    inset: var(--stamp-inset);
+    border: var(--line) solid var(--color-hairline);
+    pointer-events: none;
+  }
+
+  .stamp__code,
+  .stamp__name {
+    display: block;
+  }
+
+  .stamp__code {
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+  }
+
+  .stamp__name {
+    margin-top: --spacing(1);
+    font-size: var(--text-micro);
+    line-height: var(--text-micro--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+  }
+
+  /* Proof: VERIFY → ------------------------------------------------------------ */
+  .proof {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: --spacing(1) --spacing(3);
+    margin: 0;
+  }
+
+  /* 24px tall at least: the AA target size (WCAG 2.5.8). */
+  .proof__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: --spacing(6);
+  }
+
+  .proof__arrow {
+    display: inline-block;
+    white-space: pre;
+    transition: transform var(--duration-small) var(--ease-settle);
+  }
+
+  .proof__source {
+    color: var(--color-dust);
+    overflow-wrap: anywhere;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .proof__link:focus-visible .proof__arrow {
+      transform: translateX(var(--nudge));
+    }
+  }
+
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .proof__link:hover .proof__arrow {
+      transform: translateX(var(--nudge));
+    }
+  }
+
+  /* Certificate: the featured award ------------------------------------------- */
+  .certificate {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--seal-size);
+    grid-template-areas:
+      "head seal"
+      "title title"
+      "fields fields"
+      "why why"
+      "proof proof";
+    gap: --spacing(8) --spacing(4);
+    padding: calc(var(--certificate-inset) + --spacing(5));
+    border: var(--line) solid var(--color-ink);
+  }
+
+  /* The inner rule of the double frame. */
+  .certificate::before {
+    content: "";
+    position: absolute;
+    inset: var(--certificate-inset);
+    border: var(--line) solid var(--color-hairline);
+    pointer-events: none;
+  }
+
+  .certificate__head {
+    grid-area: head;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: --spacing(3);
+    margin: 0;
+  }
+
+  .certificate__title {
+    grid-area: title;
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-display-l);
+    font-weight: var(--font-weight-black);
+    line-height: var(--text-display-l--line-height);
+    text-transform: uppercase;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+
+  .certificate__fields {
+    grid-area: fields;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 0;
+    border-top: var(--line) solid var(--color-ink);
+  }
+
+  .certificate__field {
+    display: flex;
+    flex-direction: column;
+    gap: --spacing(2);
+    padding: --spacing(3) --spacing(4) --spacing(4) 0;
+    border-bottom: var(--line) solid var(--color-hairline);
+  }
+
+  /* Phones: the issuer is often the longest field — it takes the full row. */
+  .certificate__field:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .certificate__field dd {
+    margin: 0;
+    font-size: var(--text-body-l);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--text-body-l--line-height);
+    overflow-wrap: anywhere;
+  }
+
+  .certificate__why {
+    grid-area: why;
+    max-width: var(--container-measure);
+    margin: 0;
+    font-size: var(--text-body-l);
+    line-height: var(--text-body-l--line-height);
+  }
+
+  .certificate__proof {
+    grid-area: proof;
+  }
+
+  /* Seal: hairlines, a faint relief under each line, a signal centre. */
+  .seal {
+    grid-area: seal;
+    justify-self: end;
+    width: var(--seal-size);
+    height: auto;
+    aspect-ratio: 1;
+    overflow: visible;
+    fill: none;
+    stroke: var(--color-ink);
+    stroke-width: var(--line);
+  }
+
+  .seal :is(circle, path) {
+    vector-effect: non-scaling-stroke;
+  }
+
+  .seal__relief {
+    opacity: var(--seal-relief-opacity);
+    transform: translate(var(--seal-relief), var(--seal-relief));
+  }
+
+  .seal__text {
+    fill: var(--color-ink);
+    stroke: none;
+    font-family: var(--font-mono);
+    font-size: var(--seal-type);
+    text-transform: uppercase;
+  }
+
+  .seal__core {
+    fill: var(--color-signal);
+    stroke: none;
+  }
+
+  @media (width >= 48rem) {
+    .certificate {
+      padding: calc(var(--certificate-inset) + --spacing(10));
+    }
+
+    .certificate__fields {
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(0, 1fr);
+      grid-template-columns: none;
+    }
+
+    .certificate__field:first-child {
+      grid-column: auto;
+    }
+
+    .certificate__field + .certificate__field {
+      padding-left: --spacing(4);
+      border-left: var(--line) solid var(--color-hairline);
+    }
+  }
+
+  @media (width >= 64rem) {
+    .certificate {
+      grid-template-areas:
+        "head head"
+        "title seal"
+        "fields fields"
+        "why proof";
+      column-gap: --spacing(12);
+      row-gap: --spacing(12);
+      padding: calc(var(--certificate-inset) + --spacing(12));
+    }
+
+    .certificate__head {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .seal {
+      align-self: center;
+    }
+
+    .certificate__proof {
+      align-self: end;
+      justify-self: end;
+    }
+  }
+
+  /* Record: filters ----------------------------------------------------------- */
+  .record {
+    display: grid;
+    gap: --spacing(12);
+  }
+
+  /*
+   * Phones: one row of tabs scrolling sideways, edge to edge (the row is cut
+   * by the screen edge, which says it scrolls). Block padding keeps focus rings
+   * clear of the scroller's clip. From 48rem the tabs wrap in place.
+   */
+  .record__filters {
+    --record-ring: calc(var(--focus-width) + var(--focus-offset) + var(--focus-offset));
+    display: flex;
+    gap: --spacing(2);
+    margin: calc(var(--record-ring) * -1) calc(var(--grid-margin) * -1);
+    padding: var(--record-ring) var(--grid-margin);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-padding-inline: var(--grid-margin);
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+  }
+
+  .record__filters::-webkit-scrollbar {
+    display: none;
+  }
+
+  .record__filter {
+    position: relative;
+    isolation: isolate;
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: --spacing(3);
+    min-height: var(--button-height);
+    padding-inline: --spacing(5);
+    border: var(--line) solid var(--color-hairline);
+    background-color: transparent;
+    color: var(--color-ink);
+    cursor: pointer;
+    scroll-snap-align: start;
+  }
+
+  /* Hover fill is an overlay so only opacity animates. */
+  .record__filter::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-color: var(--color-gunmetal);
+    opacity: 0;
+    transition: opacity var(--duration-micro) var(--ease-snap);
+  }
+
+  .record__count {
+    color: var(--color-dust);
+  }
+
+  .record__filter[aria-pressed="true"] {
+    border-color: var(--color-ink);
+    background-color: var(--color-ink);
+    color: var(--color-paper);
+  }
+
+  .record__filter[aria-pressed="true"] .record__count {
+    color: inherit;
+  }
+
+  .record__filter[aria-pressed="true"]::before {
+    display: none;
+  }
+
+  @media (hover: hover) {
+    .record__filter:hover::before {
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .record__filter::before {
+      transition-duration: var(--duration-reduced);
+    }
+  }
+
+  @media (width >= 48rem) {
+    .record__filters {
+      flex-wrap: wrap;
+      margin-inline: 0;
+      padding-inline: 0;
+      overflow: visible;
+    }
+  }
+
+  /* Record: groups ------------------------------------------------------------ */
+  .record__groups {
+    display: grid;
+    gap: --spacing(16);
+  }
+
+  .record__group {
+    display: grid;
+    gap: --spacing(6);
+    transition: opacity var(--duration-small) var(--ease-settle);
+  }
+
+  /* A group shown again by a filter fades in. */
+  @starting-style {
+    .record__group {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .record__group {
+      transition: opacity var(--duration-reduced) linear;
+    }
+  }
+
+  .record__heading {
+    display: flex;
+    align-items: center;
+    gap: --spacing(4);
+    margin: 0;
+    color: var(--color-ink);
+  }
+
+  .record__code {
+    padding: var(--tag-pad-y) var(--tag-pad-x);
+    border: var(--line) solid var(--color-ink);
+    border-radius: var(--radius-tag);
+    font-size: var(--text-micro);
+    line-height: var(--text-micro--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+  }
+
+  .record__rule {
+    flex: 1 1 0;
+    min-width: --spacing(4);
+    height: var(--line);
+    background-color: var(--color-hairline);
+  }
+
+  .record__cards {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--grid-gutter);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (width >= 48rem) {
+    .record__cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (width >= 64rem) {
+    .record__cards {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  /* Record: cards ------------------------------------------------------------- */
+  /*
+   * Hover / focus lifts the sheet up-left by --nudge and leaves a 1px ink
+   * outline at its footprint: a hard, offset ink edge — no blur, no glow.
+   * The outline belongs to the list item, which stays put.
+   */
+  .award {
+    position: relative;
+    display: flex;
+  }
+
+  .award::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: var(--line) solid var(--color-ink);
+    opacity: 0;
+    transition: opacity var(--duration-micro) var(--ease-snap);
+    pointer-events: none;
+  }
+
+  .award__sheet {
+    position: relative;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: --spacing(4);
+    min-width: 0;
+    padding: --spacing(6);
+    border: var(--line) solid var(--color-hairline);
+    background-color: var(--color-paper);
+    transition: transform var(--duration-small) var(--ease-settle);
+  }
+
+  .award:focus-within::before {
+    opacity: 1;
+  }
+
+  @media (hover: hover) {
+    .award:hover::before {
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .award:focus-within .award__sheet {
+      transform: translate(calc(var(--nudge) * -1), calc(var(--nudge) * -1));
+    }
+  }
+
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .award:hover .award__sheet {
+      transform: translate(calc(var(--nudge) * -1), calc(var(--nudge) * -1));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .award::before {
+      transition: opacity var(--duration-reduced) linear;
+    }
+  }
+
+  .award__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: --spacing(4);
+    margin: 0 0 --spacing(2);
+  }
+
+  .award__year {
+    color: var(--color-ink);
+  }
+
+  .award__title {
+    margin: 0;
+    font-size: var(--text-heading);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--text-heading--line-height);
+    overflow-wrap: break-word;
+  }
+
+  .award__meta {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    align-items: baseline;
+    gap: --spacing(2) --spacing(4);
+    margin: 0;
+  }
+
+  .award__meta div {
+    display: contents;
+  }
+
+  .award__meta dd {
+    margin: 0;
+    font-size: var(--text-small);
+    line-height: var(--text-small--line-height);
+    overflow-wrap: anywhere;
+  }
+
+  .award__why {
+    margin: 0;
+    font-size: var(--text-small);
+    line-height: var(--text-small--line-height);
+  }
+
+  .award__proof {
+    margin-top: auto;
+    padding-top: --spacing(2);
+  }
+}

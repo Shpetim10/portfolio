@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/Button";
 import { Counter } from "@/components/ui/Counter";
 import { LAYERS as LAYER_IDS } from "@/components/chrome/nav";
+import { Awards } from "@/components/sections/awards/Awards";
 import { Experience } from "@/components/sections/experience/Experience";
 import { MetricList } from "@/components/sections/metrics/Metrics";
 import { Stack } from "@/components/sections/stack/Stack";
@@ -24,6 +25,7 @@ import { SectionShell } from "@/components/ui/SectionShell";
 import { Tag } from "@/components/ui/Tag";
 import {
   getFeaturedProjects,
+  type Award,
   type Experience as Role,
   type Layer,
   type Metric,
@@ -65,7 +67,7 @@ const LAYERS = ["Interface", "API", "Services", "Data", "Infrastructure"] as con
 const SPECIMENS = [
   ["P0-02 · Primitives", ["Button", "Link", "Tag", "Counter", "Annotation", "Section shell"]],
   ["P0-03 · Motion", ["Motion score", "Reveal", "Annotate", "Calibrate", "Invert", "Magnetic", "Cursor"]],
-  ["Sections", ["Metrics", "Work", "Stack", "Experience"]],
+  ["Sections", ["Metrics", "Work", "Stack", "Experience", "Awards"]],
   ["T07 · Case study", ["Outcomes", "System diagram", "Figure"]],
 ] as const;
 
@@ -148,6 +150,59 @@ const SITE_HISTORY: Role[] = [
     end: "2026-10",
     highlights: ["Initialized the Next.js app", "Wrote the agent roles and task briefs"],
   },
+];
+
+const REPO = "https://github.com/Shpetim10/portfolio/blob/main/portfolio";
+const LIGHTHOUSE = { label: "lighthouserc.json", href: `${REPO}/lighthouserc.json` };
+const font = (title: string, file: string): Award => ({
+  title,
+  issuer: "SIL Open Font License 1.1",
+  year: 2026,
+  category: "open-source",
+  why: "Self-hosted from this repository, with its licence shipped beside it.",
+  proof: { label: `OFL-${file}.txt`, href: `${REPO}/src/styles/fonts/OFL-${file}.txt` },
+  featured: false,
+});
+
+/**
+ * This repository's own quality gates (lighthouserc.json, run in CI) and font
+ * licences, as a T10 qualification record. Each entry states a rule the
+ * repository sets, not a result; every proof links to the file that sets it.
+ */
+const SITE_GATES: Award[] = [
+  {
+    title: "Accessibility score of 0.95 or better",
+    issuer: "Lighthouse CI",
+    year: 2026,
+    category: "certification",
+    placement: "Error gate · 3 runs per route",
+    why: "CI fails if any audited route scores under 0.95 for accessibility.",
+    proof: LIGHTHOUSE,
+    featured: true,
+  },
+  {
+    title: "Layout shift of 0.05 or less",
+    issuer: "Lighthouse CI",
+    year: 2026,
+    category: "certification",
+    placement: "Error gate",
+    why: "CI fails if cumulative layout shift exceeds 0.05 on any audited route.",
+    proof: LIGHTHOUSE,
+    featured: false,
+  },
+  {
+    title: "Largest contentful paint within 2.5s",
+    issuer: "Lighthouse CI",
+    year: 2026,
+    category: "certification",
+    placement: "Error gate",
+    why: "CI fails if largest contentful paint exceeds 2,500ms on any audited route.",
+    proof: LIGHTHOUSE,
+    featured: false,
+  },
+  font("Big Shoulders Display", "big-shoulders-display"),
+  font("Schibsted Grotesk", "schibsted-grotesk"),
+  font("Martian Mono", "martian-mono"),
 ];
 
 /** This site's own build and runtime, as a T07 system diagram — every part is in this repository. */
@@ -626,6 +681,9 @@ export default function LabPage() {
 
       <Stack skills={SPECIMEN_SKILLS} projects={SPECIMEN_PROJECTS} index={19} />
       <Experience experience={SITE_HISTORY} index={20} />
+      <Awards awards={SITE_GATES} index={21} />
+      {/* Run-out: room for the record to leave, so its INVERT exit (section bottom at 40%) can fire. */}
+      <div className="h-screen" aria-hidden="true" />
     </>
   );
 }

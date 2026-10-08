@@ -14,6 +14,9 @@ const enableProbe = (page: Page) =>
     (window as ProbeWindow).__MOTION_PROBE__ = true;
   });
 
+/** The INVERT specimen's plate (other paper sections on /lab carry their own). */
+const INVERT_PLATE = ".inversion:has(> #invert) > [data-anim-part='plate']";
+
 const IDENTITY = ["none", "matrix(1, 0, 0, 1, 0, 0)"];
 const transformOf = (page: Page, selector: string) =>
   page.locator(selector).evaluateAll((nodes) => nodes.map((node) => getComputedStyle(node).transform));
@@ -41,7 +44,7 @@ test.describe("motion kit · full motion", () => {
       expect(transform).toBe("matrix(0, 0, 0, 1, 0, 0)"); // elbow not drawn yet
     }
     await expect(page.locator("#calibrate .counter:visible .counter__value").first()).toHaveText("00");
-    expect(await transformOf(page, ".inversion__plate")).toEqual(["matrix(1, 0, 0, 1, 0, 0)"]); // plate covers paper
+    expect(await transformOf(page, INVERT_PLATE)).toEqual(["matrix(1, 0, 0, 1, 0, 0)"]); // plate covers paper
     expect(
       await page
         .locator("#annotate [data-anim-part='label']")
@@ -77,7 +80,7 @@ test.describe("motion kit · full motion", () => {
     }
 
     await playSection(page, "invert");
-    expect(await transformOf(page, ".inversion__plate")).toEqual(["matrix(1, 0, 0, 0, 0, 0)"]);
+    expect(await transformOf(page, INVERT_PLATE)).toEqual(["matrix(1, 0, 0, 0, 0, 0)"]);
   });
 
   test("animates only transform and opacity", async ({ page }) => {
@@ -278,7 +281,7 @@ test.describe("motion kit · reduced motion", () => {
     // INVERT fades its plate instead of wiping it: never scaled mid-way.
     await page.locator("section#invert").scrollIntoViewIfNeeded();
     await page.waitForTimeout(400);
-    const plate = page.locator(".inversion__plate");
+    const plate = page.locator(INVERT_PLATE);
     await expect(plate).toHaveCSS("opacity", "0");
     expect(IDENTITY).toContain(await plate.evaluate((n) => getComputedStyle(n).transform));
   });
