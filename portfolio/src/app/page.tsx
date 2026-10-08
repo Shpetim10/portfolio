@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Hero } from "@/components/sections/hero/Hero";
 import { Manifesto } from "@/components/sections/manifesto/Manifesto";
+import { Metrics } from "@/components/sections/metrics/Metrics";
 import { Content } from "@/components/ui/Content";
 import { getFeaturedProjects } from "@/content";
 
@@ -12,6 +13,7 @@ export default function HomePage() {
     <>
       <Hero />
       <Manifesto />
+      <Metrics />
       <div className="layout-grid gap-y-16 section-pad">
         <section aria-labelledby="work-heading" className="col-span-full">
           <h2 id="work-heading" className="font-mono text-label text-dust uppercase">

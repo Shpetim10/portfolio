@@ -23,4 +23,5 @@ export const profile: Profile = {
 };
 
 // TODO(content): add only metrics with a verifiable `source`. Empty until supplied.
+// 4–5 of them, most important first: the first is the lead metric (T05).
 export const metrics: Metric[] = [];

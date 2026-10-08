@@ -1,0 +1,110 @@
+/*
+ * T05 metrics (src/components/sections/metrics). Static geometry only; GSAP
+ * animates the figures' text, the dimension lines (transform) and the dots
+ * (opacity + scale). Tokens only.
+ *
+ * Grid
+ *   < 64rem   2 columns; with an odd count the lead (first) metric spans both
+ *   ≥ 64rem   one row of --metric-count equal cells
+ *
+ * Figure size: display-l, capped so the longest reading (--metric-chars
+ * figures + --metric-unit-chars of mono unit) fits its cell. Every cell gets
+ * the same size, so the row reads as one scale. The cap uses container
+ * units: each cell is an inline-size container.
+ */
+
+@layer components {
+  .metrics {
+    grid-column: 1 / -1;
+  }
+
+  .metrics__list {
+    --metric-display: var(--text-display-l); /* captured here: each cell redefines display-l */
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--grid-gutter);
+    row-gap: --spacing(16);
+    margin: 0;
+  }
+
+  /* (--spacing() isn't expanded inside custom properties; var(--spacing) * n is.) */
+  .metric {
+    --metric-unit-room: calc(
+      var(--metric-unit-chars) * var(--metric-unit-advance) * var(--text-label) +
+        min(var(--metric-unit-chars), 1) * var(--spacing) * 2
+    );
+    /* Counter's text-display-l utility reads this, resolved against the cell. */
+    --text-display-l: min(
+      var(--metric-display),
+      calc((100cqi - var(--metric-unit-room)) / (var(--metric-chars) * var(--metric-advance)))
+    );
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    gap: --spacing(4);
+    min-width: 0;
+  }
+
+  /* Odd count on two columns: the lead takes the full first row. */
+  .metric:first-child:nth-last-child(odd) {
+    grid-column: 1 / -1;
+  }
+
+  .metric__reading {
+    display: flex;
+    flex-direction: column;
+    gap: --spacing(4);
+    margin: 0;
+  }
+
+  .metric__figure .counter {
+    display: flex;
+  }
+
+  /* The label reads first for assistive tech (dt before dd) and sits under the line on screen. */
+  .metric__label {
+    order: 1;
+    max-width: var(--container-measure);
+    color: var(--color-dust);
+    font-size: var(--text-small);
+    line-height: var(--text-small--line-height);
+    text-wrap: pretty;
+  }
+
+  /* Dimension line with the reading's dot on its end tick. */
+  .metric__gauge {
+    position: relative;
+    display: block;
+  }
+
+  .metric__dot {
+    position: absolute;
+    top: 50%;
+    right: calc(var(--line) / 2);
+    width: var(--leader-dot);
+    height: var(--leader-dot);
+    border-radius: 50%;
+    background-color: var(--color-dust);
+    translate: 50% -50%;
+  }
+
+  /* The lead metric's dot is the section's one signal. */
+  .metric[data-lead] .metric__dot {
+    background-color: var(--color-signal);
+  }
+
+  .metrics__todo {
+    grid-column: 1 / -1;
+    margin: 0;
+  }
+
+  @media (width >= 64rem) {
+    .metrics__list {
+      grid-template-columns: repeat(var(--metric-count), minmax(0, 1fr));
+    }
+
+    .metric:first-child:nth-last-child(odd) {
+      grid-column: auto;
+    }
+  }
+}

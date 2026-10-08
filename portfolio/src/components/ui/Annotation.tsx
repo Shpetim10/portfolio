@@ -75,23 +75,35 @@ export function LeaderLine({ direction = "up-right", children, className, ...res
 /* Dimension line ------------------------------------------------------ */
 
 type DimensionLineProps = {
-  /** Measured value, e.g. "4.2 YRS". TODO values render as a placeholder. */
-  value: string;
+  /**
+   * Measured value, e.g. "4.2 YRS". TODO values render as a placeholder.
+   * Omit it when the measurement is printed beside the line (a Counter):
+   * the line is then a single ticked rule, and purely graphic.
+   */
+  value?: string;
   className?: string;
 };
 
-/** |——— ← VALUE → ———| spanning the width it measures. */
+/** |——— ← VALUE → ———| spanning the width it measures. Without a value: |————————|. */
 export function DimensionLine({ value, className }: DimensionLineProps) {
   return (
-    <span className={cx("dimension", className)} data-anim="dimension">
+    <span
+      className={cx("dimension", className)}
+      data-anim="dimension"
+      aria-hidden={value === undefined ? true : undefined}
+    >
       <span className="dimension__tick" aria-hidden="true" data-anim-part="tick" />
       <span className="dimension__rule" aria-hidden="true" data-anim-part="rule" />
-      <span className="dimension__value" data-anim-part="value">
-        <span aria-hidden="true">← </span>
-        <Content value={value} />
-        <span aria-hidden="true"> →</span>
-      </span>
-      <span className="dimension__rule" aria-hidden="true" data-anim-part="rule" />
+      {value !== undefined && (
+        <>
+          <span className="dimension__value" data-anim-part="value">
+            <span aria-hidden="true">← </span>
+            <Content value={value} />
+            <span aria-hidden="true"> →</span>
+          </span>
+          <span className="dimension__rule" aria-hidden="true" data-anim-part="rule" />
+        </>
+      )}
       <span className="dimension__tick" aria-hidden="true" data-anim-part="tick" />
     </span>
   );

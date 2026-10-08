@@ -9,6 +9,7 @@ import { fadeIn, renderedIn, useScrollMotion, type MotionBuilder } from "../useS
  * CALIBRATE — figures count up while dimension lines extend to their value.
  *   counter    zero-padded readout counts to the value      settle · large (1000ms)
  *   dimension  rules grow out from the value, end ticks ride their ends, same clock
+ *              (no value: the rule grows from its start tick, the end tick riding it)
  * Starts when the scope is 60% in view, once.
  * The readout keeps every digit position from the first frame (0,000 → 1,440):
  * tabular figures, so the width never changes and nothing reflows.
@@ -50,11 +51,17 @@ export function calibrateCounter(counter: HTMLElement, { duration }: MotionToken
   return { tween, restore };
 }
 
-/** Extends a DimensionLine from its value outwards to its end ticks. */
+/** Extends a DimensionLine from its value outwards to its end ticks (or, without a value, from its start). */
 export function calibrateDimension(dimension: HTMLElement, { duration }: MotionTokens) {
   const [before, after] = parts(dimension, "rule");
   const [startTick, endTick] = parts(dimension, "tick");
   const vars = { duration: duration.large, ease: EASE.settle };
+  if (!after) {
+    return gsap
+      .timeline()
+      .from(before, { ...vars, scaleX: 0, transformOrigin: "left center" }, 0)
+      .from(endTick, { ...vars, x: () => -before.offsetWidth }, 0);
+  }
   return gsap
     .timeline()
     .from(parts(dimension, "value"), { opacity: 0, duration: duration.micro, ease: EASE.snap }, 0)

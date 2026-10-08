@@ -42,6 +42,16 @@ function validate(): void {
     }
   }
 
+  // T05 lays metrics out as one row of 4–5; the first is the lead (it carries the signal dot).
+  if (metrics.length > 0 && (metrics.length < 4 || metrics.length > 5)) {
+    throw new ContentError(`Supply 4–5 metrics (found ${metrics.length}).`);
+  }
+  for (const metric of metrics) {
+    if (!Number.isFinite(metric.value))
+      throw new ContentError(`Metric "${metric.label}" has no numeric value.`);
+    if (!metric.label.trim()) throw new ContentError(`Metric ${metric.value} is missing its label.`);
+  }
+
   const featuredAwards = awards.filter((award) => award.featured).length;
   if (awards.length > 0 && featuredAwards !== 1) {
     throw new ContentError(`Exactly one award must be featured (found ${featuredAwards}).`);

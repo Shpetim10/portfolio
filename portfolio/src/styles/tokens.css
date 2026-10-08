@@ -156,6 +156,10 @@
   --manifesto-leading: 1.05; /* display-m size in the text face: 0.95 lets ascenders meet descenders */
   --portrait-ratio: 4 / 5; /* until the asset supplies its own width / height */
 
+  /* Metrics (T05) */
+  --metric-advance: 0.48; /* display-face tabular figure advance (measured 0.474em): caps figures to fit their cell */
+  --metric-unit-advance: 0.78; /* mono label advance + tracking, em of --text-label */
+
   /* Focus */
   --focus-width: 2px;
   --focus-offset: 3px;

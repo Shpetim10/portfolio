@@ -12,6 +12,7 @@ test.describe("/lab primitives", () => {
       for (const id of [
         ...["button", "link", "tag", "counter", "annotation", "section-shell"],
         ...["motion-score", "reveal", "annotate", "calibrate", "invert", "magnetic", "cursor"],
+        "metrics",
       ]) {
         await expect(page.locator(`section#${id}`)).toBeVisible();
       }

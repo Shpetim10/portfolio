@@ -10,9 +10,11 @@ import {
 } from "@/components/ui/Annotation";
 import { Button } from "@/components/ui/Button";
 import { Counter } from "@/components/ui/Counter";
+import { MetricList } from "@/components/sections/metrics/Metrics";
 import { Link } from "@/components/ui/Link";
 import { SectionShell } from "@/components/ui/SectionShell";
 import { Tag } from "@/components/ui/Tag";
+import type { Metric } from "@/content";
 import { CursorTargets, MotionScore } from "./MotionSpecimens";
 import { Replay } from "./Replay";
 import { Magnetic } from "@/motion/Magnetic";
@@ -32,7 +34,8 @@ export const metadata: Metadata = {
  * about the owner. Hover / focus / active are forced with data-preview so each
  * state is visible at once; the live components respond to real input as usual.
  * Sections 01–06 are static (the no-JS / reduced state of every primitive);
- * 07–13 run the motion kit from src/motion.
+ * 07–13 run the motion kit from src/motion; 14+ are homepage sections fed
+ * with design-system figures where the owner's content is still missing.
  */
 
 const STATES = [
@@ -47,7 +50,17 @@ const LAYERS = ["Interface", "API", "Services", "Data", "Infrastructure"] as con
 const SPECIMENS = [
   ["P0-02 · Primitives", ["Button", "Link", "Tag", "Counter", "Annotation", "Section shell"]],
   ["P0-03 · Motion", ["Motion score", "Reveal", "Annotate", "Calibrate", "Invert", "Magnetic", "Cursor"]],
+  ["Sections", ["Metrics"]],
 ] as const;
+
+/** Budgets from AGENTS.md and the grid from design-system.md — stand-ins for the owner's metrics. */
+const BUDGETS: Metric[] = [
+  { value: 12, suffix: "col", label: "Grid columns at 1024px and wider" },
+  { value: 1.6, suffix: "s", label: "Longest UI animation" },
+  { value: 2.5, suffix: "s", label: "LCP budget on a mid-range phone" },
+  { value: 200, suffix: "KB", label: "Initial JavaScript, gzipped, before the 3D chunk" },
+  { value: 0.05, label: "Cumulative layout shift budget" },
+];
 
 const slug = (name: string) => name.toLowerCase().replace(" ", "-");
 
@@ -114,7 +127,7 @@ export default function LabPage() {
     <>
       <header className="layout-grid gap-y-6 pt-24 pb-12">
         <p className="col-span-full font-mono text-label text-dust uppercase">
-          P0-02 · Primitives / P0-03 · Motion
+          P0-02 · Primitives / P0-03 · Motion / Sections
         </p>
         <h1 className="col-span-full font-display text-display-l font-black uppercase">Lab</h1>
         <p className="col-span-full max-w-measure text-body-l md:col-span-6">
@@ -434,6 +447,14 @@ export default function LabPage() {
           becomes a 64px lens with a label. Touch devices keep their native behaviour.
         </p>
         <CursorTargets />
+      </SectionShell>
+
+      <SectionShell id="metrics" index={14} title="Metrics" rev="REV.26" contentClassName="gap-y-6">
+        <SpecimenHeading>Metrics</SpecimenHeading>
+        <RowLabel>T05 · calibrates 60% in view · lead metric first, its dot the only signal</RowLabel>
+        <Replay label="metrics">
+          <MetricList metrics={BUDGETS} />
+        </Replay>
       </SectionShell>
     </>
   );
