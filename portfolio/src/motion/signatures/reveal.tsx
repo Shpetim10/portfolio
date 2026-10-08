@@ -67,17 +67,18 @@ export function useReveal(ref: RefObject<HTMLElement | null>, { start = "top 85%
 
 type RevealProps = {
   as?: "h1" | "h2" | "h3" | "p";
+  id?: string;
   children: ReactNode;
   className?: string;
   start?: string;
 };
 
 /** A display heading (or paragraph) whose lines REVEAL on scroll. Plain text children only. */
-export function Reveal({ as: Tag = "h2", children, className, start }: RevealProps) {
+export function Reveal({ as: Tag = "h2", id, children, className, start }: RevealProps) {
   const ref = useRef<HTMLHeadingElement & HTMLParagraphElement>(null);
   useReveal(ref, { start });
   return (
-    <Tag ref={ref} className={cx("reveal", className)} data-anim="reveal">
+    <Tag ref={ref} id={id} className={cx("reveal", className)} data-anim="reveal">
       {children}
     </Tag>
   );

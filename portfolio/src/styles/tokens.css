@@ -169,6 +169,13 @@
   --layer-glyph: 28px; /* plate height in a card's inline layer strip */
   --layer-glyph-full: 40px; /* …and in the track's assembly diagram */
 
+  /* Case study (T07) */
+  --chapter-sticky-top: calc(
+    var(--header-height) + 32px
+  ); /* where a chapter heading holds while its story scrolls */
+  --chapter-title-fit: 14cqi; /* caps display-m so ARCHITECTURE (12 condensed caps) fits its 4-column rail */
+  --figure-marker: 24px; /* numbered note marker on a phone-width screenshot */
+
   /* Focus */
   --focus-width: 2px;
   --focus-offset: 3px;

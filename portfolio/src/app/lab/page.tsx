@@ -13,6 +13,10 @@ import { Counter } from "@/components/ui/Counter";
 import { LAYERS as LAYER_IDS } from "@/components/chrome/nav";
 import { MetricList } from "@/components/sections/metrics/Metrics";
 import { Work } from "@/components/sections/work/Work";
+import { Shot } from "@/components/case-study/Gallery";
+import { Outcomes } from "@/components/case-study/Outcomes";
+import { SystemDiagram } from "@/components/case-study/SystemDiagram";
+import type { DiagramLink, DiagramNode } from "@/components/case-study/diagram";
 import { Link } from "@/components/ui/Link";
 import { SectionShell } from "@/components/ui/SectionShell";
 import { Tag } from "@/components/ui/Tag";
@@ -53,6 +57,7 @@ const SPECIMENS = [
   ["P0-02 · Primitives", ["Button", "Link", "Tag", "Counter", "Annotation", "Section shell"]],
   ["P0-03 · Motion", ["Motion score", "Reveal", "Annotate", "Calibrate", "Invert", "Magnetic", "Cursor"]],
   ["Sections", ["Metrics", "Work"]],
+  ["T07 · Case study", ["Outcomes", "System diagram", "Figure"]],
 ] as const;
 
 /** Budgets from AGENTS.md and the grid from design-system.md — stand-ins for the owner's metrics. */
@@ -77,6 +82,37 @@ const SPECIMEN_PROJECTS: Project[] = getFeaturedProjects().map((project, i) => {
     layers,
   };
 });
+
+/** This site's own build and runtime, as a T07 system diagram — every part is in this repository. */
+const SITE_NODES: DiagramNode[] = [
+  { id: "content", part: "N01", label: "Typed content", col: 0, row: 0 },
+  { id: "stories", part: "N02", label: "MDX stories", col: 0, row: 1 },
+  { id: "build", part: "N03", label: "Next.js build", col: 1, row: 0 },
+  { id: "og", part: "N04", label: "OG cards", col: 2, row: 1 },
+  { id: "out", part: "N05", label: "Static export", col: 2, row: 0 },
+  { id: "browser", part: "N06", label: "Browser", col: 3, row: 0 },
+  { id: "ticker", part: "N07", label: "GSAP ticker", col: 3, row: 1 },
+  { id: "lenis", part: "N08", label: "Lenis", col: 4, row: 1 },
+  { id: "triggers", part: "N09", label: "ScrollTrigger", col: 4, row: 2 },
+];
+const SITE_LINKS: DiagramLink[] = [
+  { from: "content", to: "build", label: "TS" },
+  { from: "stories", to: "build", label: "MDX" },
+  { from: "build", to: "out", label: "HTML" },
+  { from: "build", to: "og", label: "PNG" },
+  { from: "out", to: "browser" },
+  { from: "browser", to: "ticker", label: "RAF" },
+  { from: "ticker", to: "lenis" },
+  { from: "ticker", to: "triggers" },
+];
+
+/** Budgets from AGENTS.md as outcome strings: countable, prefixed, and one that holds still. */
+const BUDGET_OUTCOMES = [
+  { value: "<2.5s", label: "LCP budget on a mid-range phone" },
+  { value: "200KB", label: "Initial JavaScript, gzipped, before the 3D chunk" },
+  { value: "0.05", label: "Cumulative layout shift budget" },
+  { value: "AA", label: "WCAG 2.2 conformance target" },
+];
 
 const slug = (name: string) => name.toLowerCase().replace(" ", "-");
 
@@ -474,6 +510,52 @@ export default function LabPage() {
       </SectionShell>
 
       <Work projects={SPECIMEN_PROJECTS} index={15} />
+
+      <SectionShell id="outcomes" index={16} title="Outcomes" rev="REV.26" contentClassName="gap-y-6">
+        <SpecimenHeading>Outcomes</SpecimenHeading>
+        <RowLabel>T07 · outcome strings · count only when the figure re-renders exactly</RowLabel>
+        <Replay label="outcomes">
+          <div className="col-span-full">
+            <Outcomes outcomes={BUDGET_OUTCOMES} />
+          </div>
+        </Replay>
+      </SectionShell>
+
+      <SectionShell
+        id="system-diagram"
+        index={17}
+        title="System diagram"
+        rev="REV.26"
+        contentClassName="gap-y-6"
+      >
+        <SpecimenHeading>System diagram</SpecimenHeading>
+        <RowLabel>T07 · draws on scroll · transposed below 768px · netlist for screen readers</RowLabel>
+        <div className="col-span-full">
+          <SystemDiagram
+            nodes={SITE_NODES}
+            links={SITE_LINKS}
+            caption="This site: content and stories build into a static export; one GSAP ticker drives Lenis and ScrollTrigger."
+          />
+        </div>
+        <div className="h-[50vh]" aria-hidden="true" />
+      </SectionShell>
+
+      <SectionShell id="figure" index={18} title="Figure" rev="REV.26" contentClassName="gap-y-6">
+        <SpecimenHeading>Figure</SpecimenHeading>
+        <RowLabel>T07 · screenshot frame · notes as leaders (≥ 768px) or numbered markers</RowLabel>
+        <div className="col-span-full lg:col-span-8">
+          <Shot
+            gallery={[]}
+            media={0}
+            caption="The drafting convention for an image still to come."
+            notes={[
+              { x: 0.5, y: 0.5, label: "Crossing point" },
+              { x: 0.18, y: 0.22, label: "Hairline frame" },
+              { x: 0.86, y: 0.8, label: "Graphite field" },
+            ]}
+          />
+        </div>
+      </SectionShell>
     </>
   );
 }

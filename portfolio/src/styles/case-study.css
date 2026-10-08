@@ -1,0 +1,882 @@
+/*
+ * T07 case study (src/components/case-study, /work/[slug]). Static geometry
+ * only: GSAP draws the diagram, counts the outcomes and settles the next
+ * cover (transform / opacity); hover states are opacity / transform
+ * transitions. Tokens only.
+ *
+ * Grid (12 columns from 64rem)
+ *   chapter heading   1–4, sticky while its story scrolls
+ *   prose             6–11 (≤ 68ch)
+ *   figures           5–12 (.story-wide)
+ *   spread            edge to edge (.story-bleed), over the sticky heading
+ * Below 64rem everything stacks on the 4 / 8 column grid; prose keeps its measure.
+ */
+
+@layer components {
+  /* Shared mono type --------------------------------------------------- */
+  .case-header__cell dt,
+  .outcomes__title,
+  .diagram__node,
+  .diagram__link-label,
+  .case-figure__number,
+  .figure-key__number,
+  .figure-notes__marker,
+  .next-project__part {
+    font-family: var(--font-mono);
+    font-weight: var(--font-weight-regular);
+    text-transform: uppercase;
+  }
+
+  .case-header__cell dt,
+  .diagram__node,
+  .diagram__link-label,
+  .case-figure__number,
+  .figure-key__number,
+  .figure-notes__marker {
+    font-size: var(--text-micro);
+    line-height: var(--text-micro--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+  }
+
+  .outcomes__title,
+  .next-project__part {
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+  }
+
+  /* Header ------------------------------------------------------------- */
+  .case-header {
+    row-gap: --spacing(8);
+    padding-top: calc(var(--header-height) + --spacing(8));
+  }
+
+  .case-header > * {
+    grid-column: 1 / -1;
+  }
+
+  .case-header__cover {
+    position: relative;
+  }
+
+  /* Marks sit just outside the cover's corners, in the page margin. */
+  .case-header__cover .registration-mark {
+    --registration-inset: calc(var(--registration-mark) * -1);
+  }
+
+  .case-header__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-display-l);
+    font-weight: var(--font-weight-black);
+    line-height: var(--text-display-l--line-height);
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+
+  .case-header__summary {
+    max-width: var(--container-measure);
+    margin: 0;
+    font-size: var(--text-body-l);
+    line-height: var(--text-body-l--line-height);
+  }
+
+  /* Title block: drawing-sheet cells, hairline grid. */
+  .case-header__block,
+  .next-project__block {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 0;
+    border-top: var(--line) solid var(--color-hairline);
+    border-left: var(--line) solid var(--color-hairline);
+  }
+
+  .case-header__cell {
+    display: flex;
+    flex-direction: column;
+    gap: --spacing(2);
+    min-width: 0;
+    padding: --spacing(3);
+    border-right: var(--line) solid var(--color-hairline);
+    border-bottom: var(--line) solid var(--color-hairline);
+  }
+
+  .case-header__cell[data-term="stack"] {
+    grid-column: 1 / -1;
+  }
+
+  .case-header__cell dt {
+    color: var(--color-dust);
+  }
+
+  .case-header__cell dd {
+    margin: 0;
+    font-size: var(--text-small);
+    line-height: var(--text-small--line-height);
+    overflow-wrap: anywhere;
+  }
+
+  @media (width >= 48rem) {
+    .case-header__summary {
+      grid-column: 1 / span 6;
+    }
+
+    .case-header__block {
+      grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(0, 2fr);
+    }
+
+    .case-header__cell[data-term="stack"] {
+      grid-column: auto;
+    }
+  }
+
+  @media (width >= 64rem) {
+    .case-header__summary {
+      grid-column: 1 / span 7;
+    }
+  }
+
+  /* Outcomes ----------------------------------------------------------- */
+  .outcomes {
+    row-gap: --spacing(8);
+    padding-block: calc(var(--section-pad-y) / 2);
+  }
+
+  .outcomes > * {
+    grid-column: 1 / -1;
+  }
+
+  .outcomes__title {
+    margin: 0;
+    color: var(--color-dust);
+  }
+
+  .outcomes__list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: --spacing(12) var(--grid-gutter);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* An odd count leaves no cell alone on the last row. */
+  .outcome:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+
+  .outcome {
+    display: flex;
+    flex-direction: column;
+    gap: --spacing(3);
+    min-width: 0;
+  }
+
+  .outcome__figure {
+    margin: 0;
+  }
+
+  .outcome__figure--static {
+    font-family: var(--font-display);
+    font-size: var(--text-display-m);
+    font-weight: var(--font-weight-black);
+    line-height: var(--text-display-m--line-height);
+    text-transform: uppercase;
+    overflow-wrap: anywhere;
+  }
+
+  .outcome__gauge {
+    display: block;
+  }
+
+  .outcome__label {
+    max-width: var(--container-measure);
+    margin: 0;
+    color: var(--color-dust);
+    font-size: var(--text-small);
+    line-height: var(--text-small--line-height);
+  }
+
+  @media (width >= 48rem) {
+    .outcomes__list[data-count="3"] {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .outcomes__list[data-count="4"] {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .outcome:last-child:nth-child(odd) {
+      grid-column: auto;
+    }
+  }
+
+  /* Story · chapters --------------------------------------------------- */
+  .story {
+    counter-reset: figure;
+  }
+
+  .chapter {
+    padding-block: calc(var(--section-pad-y) / 2);
+    row-gap: --spacing(8);
+  }
+
+  .chapter__header {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: --spacing(4);
+    container-type: inline-size;
+  }
+
+  .chapter__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-display-m);
+    font-weight: var(--font-weight-black);
+    line-height: var(--text-display-m--line-height);
+    text-transform: uppercase;
+  }
+
+  .chapter__body {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+    row-gap: --spacing(6);
+    align-content: start;
+  }
+
+  .chapter__body > * {
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+
+  /* Prose: measure-bound text from MDX. */
+  .chapter__body > :is(p, ul, ol, blockquote, h3, pre) {
+    max-width: var(--container-measure);
+    margin: 0;
+  }
+
+  .chapter__body > h3 {
+    margin-top: --spacing(6);
+    font-size: var(--text-heading);
+    line-height: var(--text-heading--line-height);
+  }
+
+  .chapter__body > :is(ul, ol) {
+    display: flex;
+    flex-direction: column;
+    gap: --spacing(2);
+    padding-inline-start: --spacing(8);
+  }
+
+  .chapter__body > ul {
+    list-style: none;
+  }
+
+  .chapter__body > ul > li {
+    position: relative;
+  }
+
+  /* A short dimension-rule dash, not a bullet. */
+  .chapter__body > ul > li::before {
+    content: "";
+    position: absolute;
+    top: calc(var(--text-body--line-height) * 0.5em);
+    left: calc(--spacing(6) * -1);
+    width: --spacing(3);
+    height: var(--line);
+    background-color: var(--color-dust);
+  }
+
+  .chapter__body > ol > li::marker {
+    color: var(--color-dust);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+  }
+
+  .chapter__body > blockquote {
+    padding-inline-start: --spacing(6);
+    border-left: var(--line) solid var(--color-signal);
+    font-size: var(--text-body-l);
+    line-height: var(--text-body-l--line-height);
+  }
+
+  .chapter__body :is(p, li) > code,
+  .chapter__body > pre {
+    font-family: var(--font-mono);
+    font-size: var(--text-small);
+  }
+
+  .chapter__body > pre {
+    padding: --spacing(4);
+    border: var(--line) solid var(--color-hairline);
+    background-color: var(--color-graphite);
+    overflow-x: auto;
+  }
+
+  .chapter__body strong {
+    font-weight: var(--font-weight-medium);
+  }
+
+  /* Prose links are inline phrases: let them wrap like text. */
+  .chapter__body p .link {
+    display: inline;
+  }
+
+  .story-todo {
+    max-width: var(--container-measure);
+  }
+
+  .chapter__body > :is(.story-wide, .story-bleed) {
+    margin-block: --spacing(8);
+  }
+
+  /*
+   * A spread closing its chapter ends flush with it (and the chapter's bottom
+   * padding goes), so the sticky heading, which can sink no lower than the
+   * chapter's end, slides fully under the paper instead of peeking out below.
+   */
+  .chapter:has(> .chapter__body > .story-bleed:last-child) {
+    padding-bottom: 0;
+  }
+
+  .chapter__body > .story-bleed:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Edge to edge: out through the page margins. Over a sticky chapter heading. */
+  .chapter__body > .story-bleed {
+    position: relative;
+    z-index: var(--z-content);
+    margin-inline: calc(var(--grid-margin) * -1);
+  }
+
+  @media (width >= 48rem) {
+    .chapter__body > :not(.story-wide, .story-bleed) {
+      grid-column: 1 / span 7;
+    }
+  }
+
+  @media (width >= 64rem) {
+    /* Heading holds in 1–4 beside the story; both start on the same row. */
+    .chapter__header {
+      grid-column: 1 / span 4;
+      grid-row: 1;
+      align-self: start;
+      position: sticky;
+      top: var(--chapter-sticky-top);
+    }
+
+    .chapter__title {
+      font-size: min(var(--text-display-m), var(--chapter-title-fit));
+    }
+
+    .chapter__body {
+      grid-row: 1;
+    }
+
+    .chapter__body > :not(.story-wide, .story-bleed) {
+      grid-column: 6 / span 6;
+    }
+
+    .chapter__body > .story-wide {
+      grid-column: 5 / -1;
+    }
+  }
+
+  /* Figures ------------------------------------------------------------ */
+  .case-figure {
+    margin: 0;
+    counter-increment: figure;
+  }
+
+  .case-figure__caption {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: --spacing(2) --spacing(4);
+    margin-top: --spacing(3);
+    color: var(--color-dust);
+    font-size: var(--text-small);
+    line-height: var(--text-small--line-height);
+  }
+
+  .case-figure__number::before {
+    content: "Fig. " counter(figure, decimal-leading-zero);
+    color: var(--color-bone);
+  }
+
+  /* System diagram ----------------------------------------------------- */
+  .diagram__stage,
+  .diagram__empty {
+    border: var(--line) solid var(--color-hairline);
+    background-color: var(--color-graphite);
+  }
+
+  .diagram__stage {
+    padding: --spacing(4);
+  }
+
+  .diagram__drawing {
+    position: relative;
+    width: 100%;
+    aspect-ratio: var(--diagram-ratio);
+  }
+
+  .diagram__drawing[data-orientation="wide"] {
+    display: none;
+  }
+
+  .diagram__svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .diagram__box {
+    fill: var(--color-carbon);
+    stroke: var(--color-dust);
+    stroke-width: var(--line);
+  }
+
+  .diagram__line {
+    stroke: var(--color-coolant);
+    stroke-width: var(--line);
+  }
+
+  .diagram__dot {
+    fill: none;
+    stroke: var(--color-signal);
+    stroke-width: var(--leader-dot);
+    stroke-linecap: round;
+  }
+
+  .diagram__labels {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    pointer-events: none;
+  }
+
+  .diagram__node {
+    position: absolute;
+    left: calc(var(--x) * 1%);
+    top: calc(var(--y) * 1%);
+    width: calc(var(--w) * 1%);
+    height: calc(var(--h) * 1%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: --spacing(1);
+    padding: --spacing(1) --spacing(2);
+    overflow: hidden;
+    color: var(--color-bone);
+    overflow-wrap: anywhere;
+  }
+
+  .diagram__part {
+    color: var(--color-dust);
+  }
+
+  /* TODO markers take the label's type size so they fit a node. */
+  .diagram__node mark {
+    padding: 0;
+    font-size: inherit;
+    line-height: inherit;
+    letter-spacing: inherit;
+  }
+
+  .diagram__link-label {
+    position: absolute;
+    left: calc(var(--x) * 1%);
+    top: calc(var(--y) * 1%);
+    translate: -50% -50%;
+    padding-inline: --spacing(1);
+    background-color: var(--color-graphite);
+    color: var(--color-dust);
+    white-space: nowrap;
+  }
+
+  .diagram__empty {
+    position: relative;
+    display: grid;
+    place-items: start;
+    aspect-ratio: var(--cover-ratio);
+    padding: --spacing(4);
+  }
+
+  .diagram__empty svg,
+  .plate__frame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: var(--color-hairline);
+    stroke-width: var(--line);
+  }
+
+  .diagram__empty > [data-todo] {
+    position: relative;
+    background-color: var(--color-graphite);
+  }
+
+  @media (width >= 48rem) {
+    .diagram__stage {
+      padding: --spacing(8);
+    }
+
+    .diagram__drawing[data-orientation="wide"] {
+      display: block;
+    }
+
+    .diagram__drawing[data-orientation="tall"] {
+      display: none;
+    }
+
+    .diagram__node {
+      padding-inline: --spacing(3);
+    }
+  }
+
+  @media (width >= 90rem) {
+    .diagram__node {
+      font-size: var(--text-label);
+      line-height: var(--text-label--line-height);
+      letter-spacing: var(--text-label--letter-spacing);
+    }
+  }
+
+  /* Gallery ------------------------------------------------------------ */
+  .gallery {
+    display: grid;
+    gap: --spacing(12) var(--grid-gutter);
+  }
+
+  .shot__frame,
+  .spread__frame {
+    position: relative;
+  }
+
+  /* Screenshots flat in a hairline frame. Their own ratio once supplied. */
+  .plate {
+    position: relative;
+    display: grid;
+    place-items: start;
+    aspect-ratio: var(--plate-ratio, var(--cover-ratio));
+    padding: --spacing(4);
+    overflow: clip;
+    border: var(--line) solid var(--color-hairline);
+    background-color: var(--color-graphite);
+  }
+
+  .plate__media {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .plate__todo {
+    position: relative;
+    max-width: 100%;
+    background-color: var(--color-graphite);
+  }
+
+  /* Notes · leaders (from 48rem) and numbered markers (phones). */
+  .figure-notes {
+    position: absolute;
+    inset: 0;
+    display: none;
+    pointer-events: none;
+  }
+
+  .figure-notes__leader {
+    position: absolute;
+  }
+
+  .figure-notes__leader[data-direction$="right"] {
+    left: calc(var(--x) * 1%);
+  }
+
+  .figure-notes__leader[data-direction$="left"] {
+    right: calc((100 - var(--x)) * 1%);
+  }
+
+  .figure-notes__leader[data-direction^="up"] {
+    bottom: calc((100 - var(--y)) * 1%);
+  }
+
+  .figure-notes__leader[data-direction^="down"] {
+    top: calc(var(--y) * 1%);
+  }
+
+  /* Inline padding only: a taller label box would bend the leader's 45° leg. */
+  .figure-notes .part-label {
+    padding-inline: --spacing(2);
+    background-color: var(--color-graphite);
+  }
+
+  .figure-notes__marker {
+    position: absolute;
+    left: calc(var(--x) * 1%);
+    top: calc(var(--y) * 1%);
+    display: grid;
+    place-items: center;
+    width: var(--figure-marker);
+    height: var(--figure-marker);
+    translate: -50% -50%;
+    border: var(--line) solid var(--color-signal);
+    background-color: var(--color-graphite);
+    color: var(--color-bone);
+  }
+
+  .figure-key {
+    display: flex;
+    flex-direction: column;
+    gap: --spacing(2);
+    flex-basis: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: var(--color-bone);
+  }
+
+  .figure-key li {
+    display: flex;
+    gap: --spacing(3);
+  }
+
+  .figure-key__number {
+    flex: none;
+    padding-top: --spacing(0.5);
+    color: var(--color-dust);
+  }
+
+  @media (width >= 48rem) {
+    .gallery {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .gallery > :first-child {
+      grid-column: 1 / -1;
+    }
+
+    .figure-notes {
+      display: block;
+    }
+
+    .figure-notes__marker {
+      display: none;
+    }
+
+    /* The leaders carry the notes on screen; the list stays for screen readers. */
+    .figure-key {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+
+  /* Spread ------------------------------------------------------------- */
+  .spread__figure {
+    row-gap: --spacing(6);
+  }
+
+  .spread__figure > * {
+    grid-column: 1 / -1;
+  }
+
+  .spread__figure .case-figure__caption {
+    margin-top: 0;
+  }
+
+  @media (width >= 64rem) {
+    .spread__frame {
+      grid-column: 2 / -2;
+    }
+
+    .spread__figure .case-figure__caption {
+      grid-column: 2 / span 6;
+    }
+  }
+
+  /* Next project ------------------------------------------------------- */
+  .next-project {
+    border-top: var(--line) solid var(--color-hairline);
+  }
+
+  .next-project .layout-grid {
+    row-gap: --spacing(8);
+  }
+
+  .next-project__index,
+  .next-project__body,
+  .next-project__index-link {
+    grid-column: 1 / -1;
+  }
+
+  .next-project__body {
+    display: grid;
+    gap: --spacing(6) var(--grid-gutter);
+  }
+
+  .next-project__meta {
+    display: flex;
+    flex-direction: column;
+    gap: --spacing(4);
+  }
+
+  /* The way forward: the page's last signal. */
+  .next-project__part {
+    margin: 0;
+    color: var(--color-bone);
+  }
+
+  .next-project__part::before {
+    content: "";
+    display: inline-block;
+    width: var(--leader-dot);
+    height: var(--leader-dot);
+    margin-inline-end: --spacing(2);
+    border-radius: 50%;
+    background-color: var(--color-signal);
+    vertical-align: middle;
+  }
+
+  .next-project__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-display-l);
+    font-weight: var(--font-weight-black);
+    line-height: var(--text-display-l--line-height);
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+
+  .next-project__link {
+    color: var(--color-bone);
+    text-decoration: none;
+  }
+
+  .next-project__arrow {
+    display: inline-block;
+    transition: transform var(--duration-small) var(--ease-settle);
+  }
+
+  .next-project__summary {
+    max-width: var(--container-measure);
+    margin: 0;
+    color: var(--color-dust);
+  }
+
+  .next-project__cover {
+    position: relative;
+  }
+
+  .next-project__cover-link {
+    display: block;
+  }
+
+  .next-project__note {
+    position: absolute;
+    bottom: 30%;
+    left: 8%;
+    max-width: 88%;
+    pointer-events: none;
+  }
+
+  .next-project__note .part-label {
+    padding-inline: --spacing(2);
+    background-color: var(--color-carbon);
+  }
+
+  .next-project__note mark {
+    font-size: inherit;
+    line-height: inherit;
+    vertical-align: top;
+  }
+
+  .next-project__index-link {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  /* Fine pointers raise the note on hover / focus; touch always shows it (no hover-only content). */
+  @media (hover: hover) and (pointer: fine) {
+    .next-project__note {
+      opacity: 0;
+      transition: opacity var(--duration-small) var(--ease-settle);
+    }
+
+    .next-project__body:hover .next-project__note,
+    .next-project__body:focus-within .next-project__note {
+      opacity: 1;
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    .next-project__note {
+      transform: translateY(--spacing(2));
+      transition:
+        opacity var(--duration-small) var(--ease-settle),
+        transform var(--duration-small) var(--ease-settle);
+    }
+
+    .next-project__body:hover .next-project__note,
+    .next-project__body:focus-within .next-project__note {
+      transform: none;
+    }
+
+    .next-project__body:hover .next-project__arrow {
+      transform: translateX(var(--nudge));
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .next-project__link:focus-visible .next-project__arrow {
+      transform: translateX(var(--nudge));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .next-project__note {
+      transition-duration: var(--duration-reduced);
+    }
+  }
+
+  @media (width >= 64rem) {
+    .next-project__body {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      grid-template-rows: auto 1fr;
+    }
+
+    .next-project__meta {
+      grid-column: 1 / span 5;
+      grid-row: 1;
+    }
+
+    .next-project__cover {
+      grid-column: 6 / -1;
+      grid-row: 1 / span 2;
+    }
+
+    .next-project__block {
+      grid-column: 1 / span 4;
+      grid-row: 2;
+      align-self: end;
+    }
+  }
+}

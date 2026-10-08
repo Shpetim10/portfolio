@@ -31,25 +31,28 @@ test.describe("/lab primitives", () => {
       await page.goto("/lab/");
       await page.evaluate(() => document.fonts.ready);
 
+      // Rendered leaders only: some are breakpoint variants (figure notes become markers on phones).
       const leaders = await page.locator(".leader").evaluateAll((nodes) =>
-        nodes.map((node) => {
-          const box = node.getBoundingClientRect();
-          const leg = node.querySelector(".leader__leg")!.getBoundingClientRect();
-          const run = node.querySelector(".leader__run")!.getBoundingClientRect();
-          const dot = node.querySelector(".leader__dot")!.getBoundingClientRect();
-          const direction = node.getAttribute("data-direction")!;
-          const target = {
-            x: direction.endsWith("left") ? box.right : box.left,
-            y: direction.startsWith("up") ? box.bottom : box.top,
-          };
-          const elbowY = direction.startsWith("up") ? leg.top : leg.bottom;
-          return {
-            legRatio: leg.width / leg.height,
-            runHeight: run.height,
-            runToElbow: Math.abs(run.top + run.height / 2 - elbowY),
-            dotOffset: Math.hypot(dot.left + dot.width / 2 - target.x, dot.top + dot.height / 2 - target.y),
-          };
-        }),
+        nodes
+          .filter((node) => node.getClientRects().length > 0)
+          .map((node) => {
+            const box = node.getBoundingClientRect();
+            const leg = node.querySelector(".leader__leg")!.getBoundingClientRect();
+            const run = node.querySelector(".leader__run")!.getBoundingClientRect();
+            const dot = node.querySelector(".leader__dot")!.getBoundingClientRect();
+            const direction = node.getAttribute("data-direction")!;
+            const target = {
+              x: direction.endsWith("left") ? box.right : box.left,
+              y: direction.startsWith("up") ? box.bottom : box.top,
+            };
+            const elbowY = direction.startsWith("up") ? leg.top : leg.bottom;
+            return {
+              legRatio: leg.width / leg.height,
+              runHeight: run.height,
+              runToElbow: Math.abs(run.top + run.height / 2 - elbowY),
+              dotOffset: Math.hypot(dot.left + dot.width / 2 - target.x, dot.top + dot.height / 2 - target.y),
+            };
+          }),
       );
       expect(leaders.length).toBeGreaterThan(0);
       for (const leader of leaders) {

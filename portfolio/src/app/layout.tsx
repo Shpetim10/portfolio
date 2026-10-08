@@ -12,6 +12,9 @@ const profile = getProfile();
 const siteName = isTodo(profile.name) ? "Portfolio" : profile.name;
 
 export const metadata: Metadata = {
+  // Absolute base for Open Graph image URLs (case-study cards, T07).
+  // TODO(content): set SITE_URL to the production origin at build; locally it's the static server.
+  metadataBase: new URL(process.env.SITE_URL ?? "http://localhost:3100"),
   title: { default: siteName, template: `%s — ${siteName}` },
   description: isTodo(profile.positioning) ? undefined : profile.positioning,
 };

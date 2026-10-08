@@ -70,3 +70,29 @@ export type Award = {
 
 export type Writing = { title: string; venue: string; date: string; href: string; kind: 'article' | 'talk' | 'paper' };
 export type Testimonial = { quote: string; name: string; title: string; company: string; relation: string; href?: string };
+
+## Case-study stories (T07)
+
+One MDX file per project at `/src/content/work/<slug>.mdx`, rendered at `/work/<slug>/`.
+`next build` fails if a story breaks the template (`/src/content/stories.ts`):
+
+- exactly these six chapters, in this order — `problem`, `constraints`, `architecture`,
+  `decisions`, `results`, `reflection`:
+  `<Chapter id="problem">` … `</Chapter>` (blank lines around markdown inside)
+- no `#` / `##` headings — the page owns h1, chapters own h2; use `###` inside a chapter
+- the Architecture chapter holds exactly one system diagram:
+  `<SystemDiagram nodes={[…]} links={[…]} caption="…" />`
+  - node: `{ id, label, part?, col, row }` — `col` 0–4 is the flow (left → right),
+    `row` 0–2 the lane; one node per cell. Phones transpose the grid.
+  - link: `{ from, to, label? }` — lanes are crossed in the gutter before the target;
+    a link skipping columns runs along its source lane, so keep that lane clear.
+  - every part and connection is also read out as a text netlist for screen readers.
+- figures index the project's `gallery` (alt text lives there, not in MDX):
+  `<Gallery>` + `<Shot media={1} caption="…" notes={[{ x: 0.3, y: 0.4, label: "…" }]} />`
+  — up to 3 notes per figure, `x` / `y` 0–1 of the image; keep labels short (one line).
+- exactly one `<Spread media={0} caption="…" />`: the strongest visual, full-bleed on paper.
+- unwritten prose: `<Todo what="…" />` renders a marked placeholder.
+
+`Project.outcomes` (2–4) head the case study and count up (CALIBRATE) only when the
+number re-renders exactly as written ("40%", "<120ms", "3.2×"); anything else is shown as is.
+`Project.team` is shown in the title block; leave it unset only while it's still TODO.

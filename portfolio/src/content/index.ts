@@ -15,7 +15,7 @@ import { writing } from "./writing";
 export type * from "./types";
 export { isTodo } from "./todo";
 
-class ContentError extends Error {
+export class ContentError extends Error {
   constructor(message: string) {
     super(`[content] ${message}`);
   }
@@ -29,6 +29,12 @@ function validate(): void {
     }
     if (slugs.has(project.slug)) throw new ContentError(`Duplicate project slug "${project.slug}".`);
     slugs.add(project.slug);
+    // T07 calibrates them as one strip in the case-study header. Empty = still TODO.
+    if (project.outcomes.length > 0 && (project.outcomes.length < 2 || project.outcomes.length > 4)) {
+      throw new ContentError(
+        `Project "${project.slug}" needs 2–4 outcomes (found ${project.outcomes.length}).`,
+      );
+    }
     for (const media of [project.cover, ...project.gallery]) {
       if (!media.alt.trim())
         throw new ContentError(`Media "${media.src}" in "${project.slug}" is missing alt text.`);
@@ -76,6 +82,12 @@ export const getFeaturedProjects = (): Project[] => getProjects().filter((projec
 export const getProject = (slug: string): Project | undefined =>
   projects.find((project) => project.slug === slug);
 export const getProjectSlugs = (): string[] => getProjects().map((project) => project.slug);
+/** The project after `slug` in reading order, wrapping to the first: a case study's way forward. */
+export const getNextProject = (slug: string): Project | undefined => {
+  const ordered = getProjects();
+  const at = ordered.findIndex((project) => project.slug === slug);
+  return at < 0 || ordered.length < 2 ? undefined : ordered[(at + 1) % ordered.length];
+};
 
 export const getSkills = (): Skill[] => skills;
 export const getExperience = (): Experience[] => experience;

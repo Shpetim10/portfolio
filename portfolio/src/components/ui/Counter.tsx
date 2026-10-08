@@ -9,6 +9,8 @@ const SIZE = {
 
 type CounterProps = {
   value: number;
+  /** Sign or unit in mono before the figure, e.g. "<", "$". */
+  prefix?: string;
   /** Unit in mono beside the figure, e.g. "YRS", "%". */
   suffix?: string;
   label?: string;
@@ -34,6 +36,7 @@ export const formatCounter = (value: number, decimals = fractionDigits(value)) =
  */
 export function Counter({
   value,
+  prefix,
   suffix,
   label,
   decimals = fractionDigits(value),
@@ -50,6 +53,7 @@ export function Counter({
       data-decimals={decimals}
     >
       <p className="counter__figure">
+        {prefix && <span className="counter__suffix">{prefix}</span>}
         <data value={value} className={cx("counter__value", SIZE[size])} data-anim-part="value">
           {formatted}
         </data>
