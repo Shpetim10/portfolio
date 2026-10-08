@@ -64,6 +64,36 @@ export const getProjectSlugs = (): string[] => getProjects().map((project) => pr
 export const getSkills = (): Skill[] => skills;
 export const getExperience = (): Experience[] => experience;
 
+const MONTH = /^(\d{4})-(0[1-9]|1[0-2])$/;
+const toMonths = (value: string) => {
+  const match = MONTH.exec(value);
+  return match ? Number(match[1]) * 12 + Number(match[2]) - 1 : NaN;
+};
+
+/**
+ * Years spent in the roles listed in experience, one decimal, rounded down.
+ * Overlapping roles count once and gaps between roles don't count; "present"
+ * means the build date. Undefined while any date is missing or malformed, so
+ * the figure is derived from the owner's data, never guessed.
+ */
+export const getYearsOfExperience = (now = new Date()): number | undefined => {
+  if (experience.length === 0) return undefined;
+  const current = now.getFullYear() * 12 + now.getMonth();
+  const spans = experience
+    .map((role) => [toMonths(role.start), role.end === "present" ? current : toMonths(role.end)] as const)
+    .sort((a, b) => a[0] - b[0]);
+  if (spans.some(([start, end]) => Number.isNaN(start) || Number.isNaN(end) || end < start)) return undefined;
+
+  let months = 0;
+  let reach = -Infinity;
+  for (const [start, end] of spans) {
+    const from = Math.max(start, reach);
+    if (end > from) months += end - from;
+    reach = Math.max(reach, end);
+  }
+  return Math.floor((months / 12) * 10) / 10;
+};
+
 export const getAwards = (): Award[] => [...awards].sort((a, b) => b.year - a.year);
 export const getFeaturedAward = (): Award | undefined => awards.find((award) => award.featured);
 

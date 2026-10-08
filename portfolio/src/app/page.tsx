@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Hero } from "@/components/sections/hero/Hero";
+import { Manifesto } from "@/components/sections/manifesto/Manifesto";
 import { Content } from "@/components/ui/Content";
 import { getFeaturedProjects } from "@/content";
 
@@ -10,10 +11,11 @@ export default function HomePage() {
   return (
     <>
       <Hero />
+      <Manifesto />
       <div className="layout-grid gap-y-16 section-pad">
         <section aria-labelledby="work-heading" className="col-span-full">
           <h2 id="work-heading" className="font-mono text-label text-dust uppercase">
-            [01] Work
+            [04] Work
           </h2>
           <ul className="mt-6 border-t border-hairline">
             {projects.map((project) => (

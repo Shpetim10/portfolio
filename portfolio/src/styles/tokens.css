@@ -151,6 +151,11 @@
   --hero-figure-static: 32rem; /* max width of the static (exploded) figure */
   --led-cycle: 2.4s; /* indicator LED breathing period */
 
+  /* Manifesto + portrait (T04) */
+  --manifesto-dim: 0.6; /* unlit word opacity: bone at 60% over carbon ≈ dust, > 6:1 contrast */
+  --manifesto-leading: 1.05; /* display-m size in the text face: 0.95 lets ascenders meet descenders */
+  --portrait-ratio: 4 / 5; /* until the asset supplies its own width / height */
+
   /* Focus */
   --focus-width: 2px;
   --focus-offset: 3px;
