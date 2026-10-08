@@ -1,0 +1,400 @@
+/*
+ * T08 stack — bill of materials (src/components/sections/stack). Static
+ * geometry only; StackStage reveals the groups (opacity + transform) and lights
+ * parts with data-lit, which crossfades strokes (opacity). Tokens only.
+ *
+ * Layout
+ *   < 64rem   label · sticky figure bar (drawing beside its readout) · one
+ *             accordion per layer. The table is not rendered.
+ *   ≥ 64rem   12 columns: label + table on 1–8, the figure sticky on 9–12.
+ *             The accordions are not rendered.
+ */
+
+@layer components {
+  .stack {
+    grid-column: 1 / -1;
+  }
+
+  .stack__label {
+    margin: 0 0 --spacing(8);
+    color: var(--color-dust);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    font-weight: var(--font-weight-regular);
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  .stack__total {
+    color: var(--color-dust);
+  }
+
+  /* Figure ---------------------------------------------------------------- */
+  .stack__figure {
+    position: sticky;
+    top: var(--header-height);
+    z-index: var(--z-sticky);
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: --spacing(6);
+    margin-inline: calc(var(--grid-margin) * -1);
+    padding: --spacing(3) var(--grid-margin);
+    border-block: var(--line) solid var(--color-hairline);
+    background-color: var(--color-carbon);
+  }
+
+  .stack__drawing {
+    position: relative;
+    height: var(--stack-figure-compact);
+    aspect-ratio: 4 / 5;
+    /* Room for the plate numbers beside the plates' right vertices. */
+    margin-inline-end: --spacing(6);
+  }
+
+  .stack .instrument-drawing__line {
+    transition: opacity var(--duration-small) var(--ease-settle);
+  }
+
+  .stack[data-lit] .instrument-drawing__plate:not([data-lit]) .instrument-drawing__line {
+    opacity: 0.5;
+  }
+
+  .stack .instrument-drawing__plate[data-lit] .instrument-drawing__line {
+    opacity: 0;
+  }
+
+  .stack .instrument-drawing__plate[data-lit] .instrument-drawing__line--lit {
+    opacity: 1;
+  }
+
+  .stack__plates {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .stack__plate-number {
+    position: absolute;
+    left: var(--note-x);
+    top: var(--note-y);
+    color: var(--color-dust);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    line-height: var(--text-micro--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+    transform: translate(var(--annotation-gap), -50%);
+  }
+
+  .stack__plate-number[data-lit] {
+    color: var(--color-bone);
+  }
+
+  .stack__readout {
+    display: grid;
+    gap: --spacing(3);
+    min-width: 0;
+  }
+
+  .stack__reading {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+  }
+
+  .stack__index {
+    display: flex;
+    flex-wrap: wrap;
+    gap: --spacing(2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .stack__index-item {
+    padding: var(--tag-pad-y) var(--tag-pad-x);
+    border: var(--line) solid var(--color-hairline);
+    border-radius: var(--radius-tag);
+    color: var(--color-dust);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    line-height: var(--text-micro--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+  }
+
+  .stack__index-item[data-lit] {
+    border-color: var(--color-bone);
+    color: var(--color-bone);
+  }
+
+  /* Shared group header: P/N · layer · count ------------------------------ */
+  .bom__group-line,
+  .bom-sheet__head {
+    display: grid;
+    grid-template-columns: var(--bom-part-col) minmax(0, 1fr) auto;
+    align-items: baseline;
+    column-gap: --spacing(4);
+  }
+
+  .bom__group-number,
+  .bom__group-count,
+  .bom__part {
+    color: var(--color-dust);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    font-weight: var(--font-weight-regular);
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    font-variant-numeric: tabular-nums;
+    text-transform: uppercase;
+  }
+
+  .bom__group-name {
+    color: var(--color-bone);
+    font-family: var(--font-display);
+    font-size: var(--text-heading);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--text-heading--line-height);
+    text-transform: uppercase;
+  }
+
+  .bom__tech {
+    color: var(--color-bone);
+    font-weight: var(--font-weight-medium);
+  }
+
+  .bom__projects {
+    display: flex;
+    flex-wrap: wrap;
+    gap: --spacing(2) --spacing(4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .bom__project {
+    font-size: var(--text-small);
+    line-height: var(--text-small--line-height);
+  }
+
+  .bom__project-number {
+    color: var(--color-dust);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    letter-spacing: var(--text-micro--letter-spacing);
+  }
+
+  .bom__none {
+    color: var(--color-dust);
+  }
+
+  /* Table (≥ 64rem) ------------------------------------------------------- */
+  .bom {
+    display: none;
+    width: 100%;
+    border-collapse: collapse;
+    text-align: start;
+  }
+
+  .bom__col-part {
+    width: var(--bom-part-col);
+  }
+
+  .bom__col-tech {
+    width: 34%;
+  }
+
+  .bom thead th {
+    padding: 0 0 --spacing(3);
+    border-bottom: var(--line) solid var(--color-dust);
+    color: var(--color-dust);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    font-weight: var(--font-weight-regular);
+    line-height: var(--text-micro--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+    text-align: start;
+    text-transform: uppercase;
+  }
+
+  /* The table's PART NO. column already ends in its cell padding: no extra gap. */
+  .bom__group-line {
+    column-gap: 0;
+  }
+
+  .bom__group-head th {
+    padding: --spacing(8) 0 --spacing(3);
+    border-bottom: var(--line) solid var(--color-hairline);
+    font-weight: var(--font-weight-regular);
+    text-align: start;
+  }
+
+  .bom__group[data-lit] .bom__group-number {
+    color: var(--color-bone);
+  }
+
+  .bom__row > * {
+    padding: --spacing(3) 0;
+    padding-inline-end: --spacing(4);
+    border-bottom: var(--line) solid var(--color-hairline);
+    text-align: start;
+    vertical-align: baseline;
+  }
+
+  /* The row in hand (pointer or keyboard). Background swaps; nothing moves. */
+  .bom__row:focus-within > * {
+    background-color: var(--color-gunmetal);
+  }
+
+  @media (hover: hover) {
+    .bom__row:hover > * {
+      background-color: var(--color-gunmetal);
+    }
+  }
+
+  .bom__row[data-stack="row"]:is(:hover, :focus-within) .bom__part {
+    color: var(--color-bone);
+  }
+
+  /* Accordions (< 64rem) -------------------------------------------------- */
+  .stack__sheets {
+    margin-top: --spacing(6);
+    border-bottom: var(--line) solid var(--color-hairline);
+  }
+
+  .bom-sheet {
+    border-top: var(--line) solid var(--color-hairline);
+  }
+
+  .bom-sheet__head {
+    grid-template-columns: var(--bom-part-col) minmax(0, 1fr) auto auto;
+    align-items: center;
+    min-height: var(--button-height);
+    padding-block: --spacing(4);
+    cursor: pointer;
+    list-style: none;
+    /* Clear the header and the sticky figure bar when focus scrolls a sheet into view. */
+    scroll-margin-top: calc(var(--header-height) + var(--stack-figure-compact) + --spacing(8));
+  }
+
+  .bom-sheet__head::-webkit-details-marker {
+    display: none;
+  }
+
+  .bom-sheet[open] .bom__group-number {
+    color: var(--color-bone);
+  }
+
+  /* A drawn plus; the vertical stroke folds away when open. */
+  .bom-sheet__toggle {
+    position: relative;
+    width: --spacing(3);
+    height: --spacing(3);
+  }
+
+  .bom-sheet__toggle::before,
+  .bom-sheet__toggle::after {
+    content: "";
+    position: absolute;
+    background-color: var(--color-bone);
+  }
+
+  .bom-sheet__toggle::before {
+    inset-inline: 0;
+    top: 50%;
+    height: var(--line);
+  }
+
+  .bom-sheet__toggle::after {
+    inset-block: 0;
+    left: 50%;
+    width: var(--line);
+    transition: transform var(--duration-small) var(--ease-settle);
+  }
+
+  .bom-sheet[open] .bom-sheet__toggle::after {
+    transform: scaleY(0);
+  }
+
+  .bom-sheet__parts {
+    margin: 0;
+    padding: 0 0 --spacing(4);
+    list-style: none;
+  }
+
+  .bom-sheet__part {
+    display: grid;
+    grid-template-columns: var(--bom-part-col) minmax(0, 1fr);
+    align-items: baseline;
+    column-gap: --spacing(4);
+    row-gap: --spacing(2);
+    padding-block: --spacing(3);
+    border-top: var(--line) solid var(--color-hairline);
+  }
+
+  .bom-sheet__where {
+    grid-column: 2;
+  }
+
+  .bom-sheet__todo {
+    margin: 0;
+    padding-bottom: --spacing(4);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .stack .instrument-drawing__line,
+    .bom-sheet__toggle::after {
+      transition: opacity var(--duration-reduced) linear;
+    }
+
+    .bom-sheet[open] .bom-sheet__toggle::after {
+      transform: none;
+      opacity: 0;
+    }
+  }
+
+  /* Desktop ----------------------------------------------------------------- */
+  @media (width >= 64rem) {
+    .stack {
+      display: grid;
+      grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+      grid-template-rows: auto 1fr;
+      column-gap: var(--grid-gutter);
+    }
+
+    .stack__label {
+      grid-column: 1 / span 8;
+    }
+
+    .bom {
+      display: table;
+      grid-column: 1 / span 8;
+      grid-row: 2;
+    }
+
+    .stack__sheets {
+      display: none;
+    }
+
+    .stack__figure {
+      grid-column: 10 / -1;
+      grid-row: 1 / span 2;
+      align-self: start;
+      top: calc(var(--header-height) + --spacing(8));
+      grid-template-columns: minmax(0, 1fr);
+      gap: --spacing(8);
+      margin: 0;
+      padding: 0;
+      border: 0;
+      background-color: transparent;
+    }
+
+    .stack__drawing {
+      width: min(100%, var(--stack-figure));
+      height: auto;
+    }
+  }
+}

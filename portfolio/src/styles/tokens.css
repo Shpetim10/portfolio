@@ -176,6 +176,11 @@
   --chapter-title-fit: 14cqi; /* caps display-m so ARCHITECTURE (12 condensed caps) fits its 4-column rail */
   --figure-marker: 24px; /* numbered note marker on a phone-width screenshot */
 
+  /* Stack (T08) */
+  --stack-figure: 18rem; /* width of the sticky Instrument drawing beside the bill of materials */
+  --stack-figure-compact: 7.5rem; /* its height in the phone's sticky bar */
+  --bom-part-col: 7rem; /* PART NO. column: "P/N 05" / "05.12" in label mono */
+
   /* Focus */
   --focus-width: 2px;
   --focus-offset: 3px;

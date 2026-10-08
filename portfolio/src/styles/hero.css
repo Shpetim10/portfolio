@@ -243,6 +243,12 @@
     stroke-linejoin: round;
   }
 
+  /* The lit stroke (InstrumentDrawing lit): hidden until a section lights its plate. */
+  .instrument-drawing__line--lit {
+    stroke: var(--color-coolant);
+    opacity: 0;
+  }
+
   .instrument-drawing__led {
     fill: var(--color-signal);
   }

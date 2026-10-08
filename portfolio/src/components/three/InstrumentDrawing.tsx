@@ -9,6 +9,8 @@ import { body, DETAIL, face, LED_FACE, silhouette, THICKNESS } from "./drawing";
  *   drawing  the low-tier renderer: the hero scrubs plate transforms on it
  *            with the same choreography as the 3D scene.
  *   poster   what the high / mid tiers show until the 3D scene is ready.
+ * With `lit`, each plate carries a second, coolant stroke that a section can
+ * crossfade in (opacity) to light that part — the stack's bill of materials.
  * Each plate is drawn at y = 0 and positioned by a transform, so the explode
  * only ever writes transforms. Plates paint base first: an upper plate's
  * carbon silhouette hides the face it rests on.
@@ -36,7 +38,7 @@ const STATIC_ASSEMBLY = `translate(${fixed(rig.framing.x)} ${fixed(rig.framing.y
 const [LED_X, LED_Y] = face(0, LED_FACE.u, LED_FACE.v);
 const PAINT_ORDER = [...LAYERS].reverse();
 
-export function InstrumentDrawing() {
+export function InstrumentDrawing({ lit = false }: { lit?: boolean }) {
   return (
     <svg
       className="instrument-drawing"
@@ -49,6 +51,7 @@ export function InstrumentDrawing() {
         {PAINT_ORDER.map((layer) => {
           const t = THICKNESS[layer];
           const i = LAYERS.indexOf(layer);
+          const lines = body(0, t) + DETAIL[layer](0);
           return (
             <g
               key={layer}
@@ -57,11 +60,14 @@ export function InstrumentDrawing() {
               transform={`translate(0 ${fixed(rig.plates[i])})`}
             >
               <path className="instrument-drawing__fill" d={silhouette(0, t)} />
-              <path
-                className="instrument-drawing__line"
-                d={body(0, t) + DETAIL[layer](0)}
-                vectorEffect="non-scaling-stroke"
-              />
+              <path className="instrument-drawing__line" d={lines} vectorEffect="non-scaling-stroke" />
+              {lit && (
+                <path
+                  className="instrument-drawing__line instrument-drawing__line--lit"
+                  d={lines}
+                  vectorEffect="non-scaling-stroke"
+                />
+              )}
               {layer === "interface" && (
                 <circle className="instrument-drawing__led" cx={LED_X} cy={LED_Y} r={2.5} />
               )}

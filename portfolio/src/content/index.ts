@@ -47,7 +47,16 @@ function validate(): void {
     throw new ContentError(`Feature 3–5 projects (found ${featured}).`);
   }
 
+  // T08 files each skill as one part in its layer's group of the bill of materials.
+  const parts = new Set<string>();
   for (const skill of skills) {
+    if (!skill.name.trim()) throw new ContentError(`A "${skill.layer}" skill has no name.`);
+    const part = `${skill.layer}/${skill.name.toLowerCase()}`;
+    if (parts.has(part)) throw new ContentError(`Skill "${skill.name}" is listed twice in "${skill.layer}".`);
+    parts.add(part);
+    if (new Set(skill.projects).size !== skill.projects.length) {
+      throw new ContentError(`Skill "${skill.name}" lists a project twice.`);
+    }
     for (const slug of skill.projects) {
       if (!slugs.has(slug))
         throw new ContentError(`Skill "${skill.name}" references unknown project "${slug}".`);

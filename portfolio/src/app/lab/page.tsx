@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/Button";
 import { Counter } from "@/components/ui/Counter";
 import { LAYERS as LAYER_IDS } from "@/components/chrome/nav";
 import { MetricList } from "@/components/sections/metrics/Metrics";
+import { Stack } from "@/components/sections/stack/Stack";
 import { Work } from "@/components/sections/work/Work";
 import { Shot } from "@/components/case-study/Gallery";
 import { Outcomes } from "@/components/case-study/Outcomes";
@@ -20,7 +21,7 @@ import type { DiagramLink, DiagramNode } from "@/components/case-study/diagram";
 import { Link } from "@/components/ui/Link";
 import { SectionShell } from "@/components/ui/SectionShell";
 import { Tag } from "@/components/ui/Tag";
-import { getFeaturedProjects, type Layer, type Metric, type Project } from "@/content";
+import { getFeaturedProjects, type Layer, type Metric, type Project, type Skill } from "@/content";
 import { CursorTargets, MotionScore } from "./MotionSpecimens";
 import { Replay } from "./Replay";
 import { Magnetic } from "@/motion/Magnetic";
@@ -56,7 +57,7 @@ const LAYERS = ["Interface", "API", "Services", "Data", "Infrastructure"] as con
 const SPECIMENS = [
   ["P0-02 · Primitives", ["Button", "Link", "Tag", "Counter", "Annotation", "Section shell"]],
   ["P0-03 · Motion", ["Motion score", "Reveal", "Annotate", "Calibrate", "Invert", "Magnetic", "Cursor"]],
-  ["Sections", ["Metrics", "Work"]],
+  ["Sections", ["Metrics", "Work", "Stack"]],
   ["T07 · Case study", ["Outcomes", "System diagram", "Figure"]],
 ] as const;
 
@@ -82,6 +83,28 @@ const SPECIMEN_PROJECTS: Project[] = getFeaturedProjects().map((project, i) => {
     layers,
   };
 });
+
+/**
+ * This site's own technologies, filed by layer, as a T08 bill of materials. Each is
+ * "used in" the specimen projects carrying its layer. Services is left empty on
+ * purpose: the sheet shows the marked placeholder an empty layer gets.
+ */
+const SITE_STACK: [Layer, string[]][] = [
+  ["interface", ["React", "Tailwind CSS", "GSAP", "Lenis", "Three.js"]],
+  ["api", ["Next.js App Router", "next/og"]],
+  ["services", []],
+  ["data", ["TypeScript content", "MDX"]],
+  ["infrastructure", ["Static export", "pnpm", "Playwright", "Lighthouse CI", "GitHub Actions"]],
+];
+const SPECIMEN_SKILLS: Skill[] = SITE_STACK.flatMap(([layer, names]) =>
+  names.map((name) => ({
+    name,
+    layer,
+    projects: SPECIMEN_PROJECTS.filter((project) => project.layers.includes(layer)).map(
+      (project) => project.slug,
+    ),
+  })),
+);
 
 /** This site's own build and runtime, as a T07 system diagram — every part is in this repository. */
 const SITE_NODES: DiagramNode[] = [
@@ -556,6 +579,8 @@ export default function LabPage() {
           />
         </div>
       </SectionShell>
+
+      <Stack skills={SPECIMEN_SKILLS} projects={SPECIMEN_PROJECTS} index={19} />
     </>
   );
 }

@@ -213,13 +213,13 @@ test.describe("hero · renderers", () => {
     await page.waitForTimeout(800);
     expect((await read(page)).renderer).toBe("drawing");
     await expect(page.locator(".hero__canvas canvas")).toHaveCount(0);
-    await expect(page.locator(".instrument-drawing")).toHaveCSS("opacity", "1");
+    await expect(page.locator(".hero .instrument-drawing")).toHaveCSS("opacity", "1");
 
     await scrollHero(page, 1);
     expect((await read(page)).annotated).toEqual([true, true, true, true, true]);
     // Each label's dot sits on its plate's right vertex.
     const gaps = await page.evaluate(() =>
-      [...document.querySelectorAll<SVGGElement>(".instrument-drawing__plate")].map((plate) => {
+      [...document.querySelectorAll<SVGGElement>(".hero .instrument-drawing__plate")].map((plate) => {
         const layer = plate.dataset.layer;
         const dot = document
           .querySelector(`.instrument-note[data-layer="${layer}"] .leader__dot`)!
@@ -247,7 +247,7 @@ test.describe("hero · reduced motion", () => {
     const notes = page.locator(".instrument-note");
     await expect(notes).toHaveCount(5);
     for (const note of await notes.all()) await expect(note).toHaveCSS("opacity", "1");
-    await expect(page.locator(".instrument-drawing")).toHaveCSS("opacity", "1");
+    await expect(page.locator(".hero .instrument-drawing")).toHaveCSS("opacity", "1");
     // Scrolling the hero is ordinary scrolling: nothing pinned.
     await expect(page.locator(".hero__stage")).toHaveCSS("position", "relative");
   });
