@@ -1,0 +1,140 @@
+/*
+ * T11 field log — contribution dot-matrix and writing log (src/components/sections/fieldlog).
+ * Static geometry only; FieldLogStage animates opacity and transform. Tokens only.
+ *
+ * Layout
+ *   < 48rem   label · matrix scaled to the column · caption (legend wraps below) ·
+ *             log rows stacked: date · kind, title, venue.
+ *   ≥ 48rem   log rows on one line: date · kind · title · venue.
+ */
+
+@layer components {
+  .fieldlog {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: --spacing(12);
+  }
+
+  .fieldlog__label,
+  .fieldlog__caption,
+  .fieldlog__date,
+  .fieldlog__kind,
+  .fieldlog__venue {
+    margin: 0;
+    color: var(--color-dust);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    font-weight: var(--font-weight-regular);
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  .fieldlog__figure {
+    margin: 0;
+    display: grid;
+    gap: --spacing(4);
+  }
+
+  .fieldlog__matrix {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .fieldlog__dot--0 {
+    fill: var(--color-hairline);
+  }
+  .fieldlog__dot--1 {
+    fill: var(--color-dust);
+    fill-opacity: 0.35;
+  }
+  .fieldlog__dot--2 {
+    fill: var(--color-dust);
+    fill-opacity: 0.6;
+  }
+  .fieldlog__dot--3 {
+    fill: var(--color-dust);
+  }
+  .fieldlog__dot--4 {
+    fill: var(--color-signal);
+  }
+
+  .fieldlog__caption {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: --spacing(2) --spacing(6);
+  }
+
+  .fieldlog__legend {
+    display: inline-flex;
+    align-items: center;
+    gap: --spacing(1);
+  }
+
+  .fieldlog__swatch {
+    display: inline-block;
+    width: --spacing(2);
+    height: --spacing(2);
+    background: var(--color-dust);
+  }
+  .fieldlog__swatch.fieldlog__dot--0 {
+    background: var(--color-hairline);
+  }
+  .fieldlog__swatch.fieldlog__dot--1 {
+    opacity: 0.35;
+  }
+  .fieldlog__swatch.fieldlog__dot--2 {
+    opacity: 0.6;
+  }
+  .fieldlog__swatch.fieldlog__dot--4 {
+    background: var(--color-signal);
+  }
+
+  /* The log ------------------------------------------------------------------ */
+  .fieldlog__log {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: var(--line) solid var(--color-hairline);
+  }
+
+  .fieldlog__entry {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: --spacing(1) --spacing(4);
+    padding-block: --spacing(4);
+    border-bottom: var(--line) solid var(--color-hairline);
+  }
+
+  .fieldlog__title {
+    grid-column: 1 / -1;
+    color: var(--color-bone);
+    font-size: var(--text-body-l);
+    line-height: var(--text-body-l--line-height);
+    text-underline-offset: 0.2em;
+  }
+  .fieldlog__title:hover {
+    text-decoration: underline;
+  }
+
+  .fieldlog__venue {
+    grid-column: 1 / -1;
+  }
+
+  @media (min-width: 48rem) {
+    .fieldlog__entry {
+      grid-template-columns: 8rem 6rem minmax(0, 1fr) minmax(0, 14rem);
+      align-items: baseline;
+      gap: --spacing(6);
+    }
+    .fieldlog__title,
+    .fieldlog__venue {
+      grid-column: auto;
+    }
+    .fieldlog__venue {
+      text-align: right;
+    }
+  }
+}
