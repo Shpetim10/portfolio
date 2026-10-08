@@ -35,6 +35,12 @@ function validate(): void {
     }
   }
 
+  // T06 lays the featured projects out as one track of 3–5 panels.
+  const featured = projects.filter((project) => project.featured).length;
+  if (featured < 3 || featured > 5) {
+    throw new ContentError(`Feature 3–5 projects (found ${featured}).`);
+  }
+
   for (const skill of skills) {
     for (const slug of skill.projects) {
       if (!slugs.has(slug))

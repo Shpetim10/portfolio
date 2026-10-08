@@ -160,6 +160,15 @@
   --metric-advance: 0.48; /* display-face tabular figure advance (measured 0.474em): caps figures to fit their cell */
   --metric-unit-advance: 0.78; /* mono label advance + tracking, em of --text-label */
 
+  /* Work (T06) */
+  --cover-ratio: 1.6; /* every project cover, panel and case-study header alike (16:10) */
+  --work-chrome: 22rem; /* stage height kept free of the cover: header, title block, title, assembly */
+  --work-panel: min(56vw, calc((100svh - var(--work-chrome)) * var(--cover-ratio)));
+  --work-gap: clamp(48px, 6vw, 128px); /* between panels on the track */
+  --work-cover-scale: 1.08; /* covers settle from this scale to 1 as they enter */
+  --layer-glyph: 28px; /* plate height in a card's inline layer strip */
+  --layer-glyph-full: 40px; /* …and in the track's assembly diagram */
+
   /* Focus */
   --focus-width: 2px;
   --focus-offset: 3px;

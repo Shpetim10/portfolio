@@ -10,11 +10,13 @@ import {
 } from "@/components/ui/Annotation";
 import { Button } from "@/components/ui/Button";
 import { Counter } from "@/components/ui/Counter";
+import { LAYERS as LAYER_IDS } from "@/components/chrome/nav";
 import { MetricList } from "@/components/sections/metrics/Metrics";
+import { Work } from "@/components/sections/work/Work";
 import { Link } from "@/components/ui/Link";
 import { SectionShell } from "@/components/ui/SectionShell";
 import { Tag } from "@/components/ui/Tag";
-import type { Metric } from "@/content";
+import { getFeaturedProjects, type Layer, type Metric, type Project } from "@/content";
 import { CursorTargets, MotionScore } from "./MotionSpecimens";
 import { Replay } from "./Replay";
 import { Magnetic } from "@/motion/Magnetic";
@@ -50,7 +52,7 @@ const LAYERS = ["Interface", "API", "Services", "Data", "Infrastructure"] as con
 const SPECIMENS = [
   ["P0-02 · Primitives", ["Button", "Link", "Tag", "Counter", "Annotation", "Section shell"]],
   ["P0-03 · Motion", ["Motion score", "Reveal", "Annotate", "Calibrate", "Invert", "Magnetic", "Cursor"]],
-  ["Sections", ["Metrics"]],
+  ["Sections", ["Metrics", "Work"]],
 ] as const;
 
 /** Budgets from AGENTS.md and the grid from design-system.md — stand-ins for the owner's metrics. */
@@ -61,6 +63,20 @@ const BUDGETS: Metric[] = [
   { value: 200, suffix: "KB", label: "Initial JavaScript, gzipped, before the 3D chunk" },
   { value: 0.05, label: "Cumulative layout shift budget" },
 ];
+
+/**
+ * The placeholder projects with specimen layer sets (one, three, all five), so the
+ * track's assembly diagram has something to light. Every other field stays TODO.
+ */
+const SPECIMEN_LAYERS: Layer[][] = [["interface"], ["interface", "api", "services"], LAYER_IDS];
+const SPECIMEN_PROJECTS: Project[] = getFeaturedProjects().map((project, i) => {
+  const layers = SPECIMEN_LAYERS[i % SPECIMEN_LAYERS.length];
+  return {
+    ...project,
+    title: `Specimen · ${layers.length} ${layers.length === 1 ? "layer" : "layers"}`,
+    layers,
+  };
+});
 
 const slug = (name: string) => name.toLowerCase().replace(" ", "-");
 
@@ -456,6 +472,8 @@ export default function LabPage() {
           <MetricList metrics={BUDGETS} />
         </Replay>
       </SectionShell>
+
+      <Work projects={SPECIMEN_PROJECTS} index={15} />
     </>
   );
 }

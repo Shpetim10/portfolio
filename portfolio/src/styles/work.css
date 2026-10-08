@@ -1,0 +1,489 @@
+/*
+ * T06 selected work (src/components/sections/work) and the project cover
+ * (src/components/ui/ProjectCover.tsx). Static geometry only; GSAP moves the
+ * rail (transform) and scales the covers; lighting and note reveals are
+ * opacity / transform transitions. Tokens only.
+ *
+ * Modes
+ *   static  default — mobile, reduced motion, no JS, and any width below 64rem:
+ *           a vertical stack of full-width cards, each with its layer strip.
+ *           From 64rem the card lays the cover beside its meta.
+ *   live    .work[data-mode="live"] at ≥ 64rem: the pinned horizontal track.
+ *           The track is taller than the viewport by the rail's travel
+ *           (--work-travel, measured by WorkStage); the stage sticks to the top.
+ */
+
+@layer components {
+  /* Project cover ------------------------------------------------------ */
+  .project-cover {
+    position: relative;
+    aspect-ratio: var(--cover-ratio);
+    overflow: clip;
+    border: var(--line) solid var(--color-hairline);
+    background-color: var(--color-graphite);
+  }
+
+  .project-cover__media {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: start;
+    padding: --spacing(4);
+  }
+
+  .project-cover__image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Drafting convention for an image area still to come: a crossed box. */
+  .project-cover__frame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: var(--color-hairline);
+    stroke-width: var(--line);
+  }
+
+  .project-cover__todo {
+    position: relative;
+    max-width: 100%;
+    background-color: var(--color-graphite);
+  }
+
+  /* Section ------------------------------------------------------------ */
+  .work {
+    grid-column: 1 / -1;
+  }
+
+  .work__rail {
+    display: flex;
+    flex-direction: column;
+    gap: --spacing(24);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .work__assembly {
+    display: none;
+  }
+
+  /* Panel -------------------------------------------------------------- */
+  .work-panel__body {
+    display: flex;
+    flex-direction: column;
+    gap: --spacing(6);
+  }
+
+  .work-panel__cover {
+    position: relative;
+  }
+
+  .work-panel__cover-link {
+    display: block;
+  }
+
+  /* Notes on the cover: what the image can't say. Labels sit on carbon so they read over any image. */
+  .work-panel__notes {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  /* Inline padding only: a taller label box would bend the leader's 45° leg. */
+  .work-panel__notes .part-label,
+  .work-panel__notes .dimension__value {
+    padding-inline: calc(var(--spacing) * 2);
+    background-color: var(--color-carbon);
+  }
+
+  /* A TODO marker takes the annotation's type size, so it can't stretch the leader's label row. */
+  .work-panel__notes mark {
+    font-size: inherit;
+    line-height: inherit;
+    vertical-align: top;
+  }
+
+  /* Target dot on the cover, label rising to the right. */
+  .work-panel__stack {
+    position: absolute;
+    bottom: 30%;
+    left: 8%;
+    max-width: 88%;
+  }
+
+  .work-panel__duration {
+    position: absolute;
+    inset-inline: --spacing(4);
+    bottom: --spacing(4);
+  }
+
+  /* Fine pointers raise the notes on hover / focus; touch always shows them (no hover-only content). */
+  @media (hover: hover) and (pointer: fine) {
+    .work-panel__notes {
+      opacity: 0;
+      transform: translateY(--spacing(2));
+      transition:
+        opacity var(--duration-small) var(--ease-settle),
+        transform var(--duration-small) var(--ease-settle);
+    }
+
+    .work-panel:hover .work-panel__notes,
+    .work-panel:focus-within .work-panel__notes {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: reduce) {
+    .work-panel__notes {
+      transform: none;
+      transition: opacity var(--duration-reduced) linear;
+    }
+  }
+
+  .work-panel__meta {
+    display: flex;
+    flex-direction: column;
+    gap: --spacing(6);
+    min-width: 0;
+  }
+
+  /* Title block: a strip of drawing-sheet cells. */
+  .work-panel__block {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: 0;
+    border-top: var(--line) solid var(--color-hairline);
+    border-left: var(--line) solid var(--color-hairline);
+  }
+
+  .work-panel__cell {
+    display: flex;
+    flex-direction: column;
+    gap: --spacing(2);
+    min-width: 0;
+    padding: --spacing(3);
+    border-right: var(--line) solid var(--color-hairline);
+    border-bottom: var(--line) solid var(--color-hairline);
+  }
+
+  .work-panel__cell--outcome {
+    grid-column: 1 / -1;
+  }
+
+  .work-panel__cell dt {
+    color: var(--color-dust);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    line-height: var(--text-micro--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  .work-panel__cell dd {
+    margin: 0;
+    font-size: var(--text-small);
+    line-height: var(--text-small--line-height);
+    overflow-wrap: anywhere;
+  }
+
+  .work-panel__part {
+    font-family: var(--font-mono);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  .work-panel__outcome {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: --spacing(2) --spacing(3);
+  }
+
+  .work-panel__outcome-value {
+    font-family: var(--font-display);
+    font-size: var(--text-heading);
+    font-weight: var(--font-weight-black);
+    line-height: var(--text-heading--line-height);
+    font-variant-numeric: tabular-nums;
+    text-transform: uppercase;
+  }
+
+  .work-panel__outcome-label {
+    color: var(--color-dust);
+  }
+
+  .work-panel__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-display-m);
+    font-weight: var(--font-weight-black);
+    line-height: var(--text-display-m--line-height);
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+
+  .work-panel__link {
+    color: var(--color-bone);
+    text-decoration: none;
+  }
+
+  .work-panel__layers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: --spacing(2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Layer strip --------------------------------------------------------- */
+  .layer-strip {
+    --glyph: var(--layer-glyph);
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .layer-strip[data-variant="full"] {
+    --glyph: var(--layer-glyph-full);
+  }
+
+  /* The assembly axis, hidden behind each plate. */
+  .layer-strip::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: calc(var(--glyph) / 2);
+    height: var(--line);
+    background-color: var(--color-hairline);
+  }
+
+  .layer-strip__part {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: --spacing(2);
+    min-width: 0;
+  }
+
+  .layer-strip__plate {
+    display: block;
+    height: var(--glyph);
+    overflow: visible;
+  }
+
+  .layer-strip__fill {
+    fill: var(--color-carbon);
+  }
+
+  .layer-strip__line {
+    fill: none;
+    stroke: var(--color-dust);
+    stroke-width: var(--line);
+    opacity: 0.5;
+    transition: opacity var(--duration-small) var(--ease-settle);
+  }
+
+  .layer-strip__line--lit {
+    stroke: var(--color-coolant);
+    opacity: 0;
+  }
+
+  .layer-strip__part[data-lit] .layer-strip__line {
+    opacity: 0;
+  }
+
+  .layer-strip__part[data-lit] .layer-strip__line--lit {
+    opacity: 1;
+  }
+
+  .layer-strip__label {
+    max-width: 100%;
+    overflow: hidden;
+    color: var(--color-dust);
+    text-overflow: ellipsis;
+  }
+
+  .layer-strip__part[data-lit] .layer-strip__label,
+  .layer-strip__part[data-lit] .part-label__number {
+    color: var(--color-bone);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .layer-strip__line {
+      transition: opacity var(--duration-reduced) linear;
+    }
+  }
+
+  /* Static, wide: cover beside its meta ------------------------------- */
+  @media (width >= 48rem) {
+    .work-panel__block {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .work-panel__cell--outcome {
+      grid-column: auto;
+    }
+  }
+
+  @media (width >= 64rem) {
+    .work-panel__body {
+      display: grid;
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      column-gap: var(--grid-gutter);
+      align-items: start;
+    }
+
+    .work-panel__block {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .work-panel__cell--outcome {
+      grid-column: 1 / -1;
+    }
+
+    /* Live: the pinned track -------------------------------------------- */
+    .work[data-mode="live"] {
+      height: calc(100svh + var(--work-travel, 0px));
+    }
+
+    .work[data-mode="live"] .work__stage {
+      position: sticky;
+      top: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: --spacing(8);
+      height: 100svh;
+      margin-inline: calc(var(--grid-margin) * -1);
+      padding-block: calc(var(--header-height) + --spacing(4)) --spacing(6);
+      overflow: clip;
+    }
+
+    .work[data-mode="live"] .work__rail {
+      flex-direction: row;
+      align-self: flex-start;
+      gap: var(--work-gap);
+      width: max-content;
+      /* Centres the first panel at the start and the last at the end of the travel. */
+      padding-inline: calc((100% - var(--work-panel)) / 2);
+      will-change: transform;
+    }
+
+    .work[data-mode="live"] .work-panel {
+      flex: none;
+      width: var(--work-panel);
+    }
+
+    .work[data-mode="live"] .work-panel__body {
+      display: flex;
+      align-items: stretch;
+      gap: --spacing(4);
+    }
+
+    /* Title + tags on the left, the title block on the right. */
+    .work[data-mode="live"] .work-panel__meta {
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+      grid-template-rows: auto 1fr;
+      gap: --spacing(3) var(--grid-gutter);
+    }
+
+    .work[data-mode="live"] .work-panel__title {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .work[data-mode="live"] .work-panel__layers {
+      grid-column: 1;
+      grid-row: 2;
+      align-self: start;
+    }
+
+    .work[data-mode="live"] .work-panel__block {
+      grid-column: 2;
+      grid-row: 1 / 3;
+      align-self: start;
+    }
+
+    .work[data-mode="live"] .work-panel__strip {
+      display: none;
+    }
+
+    .work[data-mode="live"] .work__assembly {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--grid-gutter);
+      padding-inline: var(--grid-margin);
+    }
+
+    .work__readout {
+      display: flex;
+      flex: none;
+      flex-direction: column;
+      gap: --spacing(2);
+      width: --spacing(32);
+      margin: 0;
+      color: var(--color-bone);
+      font-family: var(--font-mono);
+      font-size: var(--text-label);
+      line-height: var(--text-label--line-height);
+      letter-spacing: var(--text-label--letter-spacing);
+      text-transform: uppercase;
+    }
+
+    /* The centred project's part number: the track's one signal. */
+    .work__readout [data-work="readout-part"]::before {
+      content: "";
+      display: inline-block;
+      width: var(--leader-dot);
+      height: var(--leader-dot);
+      margin-inline-end: --spacing(2);
+      border-radius: 50%;
+      background-color: var(--color-signal);
+      vertical-align: middle;
+    }
+
+    .work__readout-count {
+      color: var(--color-dust);
+    }
+
+    .work__strip {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+  }
+
+  /* Page wipe (fallback transition) ----------------------------------- */
+  .page-wipe {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-overlay);
+    display: grid;
+    place-items: center;
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    transform: scaleY(0);
+    pointer-events: none;
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  .page-wipe[data-state] {
+    pointer-events: auto;
+  }
+}

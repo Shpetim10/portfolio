@@ -61,6 +61,44 @@
     pointer-events: none;
   }
 
+  /* VIEW TRANSITIONS --------------------------------------------------- */
+  /*
+   * Opening a project (src/motion/transitions.ts): its cover morphs from the
+   * work panel into the case-study header on machine easing (large, 1000ms) —
+   * a mechanical move — while the rest of the page crossfades underneath.
+   * Clicks pass through to the live page while the overlay is up.
+   * Reduced: nothing moves; the cover crossfades in place at its destination.
+   * Browsers without the API get the page wipe instead (src/motion/PageWipe.tsx).
+   */
+  ::view-transition {
+    pointer-events: none;
+  }
+
+  ::view-transition-group(.cover-morph),
+  ::view-transition-old(.cover-morph),
+  ::view-transition-new(.cover-morph) {
+    animation-duration: var(--duration-large);
+    animation-timing-function: var(--ease-machine);
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: var(--duration-medium);
+    animation-timing-function: var(--ease-settle);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(*) {
+      animation: none;
+    }
+
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+      animation-duration: var(--duration-reduced);
+      animation-timing-function: linear;
+    }
+  }
+
   /* Cursor ------------------------------------------------------------- */
   .cursor {
     position: fixed;

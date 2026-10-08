@@ -4,6 +4,7 @@ import { SiteHeader } from "@/components/chrome/SiteHeader";
 import { getProfile, isTodo } from "@/content";
 import { Cursor } from "@/motion/Cursor";
 import { MotionProvider } from "@/motion/MotionProvider";
+import { PageWipe } from "@/motion/PageWipe";
 import { fontVariables } from "@/styles/fonts";
 import "@/styles/globals.css";
 
@@ -35,6 +36,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <main id="main" tabIndex={-1}>
             {children}
           </main>
+          <PageWipe />
           <Cursor />
         </MotionProvider>
       </body>

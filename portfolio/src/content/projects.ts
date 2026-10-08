@@ -30,5 +30,5 @@ const placeholderProject = (n: number): Project => {
   };
 };
 
-// TODO(content): replace the example entries with real projects (slugs become URLs).
-export const projects: Project[] = [placeholderProject(1), placeholderProject(2)];
+// TODO(content): replace the example entries with 3–5 real projects (slugs become URLs).
+export const projects: Project[] = [placeholderProject(1), placeholderProject(2), placeholderProject(3)];

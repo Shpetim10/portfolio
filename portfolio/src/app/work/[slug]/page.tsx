@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Content } from "@/components/ui/Content";
+import { ProjectCover } from "@/components/ui/ProjectCover";
 import { getProject, getProjectSlugs, isTodo } from "@/content";
 
 // Only slugs from /src/content are exported; anything else is a 404.
@@ -27,7 +28,9 @@ export default async function WorkPage({ params }: PageProps<"/work/[slug]">) {
 
   return (
     <article className="layout-grid gap-y-12 section-pad">
-      <header className="col-span-full">
+      <header className="col-span-full flex flex-col gap-6">
+        {/* The work panel's cover morphs into this one (T06). */}
+        <ProjectCover project={project} eager />
         <p className="font-mono text-label text-dust uppercase">{project.partNumber}</p>
         <h1 className="font-display text-display-l font-black uppercase">
           <Content value={project.title} />
@@ -44,7 +47,10 @@ export default async function WorkPage({ params }: PageProps<"/work/[slug]">) {
           <Content as="dd" value={project.duration} />
         </div>
       </dl>
-      <Link href="/" className="col-span-full font-mono text-label uppercase underline underline-offset-4">
+      <Link
+        href="/#work"
+        className="col-span-full font-mono text-label uppercase underline underline-offset-4"
+      >
         ← Index
       </Link>
     </article>
