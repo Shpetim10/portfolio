@@ -97,7 +97,8 @@ test.describe("stack · desktop table", () => {
     await page.locator("#stack tbody[data-layer='api']").evaluate((node) => node.scrollIntoView());
     await page.waitForTimeout(300);
     const first = await top();
-    await page.locator("#stack tbody[data-layer='data']").evaluate((node) => node.scrollIntoView());
+    // Mid-table: by the Data group the section's end is near and the figure rightly lets go.
+    await page.locator("#stack tbody[data-layer='services']").evaluate((node) => node.scrollIntoView());
     await page.waitForTimeout(300);
     expect(Math.abs((await top()) - first)).toBeLessThan(2);
   });

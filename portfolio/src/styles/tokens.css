@@ -181,6 +181,12 @@
   --stack-figure-compact: 7.5rem; /* its height in the phone's sticky bar */
   --bom-part-col: 7rem; /* PART NO. column: "P/N 05" / "05.12" in label mono */
 
+  /* Experience (T09) */
+  --rev-rail: 2rem; /* spine → REV marker: node, tick, gap */
+  --rev-tick: calc(var(--rev-rail) - var(--leader-dot) - var(--annotation-gap));
+  --rev-col: 7.5rem; /* REV column: the rail + "REV AA" in label mono */
+  --rev-date-col: 10rem; /* DATE column: "SEP 2023 —" / "PRESENT", breaking after the dash */
+
   /* Focus */
   --focus-width: 2px;
   --focus-offset: 3px;

@@ -13,12 +13,26 @@ import type { Award, Experience, Metric, Profile, Project, Skill, Testimonial, W
 import { writing } from "./writing";
 
 export type * from "./types";
+import { isTodo } from "./todo";
 export { isTodo } from "./todo";
 
 export class ContentError extends Error {
   constructor(message: string) {
     super(`[content] ${message}`);
   }
+}
+
+const MONTH = /^(\d{4})-(0[1-9]|1[0-2])$/;
+
+/** "2023-04" → { year: 2023, month: 4 }. Undefined for anything else ("present", TODO, typos). */
+export function parseMonth(value: string): { year: number; month: number } | undefined {
+  const match = MONTH.exec(value);
+  return match ? { year: Number(match[1]), month: Number(match[2]) } : undefined;
+}
+
+function toMonths(value: string) {
+  const month = parseMonth(value);
+  return month ? month.year * 12 + month.month - 1 : NaN;
 }
 
 function validate(): void {
@@ -63,6 +77,25 @@ function validate(): void {
     }
   }
 
+  // T09 renders each role's dates as a revision's date range.
+  for (const role of experience) {
+    const name = isTodo(role.company) ? "A role" : `Role "${role.company}"`;
+    if (!role.company.trim() || !role.title.trim())
+      throw new ContentError(`${name} needs a company and a title.`);
+    if (!isTodo(role.start) && !parseMonth(role.start)) {
+      throw new ContentError(`${name} starts "${role.start}": write it as YYYY-MM.`);
+    }
+    if (!isTodo(role.end) && role.end !== "present" && !parseMonth(role.end)) {
+      throw new ContentError(`${name} ends "${role.end}": write it as YYYY-MM or "present".`);
+    }
+    if (role.end !== "present" && toMonths(role.end) < toMonths(role.start)) {
+      throw new ContentError(`${name} ends before it starts.`);
+    }
+    if (!role.highlights.some(isTodo) && (role.highlights.length < 2 || role.highlights.length > 3)) {
+      throw new ContentError(`${name} needs 2–3 highlights (found ${role.highlights.length}).`);
+    }
+  }
+
   // T05 lays metrics out as one row of 4–5; the first is the lead (it carries the signal dot).
   if (metrics.length > 0 && (metrics.length < 4 || metrics.length > 5)) {
     throw new ContentError(`Supply 4–5 metrics (found ${metrics.length}).`);
@@ -99,13 +132,18 @@ export const getNextProject = (slug: string): Project | undefined => {
 };
 
 export const getSkills = (): Skill[] => skills;
-export const getExperience = (): Experience[] => experience;
+export const getExperience = (): Experience[] => newestFirst(experience);
 
-const MONTH = /^(\d{4})-(0[1-9]|1[0-2])$/;
-const toMonths = (value: string) => {
-  const match = MONTH.exec(value);
-  return match ? Number(match[1]) * 12 + Number(match[2]) - 1 : NaN;
-};
+// Unknown (TODO) dates sort as newest: a placeholder role is the one still being written.
+const recency = (value: string) =>
+  value === "present" || Number.isNaN(toMonths(value)) ? Infinity : toMonths(value);
+const descending = (a: number, b: number) => (a === b ? 0 : a > b ? -1 : 1);
+
+/** Roles newest first: by end ("present" first), then by start; ties keep the content's (newest-first) order. */
+export const newestFirst = (roles: Experience[]): Experience[] =>
+  [...roles].sort(
+    (a, b) => descending(recency(a.end), recency(b.end)) || descending(recency(a.start), recency(b.start)),
+  );
 
 /**
  * Years spent in the roles listed in experience, one decimal, rounded down.

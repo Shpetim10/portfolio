@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/Button";
 import { Counter } from "@/components/ui/Counter";
 import { LAYERS as LAYER_IDS } from "@/components/chrome/nav";
+import { Experience } from "@/components/sections/experience/Experience";
 import { MetricList } from "@/components/sections/metrics/Metrics";
 import { Stack } from "@/components/sections/stack/Stack";
 import { Work } from "@/components/sections/work/Work";
@@ -21,7 +22,14 @@ import type { DiagramLink, DiagramNode } from "@/components/case-study/diagram";
 import { Link } from "@/components/ui/Link";
 import { SectionShell } from "@/components/ui/SectionShell";
 import { Tag } from "@/components/ui/Tag";
-import { getFeaturedProjects, type Layer, type Metric, type Project, type Skill } from "@/content";
+import {
+  getFeaturedProjects,
+  type Experience as Role,
+  type Layer,
+  type Metric,
+  type Project,
+  type Skill,
+} from "@/content";
 import { CursorTargets, MotionScore } from "./MotionSpecimens";
 import { Replay } from "./Replay";
 import { Magnetic } from "@/motion/Magnetic";
@@ -57,7 +65,7 @@ const LAYERS = ["Interface", "API", "Services", "Data", "Infrastructure"] as con
 const SPECIMENS = [
   ["P0-02 · Primitives", ["Button", "Link", "Tag", "Counter", "Annotation", "Section shell"]],
   ["P0-03 · Motion", ["Motion score", "Reveal", "Annotate", "Calibrate", "Invert", "Magnetic", "Cursor"]],
-  ["Sections", ["Metrics", "Work", "Stack"]],
+  ["Sections", ["Metrics", "Work", "Stack", "Experience"]],
   ["T07 · Case study", ["Outcomes", "System diagram", "Figure"]],
 ] as const;
 
@@ -105,6 +113,42 @@ const SPECIMEN_SKILLS: Skill[] = SITE_STACK.flatMap(([layer, names]) =>
     ),
   })),
 );
+
+/**
+ * This repository's own history (git log), as a T09 revision history, newest
+ * first like the content file: every range falls in one month, so the order
+ * given breaks the ties. Same-month ranges read as one date.
+ */
+const SITE_HISTORY: Role[] = [
+  {
+    company: "This repository",
+    title: "T01–T09 · Homepage sections and case studies",
+    start: "2026-10",
+    end: "present",
+    highlights: [
+      "Preloader, header, hero and the exploded Instrument",
+      "Manifesto, metrics, the work track and MDX case studies",
+      "Stack bill of materials and this revision history",
+    ],
+  },
+  {
+    company: "This repository",
+    title: "P0 · Foundation, primitives and motion kit",
+    start: "2026-10",
+    end: "2026-10",
+    highlights: [
+      "Static export, design tokens and self-hosted fonts with matched fallbacks",
+      "Primitives, the five signature motions and this lab",
+    ],
+  },
+  {
+    company: "This repository",
+    title: "Scaffold",
+    start: "2026-10",
+    end: "2026-10",
+    highlights: ["Initialized the Next.js app", "Wrote the agent roles and task briefs"],
+  },
+];
 
 /** This site's own build and runtime, as a T07 system diagram — every part is in this repository. */
 const SITE_NODES: DiagramNode[] = [
@@ -581,6 +625,7 @@ export default function LabPage() {
       </SectionShell>
 
       <Stack skills={SPECIMEN_SKILLS} projects={SPECIMEN_PROJECTS} index={19} />
+      <Experience experience={SITE_HISTORY} index={20} />
     </>
   );
 }
