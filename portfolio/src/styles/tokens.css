@@ -203,6 +203,14 @@
   /* Peer review (T12) */
   --peer-measure: 40ch; /* line length of a quote set at heading size */
 
+  /* Contact + title block (T13) */
+  --contact-figure: 20rem; /* the reassembling Instrument over the primary button, from lg */
+  --contact-figure-compact: 7.5rem; /* …beside it, below lg */
+  --contact-led: 6px; /* the LED in flight, and the button's dot it becomes */
+  --contact-socket: 10px; /* the dot's ring on the primary button */
+  --field-message: 10rem; /* resting height of the message box */
+  --title-block-pad: 12px 16px; /* inside each title-block field */
+
   /* Focus */
   --focus-width: 2px;
   --focus-offset: 3px;

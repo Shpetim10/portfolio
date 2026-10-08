@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Preloader } from "@/components/chrome/Preloader";
 import { SiteHeader } from "@/components/chrome/SiteHeader";
+import { TitleBlock } from "@/components/chrome/TitleBlock";
 import { getProfile, isTodo } from "@/content";
 import { Cursor } from "@/motion/Cursor";
 import { MotionProvider } from "@/motion/MotionProvider";
@@ -39,6 +40,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <main id="main" tabIndex={-1}>
             {children}
           </main>
+          <TitleBlock />
           <PageWipe />
           <Cursor />
         </MotionProvider>

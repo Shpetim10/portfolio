@@ -1,0 +1,326 @@
+/*
+ * T13 contact (src/components/sections/contact). Static geometry, field and
+ * state styles; ContactStage scrubs the reassembly and the LED hop. Tokens only.
+ *
+ * Layout
+ *   < 64rem   line · station (Instrument beside the primary button) · email,
+ *             elsewhere, resume · form. Everything runs the full column.
+ *   ≥ 48rem   the three link groups sit side by side.
+ *   ≥ 64rem   line across the width; columns 1–5: station over the link groups;
+ *             columns 7–12: the form, top-aligned with the station.
+ *   static    (reduced motion / no JS) assembled Instrument, LED already in the
+ *             button's dot. No JS also hides the copy button (the address is a link).
+ */
+
+@layer components {
+  .contact-shell {
+    row-gap: --spacing(16);
+    align-items: start;
+  }
+
+  .contact__headline {
+    grid-column: 1 / -1;
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-display-xl);
+    font-weight: var(--font-weight-black);
+    line-height: var(--text-display-xl--line-height);
+    letter-spacing: var(--text-display-xl--letter-spacing);
+    text-transform: uppercase;
+    /* Display type may bleed past the grid edge. */
+    margin-inline-end: calc(var(--grid-margin) * -1);
+  }
+
+  .contact__label,
+  .contact__field-label,
+  .contact__state {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    font-weight: var(--font-weight-regular);
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  .contact__label,
+  .contact__field-label {
+    color: var(--color-dust);
+  }
+
+  /* Station: the Instrument and the button its LED lands in ---------------- */
+  .contact__station {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: var(--contact-figure-compact) minmax(0, 1fr);
+    align-items: end;
+    gap: --spacing(6);
+  }
+
+  .contact__figure {
+    position: relative;
+    aspect-ratio: 4 / 5; /* STATIC_BOX */
+    border-bottom: var(--line) solid var(--color-hairline); /* the bench it is assembled on */
+  }
+
+  .contact__cta {
+    position: relative;
+    justify-self: start;
+  }
+
+  .contact__primary .button__label {
+    display: inline-flex;
+    align-items: center;
+    gap: --spacing(3);
+  }
+
+  /* The button's indicator: a ring in the label colour; the dot fills it. */
+  .contact__socket {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: var(--contact-socket);
+    height: var(--contact-socket);
+    border: var(--line) solid currentColor;
+    border-radius: 50%;
+  }
+
+  .contact__socket-led {
+    width: var(--contact-led);
+    height: var(--contact-led);
+    border-radius: 50%;
+    background-color: currentColor;
+  }
+
+  /* The LED in flight: positioned by transform only (ContactStage). */
+  .contact__traveller {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: var(--z-content);
+    width: var(--contact-led);
+    height: var(--contact-led);
+    border-radius: 50%;
+    background-color: var(--color-signal);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Static: the LED already lives in the button. Live: on the Instrument until the hop. */
+  .contact__station:not([data-mode="live"]) .instrument-drawing__led {
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .contact__station[data-mode="live"]:not([data-hop]) .instrument-drawing__led,
+    .contact__station[data-lit] .contact__socket-led {
+      animation: hero-led calc(var(--led-cycle) / 2) var(--ease-machine) infinite alternate;
+    }
+  }
+
+  /* Channels: email, elsewhere, resume -------------------------------------- */
+  .contact__channels {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: --spacing(12);
+  }
+
+  .contact__group {
+    display: grid;
+    align-content: start;
+    gap: --spacing(4);
+  }
+
+  .contact__email {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: --spacing(3) --spacing(4);
+  }
+
+  .contact__address {
+    font-size: var(--text-body-l);
+    line-height: var(--text-body-l--line-height);
+    overflow-wrap: anywhere;
+  }
+
+  /* The confirmation holds its own width: the label swap never moves the line. */
+  .contact__copy {
+    min-width: 12ch;
+  }
+
+  .contact__copy[data-state="copied"] {
+    border-color: var(--color-bone);
+  }
+
+  @media (scripting: none) {
+    .contact__copy {
+      display: none;
+    }
+  }
+
+  .contact__links {
+    display: grid;
+    gap: --spacing(3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .contact__link-glyph {
+    display: inline-block;
+    margin-inline-start: --spacing(1);
+  }
+
+  /* Form -------------------------------------------------------------------- */
+  .contact__form-block {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: --spacing(6);
+  }
+
+  .contact__form,
+  .contact__done {
+    display: grid;
+    gap: --spacing(6);
+  }
+
+  .contact__field {
+    display: grid;
+    gap: --spacing(2);
+  }
+
+  .contact__input {
+    width: 100%;
+    min-height: var(--button-height);
+    padding: --spacing(3) --spacing(4);
+    border: var(--line) solid var(--color-hairline);
+    border-radius: 0;
+    background-color: transparent;
+    color: var(--color-bone);
+    font: inherit;
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    transition: border-color var(--duration-micro) var(--ease-snap);
+  }
+
+  textarea.contact__input {
+    min-height: var(--field-message);
+    resize: vertical;
+  }
+
+  @media (hover: hover) {
+    .contact__input:hover {
+      border-color: var(--color-dust);
+    }
+  }
+
+  .contact__input:focus-visible {
+    border-color: var(--color-bone);
+  }
+
+  .contact__field[data-invalid] .contact__input {
+    border-color: var(--color-signal);
+  }
+
+  .contact__error {
+    margin: 0;
+    color: var(--color-signal);
+    font-size: var(--text-small);
+    line-height: var(--text-small--line-height);
+  }
+
+  /* Honeypot: out of sight and out of reach (aria-hidden, tabindex -1 in the markup). */
+  .contact__trap {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .contact__submit {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: --spacing(4);
+  }
+
+  .contact__status:empty {
+    display: none;
+  }
+
+  .contact__status {
+    display: grid;
+    gap: --spacing(2);
+    padding-top: --spacing(4);
+    border-top: var(--line) solid var(--color-hairline);
+  }
+
+  .contact__state {
+    color: var(--color-bone);
+  }
+
+  .contact__state[data-tone="error"] {
+    color: var(--color-signal);
+  }
+
+  .contact__done {
+    justify-items: start;
+    padding: --spacing(6);
+    border: var(--line) solid var(--color-hairline);
+  }
+
+  .contact__note,
+  .contact__fallback {
+    margin: 0;
+    max-width: var(--container-measure);
+  }
+
+  .contact__fallback {
+    color: var(--color-dust);
+    font-size: var(--text-small);
+    line-height: var(--text-small--line-height);
+  }
+
+  .contact__fallback .link {
+    color: var(--color-bone);
+  }
+
+  /* Breakpoints ------------------------------------------------------------- */
+  @media (width >= 48rem) {
+    .contact__channels {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .contact__channels > :first-child {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (width >= 64rem) {
+    .contact-shell {
+      row-gap: --spacing(24);
+    }
+
+    .contact__station {
+      grid-column: 1 / span 5;
+      grid-row: 2;
+      grid-template-columns: minmax(0, var(--contact-figure));
+      align-items: start;
+      gap: --spacing(8);
+    }
+
+    .contact__channels {
+      grid-column: 1 / span 5;
+      grid-row: 3;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .contact__form-block {
+      grid-column: 7 / -1;
+      grid-row: 2 / span 2;
+    }
+  }
+}

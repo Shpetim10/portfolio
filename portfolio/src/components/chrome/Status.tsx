@@ -61,7 +61,8 @@ function useWallClock(step: number): number | null {
   );
 }
 
-function LocalTime({ timezone }: { timezone: string }) {
+/** The owner's local time, ticking (also the footer title block's LOCAL TIME field). */
+export function LocalTime({ timezone }: { timezone: string }) {
   const reduced = useReducedMotion();
   const step = reduced ? 60_000 : 1_000;
   const tick = useWallClock(step);

@@ -34,11 +34,29 @@ export const STATIC_ANCHORS = LAYERS.map((_, i) => ({
   y: `${fixed((rig.anchors[i * 2 + 1] / STATIC_BOX.height) * 100)}%`,
 }));
 
-const STATIC_ASSEMBLY = `translate(${fixed(rig.framing.x)} ${fixed(rig.framing.y)}) scale(${fixed(rig.framing.scale)})`;
+const assemblyOf = ({ framing }: typeof rig) =>
+  `translate(${fixed(framing.x)} ${fixed(framing.y)}) scale(${fixed(framing.scale)})`;
+const STATIC_ASSEMBLY = assemblyOf(rig);
+const EXPLODED_PLATES = Array.from(rig.plates, fixed);
+
+// The assembled pose (contact, T13: the Instrument put back together), framed the same way.
+const assembled = createRig();
+stack(0, assembled.plates);
+frame(0, STATIC_BOX.width, STATIC_BOX.height, true, assembled.framing);
+const ASSEMBLED_ASSEMBLY = assemblyOf(assembled);
+const ASSEMBLED_PLATES = Array.from(assembled.plates, fixed);
+
 const [LED_X, LED_Y] = face(0, LED_FACE.u, LED_FACE.v);
 const PAINT_ORDER = [...LAYERS].reverse();
 
-export function InstrumentDrawing({ lit = false }: { lit?: boolean }) {
+type InstrumentDrawingProps = {
+  lit?: boolean;
+  /** Server-rendered pose: exploded (default) or assembled. Labels (STATIC_ANCHORS) fit the exploded one. */
+  pose?: "exploded" | "assembled";
+};
+
+export function InstrumentDrawing({ lit = false, pose = "exploded" }: InstrumentDrawingProps) {
+  const plates = pose === "assembled" ? ASSEMBLED_PLATES : EXPLODED_PLATES;
   return (
     <svg
       className="instrument-drawing"
@@ -47,7 +65,7 @@ export function InstrumentDrawing({ lit = false }: { lit?: boolean }) {
       aria-hidden="true"
       focusable="false"
     >
-      <g data-part="assembly" transform={STATIC_ASSEMBLY}>
+      <g data-part="assembly" transform={pose === "assembled" ? ASSEMBLED_ASSEMBLY : STATIC_ASSEMBLY}>
         {PAINT_ORDER.map((layer) => {
           const t = THICKNESS[layer];
           const i = LAYERS.indexOf(layer);
@@ -57,7 +75,7 @@ export function InstrumentDrawing({ lit = false }: { lit?: boolean }) {
               key={layer}
               className="instrument-drawing__plate"
               data-layer={layer}
-              transform={`translate(0 ${fixed(rig.plates[i])})`}
+              transform={`translate(0 ${plates[i]})`}
             >
               <path className="instrument-drawing__fill" d={silhouette(0, t)} />
               <path className="instrument-drawing__line" d={lines} vectorEffect="non-scaling-stroke" />

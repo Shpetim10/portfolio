@@ -167,7 +167,8 @@ test.describe("motion kit · full motion", () => {
     const roundTrip = async () => {
       await page.getByRole("link", { name: "← Index" }).click();
       await page.waitForURL((url) => url.pathname === "/");
-      await expect(page.locator(".reveal")).toHaveCount(0);
+      // The lab's specimens are gone (the homepage has its own Reveal: the contact line).
+      await expect(page.locator("#reveal")).toHaveCount(0);
       await page.goBack();
       await page.waitForURL("**/lab/");
       await expect(page.locator("#reveal .reveal__line").first()).toBeAttached();

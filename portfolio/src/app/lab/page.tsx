@@ -16,6 +16,7 @@ import { Experience } from "@/components/sections/experience/Experience";
 import { MetricList } from "@/components/sections/metrics/Metrics";
 import { Stack } from "@/components/sections/stack/Stack";
 import { Testimonials } from "@/components/sections/testimonials/Testimonials";
+import { Contact } from "@/components/sections/contact/Contact";
 import { Work } from "@/components/sections/work/Work";
 import { Shot } from "@/components/case-study/Gallery";
 import { Outcomes } from "@/components/case-study/Outcomes";
@@ -69,7 +70,7 @@ const LAYERS = ["Interface", "API", "Services", "Data", "Infrastructure"] as con
 const SPECIMENS = [
   ["P0-02 · Primitives", ["Button", "Link", "Tag", "Counter", "Annotation", "Section shell"]],
   ["P0-03 · Motion", ["Motion score", "Reveal", "Annotate", "Calibrate", "Invert", "Magnetic", "Cursor"]],
-  ["Sections", ["Metrics", "Work", "Stack", "Experience", "Awards", "Peer review"]],
+  ["Sections", ["Metrics", "Work", "Stack", "Experience", "Awards", "Peer review", "Contact"]],
   ["T07 · Case study", ["Outcomes", "System diagram", "Figure"]],
 ] as const;
 
@@ -211,6 +212,18 @@ const SITE_GATES: Award[] = [
  * Layout fixtures for T12, in three lengths. These are not testimonials and say
  * so: nobody said them. The homepage shows only quotes from src/content/testimonials.ts.
  */
+/**
+ * Layout fixture for T13: a reserved example.com address and form endpoint, so the
+ * copy, validation and send states can be exercised. Not the owner's details —
+ * the homepage reads those from src/content/profile.ts.
+ */
+const SPECIMEN_CONTACT = {
+  email: "specimen@example.com",
+  socials: [{ label: "Specimen link", href: "https://example.com/specimen" }],
+  resumeUrl: "/resume.pdf",
+};
+const SPECIMEN_FORM_ENDPOINT = "https://forms.example.com/lab-specimen";
+
 const SPECIMEN_QUOTES: Testimonial[] = [
   {
     quote:
@@ -716,6 +729,12 @@ export default function LabPage() {
       <Experience experience={SITE_HISTORY} index={20} />
       <Awards awards={SITE_GATES} index={21} />
       <Testimonials testimonials={SPECIMEN_QUOTES} index={22} />
+      <Contact
+        profile={SPECIMEN_CONTACT}
+        endpoint={SPECIMEN_FORM_ENDPOINT}
+        resumeAvailable={false}
+        index={23}
+      />
       {/* Run-out: room for the record to leave, so its INVERT exit (section bottom at 40%) can fire. */}
       <div className="h-screen" aria-hidden="true" />
     </>

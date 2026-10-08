@@ -1,0 +1,100 @@
+/*
+ * T13 footer — the title block (src/components/chrome/TitleBlock.tsx).
+ * A ruled grid in the drawing's corner: each field a micro mono caption over
+ * its value, 1px hairlines between them. Tokens only; no motion beyond the clock.
+ *
+ * Layout
+ *   < 48rem   two columns; PROJECT spans both on top, LOCAL TIME both at the foot.
+ *   ≥ 48rem   three columns, two rows.
+ *   ≥ 64rem   one row of six; PROJECT the widest field.
+ */
+
+@layer components {
+  .title-block {
+    padding-block-end: var(--grid-margin);
+  }
+
+  .title-block__grid {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 0;
+    border-top: var(--line) solid var(--color-hairline);
+    border-left: var(--line) solid var(--color-hairline);
+  }
+
+  .title-block__field {
+    display: grid;
+    align-content: space-between;
+    gap: --spacing(3);
+    min-width: 0;
+    padding: var(--title-block-pad);
+    border-right: var(--line) solid var(--color-hairline);
+    border-bottom: var(--line) solid var(--color-hairline);
+  }
+
+  .title-block__field[data-field="project"] {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  /* Five fields under PROJECT on two columns: the clock closes the block full width. */
+  .title-block__field[data-field="time"] {
+    grid-column: 1 / -1;
+  }
+
+  .title-block__field dt,
+  .title-block__field dd {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-weight: var(--font-weight-regular);
+    text-transform: uppercase;
+  }
+
+  .title-block__field dt {
+    color: var(--color-dust);
+    font-size: var(--text-micro);
+    line-height: var(--text-micro--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+  }
+
+  .title-block__field dd {
+    color: var(--color-bone);
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+  }
+
+  .title-block__field dd.title-block__project {
+    font-family: var(--font-display);
+    font-size: var(--text-display-m);
+    font-weight: var(--font-weight-black);
+    line-height: var(--text-display-m--line-height);
+    letter-spacing: normal;
+  }
+
+  /* The clock keeps its own fixed widths (chrome.css); here it wraps if the field is narrow. */
+  .title-block__field .status__time {
+    flex-wrap: wrap;
+  }
+
+  @media (width >= 48rem) {
+    .title-block__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .title-block__field[data-field="project"],
+    .title-block__field[data-field="time"] {
+      grid-column: auto;
+      grid-row: auto;
+    }
+  }
+
+  @media (width >= 64rem) {
+    .title-block__grid {
+      grid-template-columns: 1.5fr 2fr repeat(3, minmax(0, 1fr)) 1.5fr;
+    }
+  }
+}
