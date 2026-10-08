@@ -108,6 +108,29 @@ function validate(): void {
 
   // T10 files the awards as one featured certificate and a record grouped by category.
   checkAwards(awards);
+
+  // T12 shows testimonials one at a time; an empty list hides the section.
+  checkTestimonials(testimonials);
+}
+
+/**
+ * Only real testimonials: every field written out (a TODO placeholder is not a
+ * quote anyone gave), and a source link, if any, is absolute.
+ */
+export function checkTestimonials(list: Testimonial[]): void {
+  for (const item of list) {
+    const name = item.name.trim() && !isTodo(item.name) ? `Testimonial from "${item.name}"` : "A testimonial";
+    for (const field of ["quote", "name", "title", "company", "relation"] as const) {
+      if (!item[field].trim() || isTodo(item[field])) {
+        throw new ContentError(
+          `${name} needs its ${field}: testimonials must be real, so leave the list empty instead of using a placeholder.`,
+        );
+      }
+    }
+    if (item.href !== undefined && !/^https?:\/\//.test(item.href)) {
+      throw new ContentError(`${name} needs an absolute http(s) link.`);
+    }
+  }
 }
 
 /** Exactly one featured award; every award titled, issued, dated and justified; proofs are absolute links. */

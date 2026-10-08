@@ -6,9 +6,10 @@ import { Hero } from "@/components/sections/hero/Hero";
 import { Manifesto } from "@/components/sections/manifesto/Manifesto";
 import { Metrics } from "@/components/sections/metrics/Metrics";
 import { Stack } from "@/components/sections/stack/Stack";
+import { Testimonials } from "@/components/sections/testimonials/Testimonials";
 import { Work } from "@/components/sections/work/Work";
 
-// Homepage sections land in /src/components/sections; below the field log is still the skeleton.
+// Homepage sections land in /src/components/sections; below peer review is still the skeleton.
 export default function HomePage() {
   return (
     <>
@@ -20,6 +21,7 @@ export default function HomePage() {
       <Experience />
       <Awards />
       <FieldLog />
+      <Testimonials />
       <div className="layout-grid gap-y-16 section-pad">
         <nav aria-label="Secondary" className="col-span-full">
           <Link href="/resume/" className="font-mono text-label uppercase underline underline-offset-4">

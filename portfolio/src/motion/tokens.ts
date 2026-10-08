@@ -15,7 +15,16 @@ export const EASE = {
   snap: "snap", // micro-interactions
 } as const;
 
-const DURATIONS = ["micro", "small", "medium", "large", "cinematic", "reduced", "decode"] as const;
+const DURATIONS = [
+  "micro",
+  "small",
+  "medium",
+  "large",
+  "cinematic",
+  "reduced",
+  "decode",
+  "autoplay",
+] as const;
 const STAGGERS = ["chars", "lines", "items"] as const;
 
 export type MotionTokens = {

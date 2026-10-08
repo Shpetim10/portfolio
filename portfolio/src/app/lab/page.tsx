@@ -15,6 +15,7 @@ import { Awards } from "@/components/sections/awards/Awards";
 import { Experience } from "@/components/sections/experience/Experience";
 import { MetricList } from "@/components/sections/metrics/Metrics";
 import { Stack } from "@/components/sections/stack/Stack";
+import { Testimonials } from "@/components/sections/testimonials/Testimonials";
 import { Work } from "@/components/sections/work/Work";
 import { Shot } from "@/components/case-study/Gallery";
 import { Outcomes } from "@/components/case-study/Outcomes";
@@ -31,6 +32,7 @@ import {
   type Metric,
   type Project,
   type Skill,
+  type Testimonial,
 } from "@/content";
 import { CursorTargets, MotionScore } from "./MotionSpecimens";
 import { Replay } from "./Replay";
@@ -67,7 +69,7 @@ const LAYERS = ["Interface", "API", "Services", "Data", "Infrastructure"] as con
 const SPECIMENS = [
   ["P0-02 · Primitives", ["Button", "Link", "Tag", "Counter", "Annotation", "Section shell"]],
   ["P0-03 · Motion", ["Motion score", "Reveal", "Annotate", "Calibrate", "Invert", "Magnetic", "Cursor"]],
-  ["Sections", ["Metrics", "Work", "Stack", "Experience", "Awards"]],
+  ["Sections", ["Metrics", "Work", "Stack", "Experience", "Awards", "Peer review"]],
   ["T07 · Case study", ["Outcomes", "System diagram", "Figure"]],
 ] as const;
 
@@ -203,6 +205,37 @@ const SITE_GATES: Award[] = [
   font("Big Shoulders Display", "big-shoulders-display"),
   font("Schibsted Grotesk", "schibsted-grotesk"),
   font("Martian Mono", "martian-mono"),
+];
+
+/**
+ * Layout fixtures for T12, in three lengths. These are not testimonials and say
+ * so: nobody said them. The homepage shows only quotes from src/content/testimonials.ts.
+ */
+const SPECIMEN_QUOTES: Testimonial[] = [
+  {
+    quote:
+      "Specimen quotation, set at heading size, to check how a long quote wraps within its measure and holds the same stage height as the others while the section steps between them. It is layout text, not something a person said.",
+    name: "Specimen A",
+    title: "Lab fixture",
+    company: "Design system",
+    relation: "Not a person",
+    href: "https://example.com/specimen",
+  },
+  {
+    quote: "Specimen quotation, short. Layout text, not a testimonial.",
+    name: "Specimen B",
+    title: "Lab fixture",
+    company: "Design system",
+    relation: "Not a person",
+  },
+  {
+    quote:
+      "Specimen quotation, medium length, to check that stepping from long to short moves nothing around it.",
+    name: "Specimen C",
+    title: "Lab fixture",
+    company: "Design system",
+    relation: "Not a person",
+  },
 ];
 
 /** This site's own build and runtime, as a T07 system diagram — every part is in this repository. */
@@ -682,6 +715,7 @@ export default function LabPage() {
       <Stack skills={SPECIMEN_SKILLS} projects={SPECIMEN_PROJECTS} index={19} />
       <Experience experience={SITE_HISTORY} index={20} />
       <Awards awards={SITE_GATES} index={21} />
+      <Testimonials testimonials={SPECIMEN_QUOTES} index={22} />
       {/* Run-out: room for the record to leave, so its INVERT exit (section bottom at 40%) can fire. */}
       <div className="h-screen" aria-hidden="true" />
     </>

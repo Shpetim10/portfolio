@@ -1,0 +1,164 @@
+/*
+ * T12 peer review — one quote at a time (src/components/sections/testimonials).
+ * Static geometry and the step transitions; PeerReview animates the scroll-in. Tokens only.
+ *
+ * Layout
+ *   all sizes   label · stage: every quote sits in one grid cell (the stage is as
+ *               tall as the longest quote, so stepping never shifts the page) ·
+ *               controls beneath, over a hairline.
+ *   < 48rem     controls wrap; pause/play takes its own line.
+ *   ≥ 48rem     controls on one line, pause/play at the far end.
+ *   no JS       every quote is listed in turn, the controls are left out.
+ */
+
+@layer components {
+  .peer {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: --spacing(12);
+  }
+
+  .peer__label,
+  .peer__attribution,
+  .peer__count {
+    margin: 0;
+    color: var(--color-dust);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    font-weight: var(--font-weight-regular);
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  .peer__stage {
+    display: grid;
+    gap: --spacing(12);
+  }
+
+  .peer__slides {
+    display: grid;
+  }
+
+  /* Slides ------------------------------------------------------------------- */
+  /*
+   * Inactive slides are out of sight and out of the tab order (visibility), and
+   * aria-hidden. Stepping is sequenced: the old quote fades out (small), then
+   * the new one rises in (medium) — never two quotes on screen at once.
+   */
+  .peer__slide {
+    grid-area: 1 / 1;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(--spacing(2));
+    transition:
+      opacity var(--duration-small) var(--ease-settle),
+      transform var(--duration-small) var(--ease-settle),
+      visibility 0s linear var(--duration-small);
+  }
+
+  .peer__slide[data-active] {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition:
+      opacity var(--duration-medium) var(--ease-settle) var(--duration-small),
+      transform var(--duration-medium) var(--ease-settle) var(--duration-small),
+      visibility 0s linear var(--duration-small);
+  }
+
+  .peer__figure {
+    margin: 0;
+    display: grid;
+    gap: --spacing(6);
+    max-width: var(--peer-measure);
+  }
+
+  .peer__quote {
+    margin: 0;
+    quotes: "\201C" "\201D";
+    font-family: var(--font-text);
+    font-size: var(--text-heading);
+    font-weight: var(--text-heading--font-weight);
+    line-height: var(--text-heading--line-height);
+    text-wrap: pretty;
+  }
+  .peer__quote p {
+    margin: 0;
+  }
+  .peer__quote p::before {
+    content: open-quote;
+  }
+  .peer__quote p::after {
+    content: close-quote;
+  }
+
+  .peer__attribution {
+    line-height: var(--text-small--line-height); /* wraps to two lines on phones: open it up */
+    text-wrap: balance;
+  }
+
+  .peer__source {
+    color: var(--color-bone);
+    text-underline-offset: 0.2em;
+  }
+  .peer__source:hover {
+    text-decoration: underline;
+  }
+
+  /* Controls ----------------------------------------------------------------- */
+  .peer__controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: --spacing(3) --spacing(4);
+    padding-top: --spacing(6);
+    border-top: var(--line) solid var(--color-hairline);
+  }
+
+  .peer__count {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .peer__toggle {
+    flex-basis: 100%;
+    justify-self: start;
+  }
+
+  @media (min-width: 48rem) {
+    .peer__toggle {
+      flex-basis: auto;
+      margin-inline-start: auto;
+    }
+  }
+
+  /* No JS: no stepping, so list every quote ---------------------------------- */
+  @media (scripting: none) {
+    .peer__slides {
+      gap: --spacing(12);
+    }
+    .peer__slide {
+      grid-area: auto;
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+    }
+    .peer__controls {
+      display: none;
+    }
+  }
+
+  /* Reduced motion: a 200ms fade, no travel, no sequencing ------------------- */
+  @media (prefers-reduced-motion: reduce) {
+    .peer__slide,
+    .peer__slide[data-active] {
+      transform: none;
+      transition:
+        opacity var(--duration-reduced) linear,
+        visibility 0s linear var(--duration-reduced);
+    }
+    .peer__slide[data-active] {
+      transition-delay: 0s;
+    }
+  }
+}

@@ -100,6 +100,7 @@
   --duration-cinematic: 1400ms;
   --duration-reduced: 200ms; /* reduced-motion opacity fade */
   --duration-decode: 400ms; /* ANNOTATE mono label scramble — never longer */
+  --duration-autoplay: 8000ms; /* dwell per quote in PEER REVIEW's autoplay (T12): a pause between moves, not an animation */
   --stagger-chars: 0.02s;
   --stagger-lines: 0.08s;
   --stagger-items: 0.06s;
@@ -198,6 +199,9 @@
   --seal-relief-opacity: 0.3;
   --certificate-inset: 8px; /* inner rule of the certificate's double frame */
   --stamp-inset: 3px; /* …and of a category stamp */
+
+  /* Peer review (T12) */
+  --peer-measure: 40ch; /* line length of a quote set at heading size */
 
   /* Focus */
   --focus-width: 2px;
