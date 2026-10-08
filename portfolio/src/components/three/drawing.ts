@@ -61,6 +61,13 @@ export const silhouette = (y: number, t: number) =>
 export const body = (y: number, t: number) =>
   `${rhombus(y, 0, 0, 1)}M${-W},${y}V${y + t}L0,${y + H + t}L${W},${y + t}V${y}M0,${y + H}V${y + H + t}`;
 
+/**
+ * All twelve edges, hidden ones included: a part drawn in phantom lines where it
+ * should sit but doesn't (the 404's missing plate). The 3D phantom draws the same box.
+ */
+export const wireframe = (y: number, t: number) =>
+  `${body(y, t)}M0,${y - H}V${y - H + t}M${-W},${y + t}L0,${y - H + t}L${W},${y + t}`;
+
 const SERVICE_MODULES = [
   [-0.45, -0.45],
   [0.45, -0.45],

@@ -1,0 +1,55 @@
+/*
+ * The Instrument as a line drawing (src/components/three/InstrumentDrawing.tsx),
+ * wherever it appears: hero, menu, stack, contact, the 404. Sections position
+ * and animate it; these are its strokes and fills. Tokens only.
+ */
+
+@layer components {
+  .instrument-drawing {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .instrument-drawing__fill {
+    fill: var(--color-carbon);
+  }
+
+  .instrument-drawing__line {
+    fill: none;
+    stroke: var(--color-dust);
+    stroke-width: var(--line);
+    stroke-linejoin: round;
+  }
+
+  /* The lit stroke (InstrumentDrawing lit): hidden until a section lights its plate. */
+  .instrument-drawing__line--lit {
+    stroke: var(--color-coolant);
+    opacity: 0;
+  }
+
+  /* A missing part (InstrumentDrawing missing): phantom lines, long dash · short dash. */
+  .instrument-drawing__phantom {
+    fill: none;
+    stroke: var(--color-dust);
+    stroke-width: var(--line);
+    stroke-dasharray: var(--phantom-dash);
+  }
+
+  .instrument-drawing__led {
+    fill: var(--color-signal);
+  }
+
+  /* LED breathing (idle motion), keyed on by each section. */
+  @keyframes hero-led {
+    from {
+      opacity: 0.35;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+}

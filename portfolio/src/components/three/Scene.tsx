@@ -3,6 +3,7 @@
 import { advance, Canvas, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, type RefObject } from "react";
 import { NeutralToneMapping, type OrthographicCamera } from "three";
+import type { Layer } from "@/content/types";
 import type { Rig } from "./choreography";
 import { Instrument, orientCamera } from "./Instrument";
 import { lightColors } from "./materials";
@@ -16,6 +17,7 @@ import { lightColors } from "./materials";
  * hero an `advance(time)` that renders one frame, called from the GSAP ticker —
  * the site's single requestAnimationFrame loop — right after Lenis and
  * ScrollTrigger have updated, so the render always matches this frame's scroll.
+ * (The 404 has no GSAP: its stage owns the page's one loop and calls advance.)
  * It hands that over only after every shader has compiled in parallel
  * (compileAsync), so mounting the scene never blocks the main thread.
  *
@@ -33,6 +35,8 @@ export type SceneProps = {
   rig: RefObject<Rig | null>;
   quality: Quality;
   dpr: number;
+  /** A part to draw in phantom lines instead of solid (the 404). */
+  missing?: Layer;
   /** Accept a software-rendered context (test probe only). */
   allowSoftware?: boolean;
   /** Receives the per-frame render function once the scene is mounted, and null when it unmounts. */
@@ -41,7 +45,7 @@ export type SceneProps = {
   onLost: () => void;
 };
 
-export default function Scene({ rig, quality, dpr, allowSoftware, onReady, onLost }: SceneProps) {
+export default function Scene({ rig, quality, dpr, missing, allowSoftware, onReady, onLost }: SceneProps) {
   return (
     <Canvas
       orthographic
@@ -62,7 +66,7 @@ export default function Scene({ rig, quality, dpr, allowSoftware, onReady, onLos
       aria-hidden
     >
       <Lights />
-      <Instrument rig={rig} grain={quality === "high"} />
+      <Instrument rig={rig} grain={quality === "high"} missing={missing} />
       <Ready onReady={onReady} onLost={onLost} />
     </Canvas>
   );

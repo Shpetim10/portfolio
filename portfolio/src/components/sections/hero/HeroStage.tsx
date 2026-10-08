@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  Component,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  type ComponentType,
-  type ReactNode,
-} from "react";
+import { useCallback, useEffect, useRef, useState, type ComponentType, type ReactNode } from "react";
 import { LAYERS } from "@/components/chrome/nav";
 import {
   annotateAt,
@@ -22,6 +14,7 @@ import {
   type Rig,
 } from "@/components/three/choreography";
 import type { Quality, SceneProps } from "@/components/three/Scene";
+import { SceneBoundary } from "@/components/three/SceneBoundary";
 import { canRender3D } from "@/components/three/webgl";
 import { gsap, ScrollTrigger, SplitText, useGSAP } from "@/motion/gsap";
 import { useDeviceTier } from "@/motion/hooks/useDeviceTier";
@@ -445,21 +438,4 @@ export function HeroStage({ name, drawing, notes, footer, labelledBy }: HeroStag
 /** First time the hero's choreography is live: the "interactive" mark the acceptance test reads. */
 function markInteractive() {
   if (performance.getEntriesByName("hero:interactive").length === 0) performance.mark("hero:interactive");
-}
-
-/** WebGL can still fail after the capability probe (driver reset, lost context): fall back to the drawing. */
-class SceneBoundary extends Component<{ onError: () => void; children: ReactNode }, { failed: boolean }> {
-  state = { failed: false };
-
-  static getDerivedStateFromError() {
-    return { failed: true };
-  }
-
-  componentDidCatch() {
-    this.props.onError();
-  }
-
-  render() {
-    return this.state.failed ? null : this.props.children;
-  }
 }

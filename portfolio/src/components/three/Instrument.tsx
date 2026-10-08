@@ -5,7 +5,10 @@ import { useEffect, useMemo, type RefObject } from "react";
 import {
   BoxGeometry,
   CylinderGeometry,
+  EdgesGeometry,
   Group,
+  LineDashedMaterial,
+  LineSegments,
   Mesh,
   RingGeometry,
   Vector3,
@@ -18,7 +21,7 @@ import { LAYERS } from "@/components/chrome/nav";
 import type { Layer } from "@/content/types";
 import { angleDelta, IDLE, thicknessOf, UNIT, UNIT_Y, VIEW_PITCH, VIEW_YAW, type Rig } from "./choreography";
 import { FEATURES, LED_FACE } from "./drawing";
-import { createMaterials, type GrainClock, type InstrumentMaterials } from "./materials";
+import { createMaterials, phantomColor, type GrainClock, type InstrumentMaterials } from "./materials";
 
 /*
  * The Instrument, built procedurally from the drawing's own numbers
@@ -27,6 +30,8 @@ import { createMaterials, type GrainClock, type InstrumentMaterials } from "./ma
  * Local axes match the drawing's face coordinates: x = u, z = v; a plate's
  * origin is its top-face centre and its body hangs below it.
  * Budget: ~5k triangles, 31 draw calls, no textures, no environment map.
+ * A `missing` part (the 404) is built as phantom lines instead: the plate's
+ * twelve edges, dashed, where it should sit (the drawing's wireframe()).
  *
  * Per frame (driven by the hero's ticker through advance()):
  *   model     yaw = idle spin blended into the iso view by `turn`; pointer parallax ±4°
@@ -39,10 +44,12 @@ import { createMaterials, type GrainClock, type InstrumentMaterials } from "./ma
 
 const INLAY = 0.006; // inlay depth; inlays sit just proud of the face (hidden when assembled)
 const DEG = Math.PI / 180;
+/** Phantom-line dash and gap, world units (a plate is 2 across). */
+const PHANTOM = { dashSize: 0.09, gapSize: 0.05 } as const;
 
 type Built = { model: Group; plates: Group[]; led: Mesh; dispose: () => void };
 
-function build(materials: InstrumentMaterials): Built {
+function build(materials: InstrumentMaterials, missing?: Layer): Built {
   const geometries: BufferGeometry[] = [];
   const keep = <G extends BufferGeometry>(geometry: G) => (geometries.push(geometry), geometry);
   const mesh = (geometry: BufferGeometry, material: Material, x = 0, y = 0, z = 0) => {
@@ -96,18 +103,27 @@ function build(materials: InstrumentMaterials): Built {
   };
 
   const model = new Group();
+  const phantom = missing ? new LineDashedMaterial({ color: phantomColor(), ...PHANTOM }) : null;
   const plates = LAYERS.map((layer) => {
     const t = thicknessOf(layer) * UNIT_Y;
     const plate = new Group();
+    model.add(plate);
+    if (layer === missing && phantom) {
+      const edges = new LineSegments(keep(new EdgesGeometry(keep(new BoxGeometry(2, t, 2)))), phantom);
+      edges.position.y = -t / 2;
+      edges.computeLineDistances();
+      plate.add(edges);
+      return plate;
+    }
     plate.add(
       mesh(keep(new RoundedBoxGeometry(2, t, 2, 3, Math.min(0.045, t * 0.3))), materials.titanium, 0, -t / 2),
     );
     details[layer](plate);
-    model.add(plate);
     return plate;
   });
 
   const led = mesh(lens, materials.led, LED_FACE.u, 0.01, LED_FACE.v);
+  led.visible = missing !== "interface";
   plates[0].add(led);
 
   return {
@@ -117,6 +133,7 @@ function build(materials: InstrumentMaterials): Built {
     dispose: () => {
       geometries.forEach((geometry) => geometry.dispose());
       Object.values(materials).forEach((material) => material.dispose());
+      phantom?.dispose();
     },
   };
 }
@@ -135,9 +152,11 @@ const CORNERS = [
 ] as const;
 const corner = new Vector3();
 
-export function Instrument({ rig: rigRef, grain }: { rig: RefObject<Rig | null>; grain: boolean }) {
+type InstrumentProps = { rig: RefObject<Rig | null>; grain: boolean; missing?: Layer };
+
+export function Instrument({ rig: rigRef, grain, missing }: InstrumentProps) {
   const clock = useMemo<GrainClock>(() => ({ value: 0 }), []);
-  const built = useMemo(() => build(createMaterials(grain ? clock : null)), [grain, clock]);
+  const built = useMemo(() => build(createMaterials(grain ? clock : null), missing), [grain, clock, missing]);
   useEffect(() => built.dispose, [built]);
 
   useFrame(({ camera, size, clock: time }) => {

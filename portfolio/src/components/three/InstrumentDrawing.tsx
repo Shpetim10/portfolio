@@ -1,6 +1,7 @@
 import { LAYERS } from "@/components/chrome/nav";
+import type { Layer } from "@/content/types";
 import { createRig, drawingAnchors, frame, stack } from "./choreography";
-import { body, DETAIL, face, LED_FACE, silhouette, THICKNESS } from "./drawing";
+import { body, DETAIL, face, LED_FACE, silhouette, THICKNESS, wireframe } from "./drawing";
 
 /*
  * The Instrument as an isometric line drawing. Three jobs:
@@ -53,9 +54,11 @@ type InstrumentDrawingProps = {
   lit?: boolean;
   /** Server-rendered pose: exploded (default) or assembled. Labels (STATIC_ANCHORS) fit the exploded one. */
   pose?: "exploded" | "assembled";
+  /** A part that isn't there (the 404): drawn in phantom lines, unfilled, where it should sit. */
+  missing?: Layer;
 };
 
-export function InstrumentDrawing({ lit = false, pose = "exploded" }: InstrumentDrawingProps) {
+export function InstrumentDrawing({ lit = false, pose = "exploded", missing }: InstrumentDrawingProps) {
   const plates = pose === "assembled" ? ASSEMBLED_PLATES : EXPLODED_PLATES;
   return (
     <svg
@@ -69,6 +72,23 @@ export function InstrumentDrawing({ lit = false, pose = "exploded" }: Instrument
         {PAINT_ORDER.map((layer) => {
           const t = THICKNESS[layer];
           const i = LAYERS.indexOf(layer);
+          if (layer === missing) {
+            return (
+              <g
+                key={layer}
+                className="instrument-drawing__plate"
+                data-layer={layer}
+                data-missing=""
+                transform={`translate(0 ${plates[i]})`}
+              >
+                <path
+                  className="instrument-drawing__phantom"
+                  d={wireframe(0, t)}
+                  vectorEffect="non-scaling-stroke"
+                />
+              </g>
+            );
+          }
           const lines = body(0, t) + DETAIL[layer](0);
           return (
             <g

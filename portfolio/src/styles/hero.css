@@ -218,39 +218,10 @@
     }
   }
 
-  /* The drawing ---------------------------------------------------------- */
-  .instrument-drawing {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-  }
-
+  /* The drawing (base styles: instrument.css) ------------------------------ */
   /* Live: hidden until the hero fades the active renderer in after the preloader. */
   .hero[data-mode="live"] .instrument-drawing {
     opacity: 0;
-  }
-
-  .instrument-drawing__fill {
-    fill: var(--color-carbon);
-  }
-
-  .instrument-drawing__line {
-    fill: none;
-    stroke: var(--color-dust);
-    stroke-width: var(--line);
-    stroke-linejoin: round;
-  }
-
-  /* The lit stroke (InstrumentDrawing lit): hidden until a section lights its plate. */
-  .instrument-drawing__line--lit {
-    stroke: var(--color-coolant);
-    opacity: 0;
-  }
-
-  .instrument-drawing__led {
-    fill: var(--color-signal);
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -313,16 +284,6 @@
 
     .instrument-note__line {
       max-width: 14ch;
-    }
-  }
-
-  @keyframes hero-led {
-    from {
-      opacity: 0.35;
-    }
-
-    to {
-      opacity: 1;
     }
   }
 

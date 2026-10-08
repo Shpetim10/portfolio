@@ -15,7 +15,7 @@ test.describe("static routes", () => {
   test("unknown route serves the 404 page", async ({ page }) => {
     const response = await page.goto("/work/does-not-exist/");
     expect(response?.status()).toBe(404);
-    await expect(page.locator("h1")).toHaveText("404");
+    await expect(page.locator("h1")).toHaveText(/part not found/i);
   });
 
   test("skip link is the first focusable element", async ({ page, isMobile }) => {

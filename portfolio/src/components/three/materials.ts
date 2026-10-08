@@ -72,4 +72,7 @@ export function createMaterials(grain: GrainClock | null) {
   };
 }
 
+/** Phantom lines (a missing part): annotation dust, as on the drawing. */
+export const phantomColor = () => token("dust");
+
 export const lightColors = () => ({ key: token("bone"), rim: token("coolant"), ground: token("carbon") });

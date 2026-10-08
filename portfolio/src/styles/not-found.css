@@ -1,0 +1,328 @@
+/*
+ * T14 · Stylesheet entry for the 404 (src/app/global-not-found.tsx), which
+ * renders outside the root layout and so outside globals.css. Same tokens,
+ * base and primitives; utilities generated only from the files it renders
+ * (source(none) + @source), so it stays a fraction of the site's CSS.
+ *
+ * Modes, on .pnf__figure:
+ *   (none)                 the exploded line drawing, missing part in phantom lines.
+ *   data-renderer="3d"     desktop with WebGL2, after first paint: the drawing
+ *                          cross-fades to the 3D render; drag / buttons turn it.
+ *   data-dragging          a drag is in progress.
+ */
+
+@import "tailwindcss" source(none);
+@source "../app/global-not-found.tsx";
+@source "../components/not-found";
+@source "../components/ui/Annotation.tsx";
+@import "./tokens.css";
+@import "./base.css";
+@import "./primitives.css";
+@import "./instrument.css";
+@import "./footer.css";
+
+/* Two faces only (src/styles/fonts-404.ts): running text is set in mono. */
+:root {
+  --font-text-face: var(--font-mono-face);
+}
+
+@layer components {
+  .pnf {
+    min-height: 100svh;
+    align-content: start;
+    row-gap: --spacing(8);
+    padding-block: --spacing(12) --spacing(16);
+  }
+
+  .pnf__head,
+  .pnf__stage,
+  .pnf__body {
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+
+  .pnf__head {
+    display: grid;
+    gap: --spacing(6);
+  }
+
+  .pnf__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-display-xl);
+    font-weight: var(--font-weight-black);
+    line-height: var(--text-display-xl--line-height);
+    letter-spacing: var(--text-display-xl--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  /* The figure ------------------------------------------------------------ */
+  .pnf__figure {
+    position: relative;
+    /* The drawing's 4:5 frame, capped by height: the width follows from it. */
+    aspect-ratio: 4 / 5;
+    width: min(100%, calc(var(--pnf-figure-max-compact) * 4 / 5));
+    margin: 0 auto;
+    touch-action: pan-y;
+  }
+
+  .pnf__figure .instrument-drawing__led {
+    animation: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .pnf__figure:not([data-renderer="3d"]) .instrument-drawing__led {
+      animation: hero-led calc(var(--led-cycle) / 2) var(--ease-machine) infinite alternate;
+    }
+  }
+
+  .pnf__canvas {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+  }
+
+  .pnf__canvas canvas {
+    display: block;
+  }
+
+  .pnf__figure .instrument-drawing,
+  .pnf__canvas {
+    transition: opacity var(--duration-medium) var(--ease-settle);
+  }
+
+  .pnf__figure[data-renderer="3d"] .instrument-drawing {
+    opacity: 0;
+  }
+
+  .pnf__figure[data-renderer="3d"] .pnf__canvas {
+    opacity: 1;
+  }
+
+  .pnf__figure[data-renderer="3d"] {
+    cursor: grab;
+  }
+
+  .pnf__figure[data-dragging] {
+    cursor: grabbing;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pnf__figure .instrument-drawing,
+    .pnf__canvas {
+      transition-duration: var(--duration-reduced);
+      transition-timing-function: linear;
+    }
+  }
+
+  /* The slot's dimension line, leader and callout. */
+  .pnf__annotation {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .pnf__marks {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    fill: none;
+    stroke: var(--color-dust);
+    stroke-width: var(--line);
+  }
+
+  .pnf__leader {
+    stroke: var(--color-bone);
+  }
+
+  .pnf__dot {
+    position: absolute;
+    width: var(--leader-dot);
+    height: var(--leader-dot);
+    translate: -50% -50%;
+    border-radius: 50%;
+    background: var(--color-signal);
+  }
+
+  .pnf__callout {
+    position: absolute;
+    display: grid;
+    gap: --spacing(1);
+    max-width: 40%;
+    margin: 0;
+    translate: 0 -50%;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+  }
+
+  .pnf__callout-part {
+    color: var(--color-bone);
+    font-size: var(--text-micro);
+    line-height: var(--text-micro--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+  }
+
+  .pnf__callout-status {
+    color: var(--color-signal);
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+  }
+
+  /* Rotate controls: only once the 3D Instrument is live (desktop). */
+  /* Top right: the stack sits left of centre, the corner above the callout is clear. */
+  .pnf__controls {
+    position: absolute;
+    inset-inline-end: 0;
+    inset-block-start: 0;
+    display: flex;
+    align-items: center;
+    gap: --spacing(2);
+  }
+
+  .pnf__hint {
+    margin: 0 --spacing(2) 0 0;
+    color: var(--color-dust);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    line-height: var(--text-micro--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  .pnf__turn {
+    display: grid;
+    place-items: center;
+    width: var(--button-height);
+    height: var(--button-height);
+    border: var(--line) solid var(--color-hairline);
+    background: transparent;
+    color: var(--color-bone);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    cursor: pointer;
+    transition: background-color var(--duration-micro) var(--ease-snap);
+  }
+
+  @media (hover: hover) {
+    .pnf__turn:hover {
+      background-color: var(--color-gunmetal);
+    }
+  }
+
+  /* Notes, actions, record ------------------------------------------------ */
+  .pnf__body {
+    display: grid;
+    gap: --spacing(12);
+    align-content: start;
+  }
+
+  .pnf__notes {
+    display: grid;
+    gap: --spacing(3);
+  }
+
+  .pnf__label {
+    margin: 0;
+    color: var(--color-dust);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    font-weight: var(--font-weight-regular);
+    line-height: var(--text-micro--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  .pnf__list {
+    display: grid;
+    gap: --spacing(2);
+    max-width: var(--container-measure);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: note;
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    line-height: var(--text-body--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  .pnf__list li {
+    display: grid;
+    grid-template-columns: --spacing(8) 1fr;
+    counter-increment: note;
+  }
+
+  .pnf__list li::before {
+    content: counter(note, decimal-leading-zero);
+    color: var(--color-dust);
+  }
+
+  .pnf__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: --spacing(6) --spacing(8);
+  }
+
+  .pnf__actions .link {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  .pnf__block {
+    max-width: var(--container-measure);
+  }
+
+  /* Requested and Part across the block; Status and Code share the last row. */
+  .pnf__block .pnf__wide {
+    grid-column: 1 / -1;
+  }
+
+  .pnf__path {
+    overflow-wrap: anywhere;
+    text-transform: none;
+  }
+
+  /* Tablet: the figure sits beside the notes ------------------------------- */
+  @media (width >= 48rem) {
+    .pnf__title {
+      font-size: var(--text-display-l);
+      line-height: var(--text-display-l--line-height);
+    }
+  }
+
+  /* Desktop ---------------------------------------------------------------- */
+  @media (width >= 64rem) {
+    .pnf {
+      grid-template-rows: auto 1fr;
+      row-gap: --spacing(12);
+      padding-block: --spacing(16);
+    }
+
+    .pnf__head {
+      grid-column: 1 / 7;
+      grid-row: 1;
+    }
+
+    .pnf__body {
+      grid-column: 1 / 7;
+      grid-row: 2;
+    }
+
+    .pnf__stage {
+      grid-column: 7 / -1;
+      grid-row: 1 / span 2;
+      align-self: center;
+    }
+
+    .pnf__figure {
+      width: min(100%, calc(var(--pnf-figure-max) * 4 / 5));
+    }
+  }
+}

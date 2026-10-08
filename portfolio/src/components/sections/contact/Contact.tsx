@@ -1,11 +1,10 @@
-import { existsSync } from "node:fs";
-import { join } from "node:path";
 import { InstrumentDrawing } from "@/components/three/InstrumentDrawing";
 import { Button } from "@/components/ui/Button";
 import { Content } from "@/components/ui/Content";
 import { Link } from "@/components/ui/Link";
 import { SectionShell } from "@/components/ui/SectionShell";
 import { getProfile, isTodo, type Profile } from "@/content";
+import { isPublished } from "@/content/files";
 import { todo } from "@/content/todo";
 import { Reveal } from "@/motion/signatures/reveal";
 import { ContactForm } from "./ContactForm";
@@ -39,10 +38,6 @@ const configuredEndpoint = () => {
   return value && /^https:\/\//.test(value) ? value : null;
 };
 
-/** The resume PDF only links once the file is actually in /public: no dead download. */
-const resumeExists = (href: string) =>
-  href.startsWith("/") && !href.includes("..") && existsSync(join(process.cwd(), "public", href));
-
 type ContactProps = {
   profile?: Pick<Profile, "email" | "socials" | "resumeUrl">;
   /** Form service endpoint; defaults to FORM_ENDPOINT. */
@@ -62,7 +57,7 @@ export function Contact({
 }: ContactProps) {
   const email = isTodo(profile.email) ? null : profile.email;
   const mailto = email ? `mailto:${email}` : null;
-  const resume = resumeAvailable ?? resumeExists(profile.resumeUrl);
+  const resume = resumeAvailable ?? isPublished(profile.resumeUrl);
 
   return (
     <SectionShell id={id} index={index} title="Contact" contentClassName="contact-shell">

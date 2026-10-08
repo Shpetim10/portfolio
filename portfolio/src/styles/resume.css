@@ -1,0 +1,437 @@
+/*
+ * T14 · Resume (src/components/resume/ResumeSheet.tsx). Ink on paper.
+ * The sheet is a [data-surface="paper"] surface, so bone / dust / hairline read
+ * as ink inside it (motion.css). Tokens only; no motion.
+ *
+ * Print: the sheet alone on one page. A4 is 210 × 297mm, US Letter 215.9 ×
+ * 279.4mm; inside 12mm margins both hold a 186 × 255mm box, and the sheet is
+ * laid out to fit that box (print type sizes: --print-*), with a one-page
+ * edit (ResumeSheet.tsx): older roles brief, the first few projects two to a
+ * row, outcomes inline. Paper is the
+ * printer's: no background is printed.
+ */
+
+@layer components {
+  .resume {
+    row-gap: --spacing(6);
+    padding-block: calc(var(--header-height) + --spacing(12)) var(--section-pad-y);
+  }
+
+  .resume__bar,
+  .resume__sheet {
+    grid-column: 1 / -1;
+    width: 100%;
+    max-width: var(--resume-sheet);
+    justify-self: center;
+  }
+
+  .resume__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: --spacing(4);
+  }
+
+  .resume__bar-label {
+    margin: 0;
+    color: var(--color-dust);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  .resume__bar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: --spacing(6);
+  }
+
+  .resume__download {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  /* The sheet -------------------------------------------------------------- */
+  .resume__sheet {
+    position: relative;
+    display: grid;
+    gap: --spacing(12);
+    padding: var(--resume-pad);
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+  }
+
+  .resume__head {
+    display: grid;
+    gap: --spacing(6);
+    padding-bottom: --spacing(8);
+    border-bottom: var(--line) solid var(--color-hairline);
+  }
+
+  .resume__identity {
+    display: grid;
+    gap: --spacing(2);
+  }
+
+  .resume__name {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-display-m);
+    font-weight: var(--font-weight-black);
+    line-height: var(--text-display-m--line-height);
+    text-transform: uppercase;
+  }
+
+  .resume__role,
+  .resume__positioning {
+    margin: 0;
+  }
+
+  .resume__role {
+    font-size: var(--text-heading);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--text-heading--line-height);
+  }
+
+  .resume__positioning {
+    max-width: var(--container-measure);
+  }
+
+  .resume__contact {
+    display: grid;
+    gap: --spacing(1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    line-height: var(--text-small--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+  }
+
+  .resume__link {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-thickness: var(--line);
+    text-underline-offset: 0.2em;
+  }
+
+  /* Shown when printed, where the link can't be followed. */
+  .resume__url {
+    display: none;
+  }
+
+  .resume__columns {
+    display: grid;
+    gap: --spacing(12);
+  }
+
+  .resume__main,
+  .resume__side {
+    display: grid;
+    gap: --spacing(12);
+    align-content: start;
+    min-width: 0;
+  }
+
+  .resume__section {
+    display: grid;
+    gap: --spacing(4);
+    align-content: start;
+  }
+
+  .resume__section-title {
+    margin: 0;
+    padding-bottom: --spacing(2);
+    border-bottom: var(--line) solid var(--color-hairline);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    font-weight: var(--font-weight-regular);
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  .resume__section-number {
+    margin-right: --spacing(2);
+  }
+
+  .resume__entries,
+  .resume__list {
+    display: grid;
+    gap: --spacing(6);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .resume__list {
+    gap: --spacing(4);
+  }
+
+  .resume__entry {
+    display: grid;
+    gap: --spacing(2);
+    break-inside: avoid;
+  }
+
+  .resume__list > li {
+    break-inside: avoid;
+  }
+
+  .resume__meta {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    line-height: var(--text-micro--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  .resume__entry-title,
+  .resume__item {
+    margin: 0;
+    font-size: var(--text-body);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--text-small--line-height);
+  }
+
+  .resume__item {
+    font-weight: var(--font-weight-regular);
+  }
+
+  .resume__summary {
+    margin: 0;
+    max-width: var(--container-measure);
+  }
+
+  .resume__points,
+  .resume__outcomes {
+    display: grid;
+    gap: --spacing(1);
+    max-width: var(--container-measure);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .resume__points li,
+  .resume__outcomes li {
+    position: relative;
+    padding-left: --spacing(4);
+  }
+
+  /* A short ruled dash, not a bullet glyph. */
+  .resume__points li::before,
+  .resume__outcomes li::before {
+    content: "";
+    position: absolute;
+    top: 0.8em;
+    left: 0;
+    width: --spacing(2);
+    border-top: var(--line) solid currentColor;
+  }
+
+  .resume__stack {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  .resume__skills {
+    display: grid;
+    gap: --spacing(3);
+    margin: 0;
+  }
+
+  .resume__skill-group {
+    display: grid;
+    gap: --spacing(1);
+    break-inside: avoid;
+  }
+
+  .resume__skill-group dt {
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    line-height: var(--text-micro--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  .resume__skill-group dd {
+    margin: 0;
+  }
+
+  @media (width >= 48rem) {
+    .resume__head {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+      align-items: end;
+    }
+  }
+
+  @media (width >= 64rem) {
+    .resume__columns {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+      gap: --spacing(16);
+    }
+  }
+}
+
+/* Print: the sheet, alone, on one page -------------------------------------- */
+
+/* @page can't read custom properties: 12mm all round is the A4 ∩ Letter box above. */
+@page {
+  size: auto;
+  margin: 12mm;
+}
+
+@media print {
+  :root:has(.resume) {
+    background: none;
+    color-scheme: light;
+  }
+
+  :root:has(.resume) body {
+    min-height: 0;
+    background: none;
+  }
+
+  :root:has(.resume)
+    :is(.site-header, .title-block, .cursor, .page-wipe, .preloader, .resume__bar, .registration-mark) {
+    display: none !important;
+  }
+
+  .resume {
+    display: block;
+    padding: 0;
+  }
+
+  .resume__sheet {
+    max-width: none;
+    gap: var(--print-gap);
+    padding: 0;
+    background: none;
+    font-size: var(--print-body);
+    line-height: var(--print-leading);
+  }
+
+  .resume__head {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    align-items: end;
+    gap: var(--print-gap);
+    padding-bottom: var(--print-gap-small);
+    border-bottom-width: var(--print-rule);
+  }
+
+  .resume__name {
+    font-size: var(--print-name);
+  }
+
+  .resume__role {
+    font-size: var(--print-heading);
+  }
+
+  .resume__columns {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: var(--print-gap);
+  }
+
+  .resume__main,
+  .resume__side {
+    gap: var(--print-gap);
+  }
+
+  .resume__section {
+    gap: var(--print-gap-small);
+  }
+
+  .resume__section-title {
+    padding-bottom: var(--print-gap-tight);
+    border-bottom-width: var(--print-rule);
+  }
+
+  .resume__entries {
+    gap: var(--print-gap-small);
+  }
+
+  .resume__list,
+  .resume__skills {
+    gap: var(--print-gap-tight);
+  }
+
+  .resume__entry,
+  .resume__identity,
+  .resume__points,
+  .resume__outcomes,
+  .resume__skill-group {
+    gap: var(--print-gap-hair);
+  }
+
+  .resume__entry-title,
+  .resume__item {
+    font-size: var(--print-body);
+  }
+
+  .resume__contact,
+  .resume__section-title,
+  .resume__meta,
+  .resume__stack,
+  .resume__skill-group dt {
+    font-size: var(--print-label);
+  }
+
+  .resume__url {
+    display: inline;
+  }
+
+  .resume__section[data-print="paired"] .resume__entries {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--print-gap);
+  }
+
+  .resume__entry[data-print="brief"] :is(.resume__points, .resume__stack) {
+    display: none;
+  }
+
+  .resume__entry[data-print="omit"] {
+    display: none;
+  }
+
+  /* Outcomes as one run: "10× faster · 99.9% uptime". */
+  .resume__outcomes {
+    display: block;
+  }
+
+  .resume__outcomes li {
+    display: inline;
+    padding-left: 0;
+  }
+
+  .resume__outcomes li::before {
+    display: none;
+  }
+
+  .resume__outcomes li + li::before {
+    content: " · ";
+    display: inline;
+    position: static;
+    border: 0;
+  }
+
+  .resume__link {
+    text-decoration: none;
+  }
+
+  .resume__sheet [data-todo] mark {
+    font-size: var(--print-label);
+  }
+}
