@@ -129,7 +129,8 @@ const initials = (name: string) =>
 function Monogram({ name }: { name: string }) {
   const missing = isTodo(name);
   return (
-    <NextLink href="/" className="monogram" aria-label={missing ? "Home" : `${name} — home`}>
+    // The link is named by hidden text, not aria-label, so its visible initials never contradict its name.
+    <NextLink href="/" className="monogram">
       {missing ? (
         <span className="monogram__todo" data-todo="" title={name}>
           TODO
@@ -137,6 +138,7 @@ function Monogram({ name }: { name: string }) {
       ) : (
         <span aria-hidden="true">{initials(name)}</span>
       )}
+      <span className="sr-only">{missing ? "Home" : `${name} — home`}</span>
     </NextLink>
   );
 }

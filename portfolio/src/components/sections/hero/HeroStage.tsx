@@ -206,8 +206,11 @@ export function HeroStage({ name, drawing, notes, footer, labelledBy }: HeroStag
 
       // Name lines rise out of their masks (REVEAL, reversed). Split after first paint, so the
       // unsplit name stays the LCP element; autoSplit re-splits on resize / font load.
+      // aria "none": the lines hold whole words, so the h1 still reads as the name; "auto" would
+      // put an aria-label on this span, which a span without a role may not carry.
       SplitText.create(part("name"), {
         type: "lines",
+        aria: "none",
         mask: "lines",
         tag: "span",
         linesClass: "hero__line",
