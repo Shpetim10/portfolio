@@ -12,14 +12,21 @@ import { ManifestoStage } from "./ManifestoStage";
  * complete with JS off); ManifestoStage adds the word scrub and the unmask.
  *
  * Layout (src/styles/manifesto.css)
- *   desktop  manifesto in display-m (text font) across 8 columns; the portrait
- *            in the last 4, sticky while the paragraph is read.
- *   tablet   portrait first (4 of 8 columns), then the manifesto in display-m.
- *   mobile   portrait first (3 of 4 columns), then the manifesto at heading size.
+ *   desktop  the manifesto across 8 columns, one sentence to a line block, like
+ *            lyrics; the portrait in the last 4, sticky while it is read.
+ *   tablet   portrait first (4 of 8 columns), then the manifesto.
+ *   mobile   portrait first (3 of 4 columns), then the manifesto.
  *
- * The words are bone from the first paint; motion only ever dims them to the
- * dust-equivalent opacity (--manifesto-dim), so contrast holds at every state.
+ * Every sentence is bone from the first paint; motion only ever dims the ones away
+ * from the viewport centre (read above it, unread below it: --manifesto-read /
+ * --manifesto-unread), so contrast holds at every state.
  */
+
+/** One entry per sentence (Intl.Segmenter knows "4.0 GPA." from the end of a sentence). */
+const sentences = (text: string) =>
+  [...new Intl.Segmenter("en", { granularity: "sentence" }).segment(text)]
+    .map(({ segment }) => segment.trim())
+    .filter(Boolean);
 
 export function Manifesto() {
   const { manifesto, name, portrait } = getProfile();
@@ -74,7 +81,11 @@ export function Manifesto() {
             </p>
           )}
           <p className="manifesto__text" data-manifesto="text" data-todo={missing ? "" : undefined}>
-            {missing ? manifesto.replace(/^TODO:\s*/, "") : manifesto}
+            {sentences(missing ? manifesto.replace(/^TODO:\s*/, "") : manifesto).map((sentence, i) => (
+              <span key={i} className="manifesto__line" data-manifesto="line">
+                {sentence}{" "}
+              </span>
+            ))}
           </p>
         </div>
       </ManifestoStage>

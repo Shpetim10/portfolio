@@ -153,8 +153,12 @@
   --led-cycle: 2.4s; /* indicator LED breathing period */
 
   /* Manifesto + portrait (T04) */
-  --manifesto-dim: 0.6; /* unlit word opacity: bone at 60% over carbon ≈ dust, > 6:1 contrast */
-  --manifesto-leading: 1.05; /* display-m size in the text face: 0.95 lets ascenders meet descenders */
+  --manifesto-read: 0.6; /* a sentence already read: bone at 60% over carbon, ≈ 6:1 contrast */
+  --manifesto-unread: 0.4; /* a sentence still to come: ≈ 3.4:1, AA for large text (3:1; the paragraph is ≥ 24px) */
+  --manifesto-size: clamp(1.5rem, 2.6vw, 2.5rem); /* each sentence reads as a lyric line: 24px phone → 40px */
+  --manifesto-leading: 1.3; /* tight enough to hold a sentence together, open enough to separate wrapped lines */
+  --manifesto-line-gap: clamp(1.5rem, 4svh, 3rem); /* between sentences: room for the lit line to hand over */
+  --manifesto-run: 12svh; /* above the first and below the last line, so each can reach the viewport centre */
   --portrait-ratio: 4 / 5; /* until the asset supplies its own width / height */
 
   /* Metrics (T05) */

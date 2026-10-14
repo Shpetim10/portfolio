@@ -1,9 +1,10 @@
 import { expect, test, type Page } from "./fixtures";
 
 /*
- * T04 manifesto + portrait. Words brighten dust → bone (opacity) as the
- * paragraph crosses the viewport centre; the portrait unmasks top → bottom.
- * Contrast is measured from what is painted: each word's effective opacity
+ * T04 manifesto + portrait. One sentence to a line; the line at the viewport
+ * centre is lit (opacity), the lines above it read, the lines below unread, continuously
+ * with scroll, like lyrics. The portrait unmasks top → bottom.
+ * Contrast is measured from what is painted: each line's effective opacity
  * (its own × every ancestor's) blends bone over carbon.
  */
 
@@ -19,7 +20,7 @@ async function placeText(page: Page, ratio: number, settle = 400) {
   await page.waitForTimeout(settle);
 }
 
-/** Minimum WCAG contrast of any word (or the unsplit paragraph) against carbon, plus each word's opacity. */
+/** Minimum WCAG contrast of any line against carbon, plus each line's opacity. */
 const measure = (page: Page) =>
   page.evaluate(() => {
     const root = getComputedStyle(document.documentElement);
@@ -45,8 +46,8 @@ const measure = (page: Page) =>
       return value;
     };
     const text = document.querySelector('[data-manifesto="text"]')!;
-    const words = [...text.querySelectorAll(".manifesto__word")];
-    const opacities = (words.length ? words : [text]).map(opacity);
+    const lines = [...text.querySelectorAll(".manifesto__line")];
+    const opacities = lines.map(opacity);
     const contrast = (alpha: number) => {
       const lit = luminance(bone.map((c, i) => c * alpha + carbon[i] * (1 - alpha)));
       return (lit + 0.05) / (luminance(carbon) + 0.05);
@@ -74,7 +75,7 @@ test.describe("manifesto · layout", () => {
     await expect(caption.locator(".dimension [data-todo]")).toHaveCount(1);
   });
 
-  test("manifesto in display-m beside the portrait on desktop; portrait first on mobile", async ({
+  test("manifesto at reading size beside the portrait on desktop; portrait first on mobile", async ({
     page,
     isMobile,
   }) => {
@@ -83,57 +84,102 @@ test.describe("manifesto · layout", () => {
     const portrait = (await page.locator(".portrait").boundingBox())!;
     const style = await page.locator(".manifesto__text").evaluate((node) => {
       const s = getComputedStyle(node);
-      return { fontSize: parseFloat(s.fontSize), family: s.fontFamily };
+      return { fontSize: parseFloat(s.fontSize), lineHeight: s.lineHeight, family: s.fontFamily };
     });
     expect(style.family).not.toMatch(/Big Shoulders/i); // text face, not the condensed display face
 
     if (isMobile) {
       expect(portrait.y + portrait.height).toBeLessThanOrEqual(text.y);
-      expect(style.fontSize).toBeLessThanOrEqual(32); // heading: clamp(1.5rem, 2.4vw, 2rem)
+      expect(style.fontSize).toBeLessThanOrEqual(40); // --manifesto-size: clamp(1.5rem, 2.6vw, 2.5rem)
     } else {
       expect(portrait.x).toBeGreaterThanOrEqual(text.x + text.width); // portrait in the right columns
       expect(Math.abs(portrait.y - text.y)).toBeLessThan(portrait.height); // same row
-      expect(style.fontSize).toBe(72); // display-m at 1440: 5vw capped at 4.5rem
+      expect(style.fontSize).toBeCloseTo(37.44, 1); // --manifesto-size at 1440: 2.6vw
+      expect(parseFloat(style.lineHeight) / style.fontSize).toBeGreaterThanOrEqual(1.25);
     }
   });
 });
 
-test.describe("manifesto · words", () => {
-  test("brighten in reading order as the paragraph crosses the centre; contrast passes throughout", async ({
+/** Scrolls so line `index` sits at the viewport centre. */
+async function centreLine(page: Page, index: number) {
+  await page.evaluate((i) => {
+    const line = document.querySelectorAll<HTMLElement>(".manifesto__line")[i];
+    const rect = line.getBoundingClientRect();
+    window.scrollBy(0, rect.top + rect.height / 2 - window.innerHeight / 2);
+  }, index);
+  await page.waitForTimeout(400);
+}
+
+test.describe("manifesto · lines", () => {
+  test("one sentence per line, in order", async ({ page }) => {
+    await page.goto("/");
+    const lines = page.locator(".manifesto__line");
+    expect(await lines.count()).toBeGreaterThan(1);
+    for (const text of await lines.allTextContents()) expect(text.trim()).toMatch(/[.!?]$/);
+    // Stacked, never side by side.
+    const boxes = await lines.evaluateAll((nodes) =>
+      nodes.map((node) => {
+        const { top, bottom } = node.getBoundingClientRect();
+        return { top, bottom };
+      }),
+    );
+    for (let i = 1; i < boxes.length; i++) expect(boxes[i].top).toBeGreaterThanOrEqual(boxes[i - 1].bottom);
+  });
+
+  test("read · reading · unread: the line at the centre is lit, above it read, below it unread", async ({
     page,
   }) => {
     await page.goto("/");
-    const dim = await section(page).evaluate((node) =>
-      parseFloat(getComputedStyle(node).getPropertyValue("--manifesto-dim")),
-    );
-    await expect(page.locator(".manifesto__word").first()).toBeAttached();
+    const token = (name: string) =>
+      section(page).evaluate((node, n) => parseFloat(getComputedStyle(node).getPropertyValue(n)), name);
+    const [read, unread] = [await token("--manifesto-read"), await token("--manifesto-unread")];
+    expect(read).toBeGreaterThan(unread); // told apart by brightness alone
+    const count = await page.locator(".manifesto__line").count();
 
-    // Before the centre: every word dimmed, none below the floor.
-    await placeText(page, 0.9);
+    // Before the paragraph: everything is still to be read.
+    await placeText(page, 0.95);
     let state = await measure(page);
-    for (const value of state.opacities) expect(value).toBeCloseTo(dim, 2);
-    expect(state.minContrast).toBeGreaterThanOrEqual(4.5);
+    for (const value of state.opacities) expect(value).toBeCloseTo(unread, 2);
+    expect(state.minContrast).toBeGreaterThanOrEqual(3);
 
-    // Halfway through the centre: earlier words brighter than later ones.
-    const height = await page
-      .locator(".manifesto__text")
-      .evaluate((node) => node.getBoundingClientRect().height);
-    const viewport = page.viewportSize()!.height;
-    await placeText(page, 0.5 - height / 2 / viewport);
+    // Each line, centred in turn, is the one being read: lit; earlier lines read; later ones unread.
+    for (const index of [0, Math.floor(count / 2), count - 1]) {
+      await centreLine(page, index);
+      state = await measure(page);
+      expect(state.opacities[index]).toBeCloseTo(1, 1);
+      expect(state.opacities[index]).toBe(Math.max(...state.opacities));
+      expect(state.minContrast).toBeGreaterThanOrEqual(3);
+      state.opacities.forEach((value, i) => {
+        if (i < index) expect(value).toBeGreaterThanOrEqual(read - 0.01);
+        if (i > index) expect(value).toBeLessThanOrEqual(unread + 0.01);
+      });
+    }
+
+    // In the gap between two lines: the one leaving is part-way down to read, the one arriving part-way up
+    // from unread (a hand-over, not a jump).
+    await centreLine(page, 0);
+    await page.evaluate(() => {
+      const [a, b] = [...document.querySelectorAll<HTMLElement>(".manifesto__line")];
+      const mid = (a.getBoundingClientRect().bottom + b.getBoundingClientRect().top) / 2; // the gap between them
+      window.scrollBy(0, mid - window.innerHeight / 2);
+    });
+    await page.waitForTimeout(400);
     state = await measure(page);
-    expect(state.opacities[0]).toBeGreaterThan(state.opacities.at(-1)!);
-    expect(state.minContrast).toBeGreaterThanOrEqual(4.5);
+    expect(state.opacities[0]).toBeLessThan(1);
+    expect(state.opacities[1]).toBeLessThan(1);
+    expect(state.opacities[0]).toBeGreaterThan(read - 0.01);
+    expect(state.opacities[1]).toBeGreaterThan(unread);
 
     // Sweep the whole range in small steps: contrast never dips.
     for (let ratio = 1; ratio >= -1; ratio -= 0.125) {
       await placeText(page, ratio, 120);
-      expect((await measure(page)).minContrast).toBeGreaterThanOrEqual(4.5);
+      expect((await measure(page)).minContrast).toBeGreaterThanOrEqual(3);
     }
 
-    // Past the centre: fully bone.
-    await placeText(page, -1);
+    // Long past: all read, none gone.
+    await placeText(page, -3);
     state = await measure(page);
-    for (const value of state.opacities) expect(value).toBeCloseTo(1, 2);
+    for (const value of state.opacities) expect(value).toBeCloseTo(read, 2);
   });
 });
 
@@ -155,11 +201,10 @@ test.describe("manifesto · portrait", () => {
 test.describe("manifesto · reduced motion", () => {
   test.use({ reducedMotion: "reduce" });
 
-  test("no split, no unmask: the paragraph and portrait fade in", async ({ page }) => {
+  test("no scrubbed lyric, no unmask: the paragraph and portrait fade in", async ({ page }) => {
     await page.goto("/");
-    await expect(page.locator(".manifesto__word")).toHaveCount(0);
     await placeText(page, 0.3, 600);
-    expect((await measure(page)).opacities[0]).toBeCloseTo(1, 2);
+    for (const value of (await measure(page)).opacities) expect(value).toBeCloseTo(1, 2);
     const plate = page.locator('[data-manifesto="plate"]');
     expect(await plate.evaluate((node) => new DOMMatrix(getComputedStyle(node).transform).d)).toBe(0);
     await expect(page.locator(".portrait")).toHaveCSS("opacity", "1");
@@ -173,7 +218,7 @@ test.describe("manifesto · no JavaScript", () => {
     await page.goto("/");
     await expect(page.locator(".manifesto__text")).toBeVisible();
     const state = await measure(page);
-    expect(state.opacities).toEqual([1]);
+    for (const value of state.opacities) expect(value).toBe(1);
     expect(state.minContrast).toBeGreaterThan(15);
     const plate = page.locator('[data-manifesto="plate"]');
     expect(await plate.evaluate((node) => new DOMMatrix(getComputedStyle(node).transform).d)).toBe(0);

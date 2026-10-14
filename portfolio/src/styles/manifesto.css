@@ -4,8 +4,8 @@
  * plate, dimension rules). Tokens only.
  *
  * Grid: the section's layout grid, carried through .manifesto as a subgrid.
- *   < 48rem   portrait (3 of 4) · manifesto (4 of 4) at heading size
- *   ≥ 48rem   portrait (4 of 8) · manifesto (8 of 8) in display-m
+ *   < 48rem   portrait (3 of 4) · manifesto (4 of 4), one sentence to a block
+ *   ≥ 48rem   portrait (4 of 8) · manifesto (8 of 8), same size
  *   ≥ 64rem   manifesto (cols 1–8) beside the portrait (cols 9–12, sticky)
  */
 
@@ -23,14 +23,27 @@
     grid-column: 1 / -1;
   }
 
+  /* One sentence to a block, like lyrics. ManifestoStage lights them by scroll position. */
   .manifesto__text {
+    position: relative; /* the lines' offsetParent */
     margin: 0;
+    padding-block: var(--manifesto-run);
     color: var(--color-bone);
     font-family: var(--font-text);
-    font-size: var(--text-heading);
+    font-size: var(--manifesto-size);
     font-weight: var(--font-weight-medium);
-    line-height: var(--text-heading--line-height);
-    text-wrap: pretty;
+    line-height: var(--manifesto-leading);
+    text-wrap: balance;
+    overflow-wrap: break-word;
+  }
+
+  .manifesto__line {
+    display: block;
+    transform-origin: left center;
+  }
+
+  .manifesto__line + .manifesto__line {
+    margin-top: var(--manifesto-line-gap);
   }
 
   .manifesto__todo {
@@ -135,12 +148,6 @@
   @media (width >= 48rem) {
     .portrait {
       grid-column: 1 / span 4;
-    }
-
-    .manifesto__text {
-      font-size: var(--text-display-m);
-      font-weight: var(--font-weight-regular);
-      line-height: var(--manifesto-leading);
     }
   }
 

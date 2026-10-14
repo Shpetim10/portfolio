@@ -94,13 +94,16 @@ export type Framing = { scale: number; x: number; y: number };
  * (the horizon). As it explodes it keeps that scale until the stack would
  * outgrow the figure, then shrinks to fit — always standing on the horizon —
  * and slides left to leave room for the labels on its right.
+ * Assembled on desktop it is nudged right of centre so it never covers the
+ * last letter of the name behind it.
  */
 export function frame(explode: number, width: number, height: number, compact: boolean, out: Framing) {
   const stackHeight = ASSEMBLED_H + explode * (EXPLODED_H - ASSEMBLED_H);
   const assembled = Math.min(((compact ? 0.72 : 0.62) * width) / STACK_W, (0.62 * height) / ASSEMBLED_H);
 
   out.scale = Math.min(assembled, (0.9 * height) / stackHeight);
-  out.x = width * (0.5 + ((compact ? 0.3 : 0.34) - 0.5) * explode);
+  const assembledX = compact ? 0.5 : 0.64;
+  out.x = width * (assembledX + ((compact ? 0.3 : 0.34) - assembledX) * explode);
   out.y = height * 0.97 - (out.scale * stackHeight) / 2;
   return out;
 }
