@@ -158,6 +158,7 @@ const SITE_HISTORY: Role[] = [
 const REPO = "https://github.com/Shpetim10/portfolio/blob/main/portfolio";
 const LIGHTHOUSE = { label: "lighthouserc.json", href: `${REPO}/lighthouserc.json` };
 const font = (title: string, file: string): Award => ({
+  id: `font-${file}`,
   title,
   issuer: "SIL Open Font License 1.1",
   year: 2026,
@@ -174,6 +175,7 @@ const font = (title: string, file: string): Award => ({
  */
 const SITE_GATES: Award[] = [
   {
+    id: "gate-accessibility",
     title: "Accessibility score of 0.95 or better",
     issuer: "Lighthouse CI",
     year: 2026,
@@ -184,6 +186,7 @@ const SITE_GATES: Award[] = [
     featured: true,
   },
   {
+    id: "gate-cls",
     title: "Layout shift of 0.05 or less",
     issuer: "Lighthouse CI",
     year: 2026,
@@ -194,6 +197,7 @@ const SITE_GATES: Award[] = [
     featured: false,
   },
   {
+    id: "gate-lcp",
     title: "Largest contentful paint within 2.5s",
     issuer: "Lighthouse CI",
     year: 2026,

@@ -128,6 +128,7 @@
   --nudge: 4px; /* hover slide of arrow glyphs */
   --tag-pad-y: 6px;
   --tag-pad-x: 10px;
+  --touch-target: 44px; /* minimum tap target for links on touch screens and phones */
   --magnet-max: 6px; /* magnetic pull ceiling (pointer: fine only) */
 
   /* Cursor (pointer: fine only) */
@@ -145,6 +146,7 @@
   --monogram-size: 40px;
   --status-dot: 6px;
   --menu-figure-height: min(64vh, 36rem);
+  --menu-chrome: 22rem; /* menu height that isn't label type: bar, footer, body and row padding, part labels */
 
   /* Hero (T03) */
   --hero-pin: 100vh; /* scroll length the stage stays pinned for (150vh from lg) */

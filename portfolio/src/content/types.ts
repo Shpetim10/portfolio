@@ -78,7 +78,32 @@ export type AwardCategory =
   | "ranking"
   | "scholarship";
 
+export type Grade = {
+  value: number;
+  scaleMin: number;
+  scaleMax: number;
+  label: string; // "GPA", "Average"
+};
+
+export type Education = {
+  id: string; // kebab-case
+  institution: string;
+  location: string; // "City, Country"
+  credential: string; // degree or program name
+  field?: string;
+  start: string; // "YYYY-MM"
+  end: string | "present";
+  status: "completed" | "in-progress";
+  grade?: Grade;
+  distinctions: { label: string; awardId?: string }[]; // awardId links to an award card
+  coursework?: string[]; // owner fills; rendered only if present
+  relatedProjects?: string[]; // project slugs
+  featured: boolean; // exactly ONE featured entry
+  confirm?: ("start" | "end")[]; // dates the owner still has to confirm; dev builds mark them TODO
+};
+
 export type Award = {
+  id: string; // kebab-case; the card's anchor is #award-<id>
   title: string;
   issuer: string;
   year: number;

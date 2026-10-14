@@ -4,12 +4,23 @@
  * broken content edit fails `next build` instead of shipping.
  */
 import { awards } from "./awards";
+import { education } from "./education";
 import { experience } from "./experience";
 import { metrics, profile } from "./profile";
 import { projects } from "./projects";
 import { skills } from "./skills";
 import { testimonials } from "./testimonials";
-import type { Award, Experience, Metric, Profile, Project, Skill, Testimonial, Writing } from "./types";
+import type {
+  Award,
+  Education,
+  Experience,
+  Metric,
+  Profile,
+  Project,
+  Skill,
+  Testimonial,
+  Writing,
+} from "./types";
 import { writing } from "./writing";
 
 export type * from "./types";
@@ -23,6 +34,7 @@ export class ContentError extends Error {
 }
 
 const MONTH = /^(\d{4})-(0[1-9]|1[0-2])$/;
+const KEBAB = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 /** "2023-04" → { year: 2023, month: 4 }. Undefined for anything else ("present", TODO, typos). */
 export function parseMonth(value: string): { year: number; month: number } | undefined {
@@ -38,7 +50,7 @@ function toMonths(value: string) {
 function validate(): void {
   const slugs = new Set<string>();
   for (const project of projects) {
-    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(project.slug)) {
+    if (!KEBAB.test(project.slug)) {
       throw new ContentError(`Project slug "${project.slug}" must be kebab-case.`);
     }
     if (slugs.has(project.slug)) throw new ContentError(`Duplicate project slug "${project.slug}".`);
@@ -109,6 +121,9 @@ function validate(): void {
   // T10 files the awards as one featured certificate and a record grouped by category.
   checkAwards(awards);
 
+  // T09b lists the training record; its distinctions link to award cards, its projects to case studies.
+  checkEducation(education, { awards: awards.map((award) => award.id), projects: slugs });
+
   // T12 shows testimonials one at a time; an empty list hides the section.
   checkTestimonials(testimonials);
 }
@@ -133,15 +148,22 @@ export function checkTestimonials(list: Testimonial[]): void {
   }
 }
 
-/** Exactly one featured award; every award titled, issued, dated and justified; proofs are absolute links. */
+/**
+ * Exactly one featured award; every award has a unique kebab-case id (its card's
+ * anchor) and is titled, issued, dated and justified; proofs are absolute links.
+ */
 export function checkAwards(list: Award[]): void {
   const featuredAwards = list.filter((award) => award.featured).length;
   if (list.length > 0 && featuredAwards !== 1) {
     throw new ContentError(`Exactly one award must be featured (found ${featuredAwards}).`);
   }
   const latest = new Date().getFullYear() + 1;
+  const ids = new Set<string>();
   for (const award of list) {
     const name = isTodo(award.title) ? "An award" : `Award "${award.title}"`;
+    if (!KEBAB.test(award.id)) throw new ContentError(`${name} needs a kebab-case id (found "${award.id}").`);
+    if (ids.has(award.id)) throw new ContentError(`Duplicate award id "${award.id}".`);
+    ids.add(award.id);
     if (!award.title.trim() || !award.issuer.trim() || !award.why.trim()) {
       throw new ContentError(`${name} needs a title, an issuer and a why line.`);
     }
@@ -154,6 +176,72 @@ export function checkAwards(list: Award[]): void {
     }
     if (award.media && !award.media.alt.trim()) {
       throw new ContentError(`Media "${award.media.src}" of ${name.toLowerCase()} is missing alt text.`);
+    }
+  }
+}
+
+/**
+ * Exactly one featured entry; ids unique and kebab-case; dates YYYY-MM, in order,
+ * "present" only while in progress; grades on their own scale; every awardId
+ * and project slug points at something that exists.
+ */
+export function checkEducation(
+  list: Education[],
+  known: { awards: Iterable<string>; projects: Iterable<string> },
+): void {
+  const featuredEntries = list.filter((entry) => entry.featured).length;
+  if (list.length > 0 && featuredEntries !== 1) {
+    throw new ContentError(`Exactly one education entry must be featured (found ${featuredEntries}).`);
+  }
+  const awardIds = new Set(known.awards);
+  const slugs = new Set(known.projects);
+  const ids = new Set<string>();
+  for (const entry of list) {
+    const name = `Education "${entry.id}"`;
+    if (!KEBAB.test(entry.id)) throw new ContentError(`${name} needs a kebab-case id.`);
+    if (ids.has(entry.id)) throw new ContentError(`Duplicate education id "${entry.id}".`);
+    ids.add(entry.id);
+    if (!entry.institution.trim() || !entry.credential.trim() || !entry.location.trim()) {
+      throw new ContentError(`${name} needs an institution, a location and a credential.`);
+    }
+    if (!isTodo(entry.start) && !parseMonth(entry.start)) {
+      throw new ContentError(`${name} starts "${entry.start}": write it as YYYY-MM.`);
+    }
+    if (entry.end === "present") {
+      if (entry.status !== "in-progress")
+        throw new ContentError(`${name} runs to "present" but is not in progress.`);
+    } else {
+      if (!isTodo(entry.end) && !parseMonth(entry.end)) {
+        throw new ContentError(`${name} ends "${entry.end}": write it as YYYY-MM or "present".`);
+      }
+      if (toMonths(entry.end) < toMonths(entry.start))
+        throw new ContentError(`${name} ends before it starts.`);
+    }
+    const { grade } = entry;
+    if (grade) {
+      const finite = [grade.value, grade.scaleMin, grade.scaleMax].every(Number.isFinite);
+      if (
+        !finite ||
+        grade.scaleMin >= grade.scaleMax ||
+        grade.value < grade.scaleMin ||
+        grade.value > grade.scaleMax
+      ) {
+        throw new ContentError(
+          `${name} has grade ${grade.value} outside its ${grade.scaleMin}–${grade.scaleMax} scale.`,
+        );
+      }
+      if (!grade.label.trim()) throw new ContentError(`${name} needs a grade label ("GPA", "Average").`);
+    }
+    for (const distinction of entry.distinctions) {
+      if (!distinction.label.trim()) throw new ContentError(`${name} has a distinction without a label.`);
+      if (distinction.awardId !== undefined && !awardIds.has(distinction.awardId)) {
+        throw new ContentError(
+          `${name} links "${distinction.label}" to unknown award "${distinction.awardId}".`,
+        );
+      }
+    }
+    for (const slug of entry.relatedProjects ?? []) {
+      if (!slugs.has(slug)) throw new ContentError(`${name} references unknown project "${slug}".`);
     }
   }
 }
@@ -179,14 +267,15 @@ export const getNextProject = (slug: string): Project | undefined => {
 
 export const getSkills = (): Skill[] => skills;
 export const getExperience = (): Experience[] => newestFirst(experience);
+export const getEducation = (): Education[] => newestFirst(education);
 
 // Unknown (TODO) dates sort as newest: a placeholder role is the one still being written.
 const recency = (value: string) =>
   value === "present" || Number.isNaN(toMonths(value)) ? Infinity : toMonths(value);
 const descending = (a: number, b: number) => (a === b ? 0 : a > b ? -1 : 1);
 
-/** Roles newest first: by end ("present" first), then by start; ties keep the content's (newest-first) order. */
-export const newestFirst = (roles: Experience[]): Experience[] =>
+/** Roles (or schooling) newest first: by end ("present" first), then by start; ties keep the content's order. */
+export const newestFirst = <T extends { start: string; end: string }>(roles: T[]): T[] =>
   [...roles].sort(
     (a, b) => descending(recency(a.end), recency(b.end)) || descending(recency(a.start), recency(b.start)),
   );

@@ -94,7 +94,7 @@ test.describe("menu", () => {
     await page.goto("/");
     await openMenu(page);
     const nav = menu(page).getByRole("navigation", { name: "Primary" });
-    await expect(nav.getByRole("link")).toHaveCount(5);
+    await expect(nav.getByRole("link")).toHaveCount(6);
     await expect(nav.getByRole("link").first()).toContainText("P/N 01");
     // REVEAL lands every label on its resting position.
     await expect

@@ -1,7 +1,15 @@
 "use client";
 
 import NextLink from "next/link";
-import { useEffect, useEffectEvent, useRef, useState, type ReactNode, type RefObject } from "react";
+import {
+  useEffect,
+  useEffectEvent,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+  type RefObject,
+} from "react";
 import { Link } from "@/components/ui/Link";
 import type { Layer } from "@/content/types";
 import { gsap, useGSAP } from "@/motion/gsap";
@@ -26,7 +34,7 @@ import { PartOutline } from "./PartOutline";
  *   focus                                                                                   (< lg)
  *   close     contents             opacity     1 → 0            snap     micro      —        same    overlay opacity 1 → 0, reduced
  *   close     panel                yPercent    0 → -100         machine  medium     —        same    —
- * Longest open: 0.3s offset + 4 × 0.06s stagger + 1.0s = 1.54s (UI cap 1.6s).
+ * Longest open: 0.3s offset + 5 × 0.06s stagger + 1.0s = 1.6s (UI cap 1.6s).
  *
  * Modal behaviour: everything else in <body> is inert while open, Tab wraps
  * inside, Esc or CLOSE dismiss and return focus to the MENU button.
@@ -214,7 +222,11 @@ export function Menu({ open, onClose, returnFocus, monogram, status }: MenuProps
 
         <div className="menu__body layout-grid" data-part="content">
           <nav aria-label="Primary" className="menu__nav">
-            <ol className="menu__list" onPointerLeave={() => setActive(null)}>
+            <ol
+              className="menu__list"
+              style={{ "--menu-rows": NAV.length } as CSSProperties}
+              onPointerLeave={() => setActive(null)}
+            >
               {NAV.map((item) => (
                 <li key={item.href} className="menu__row">
                   <span className="menu__row-rule" data-part="row-rule" aria-hidden="true" />

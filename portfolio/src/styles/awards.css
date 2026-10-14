@@ -513,8 +513,16 @@
     transition: transform var(--duration-small) var(--ease-settle);
   }
 
-  .award:focus-within::before {
+  /* A card reached by its deep link (#award-<id>, from Education) keeps its outline drawn. */
+  .award:focus-within::before,
+  .award:target::before {
     opacity: 1;
+  }
+
+  /* Deep links land clear of the header, which shows again on the way up. */
+  .award,
+  .certificate {
+    scroll-margin-top: calc(var(--header-height) + --spacing(6));
   }
 
   @media (hover: hover) {

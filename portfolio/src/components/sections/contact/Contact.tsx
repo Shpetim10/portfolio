@@ -53,7 +53,7 @@ export function Contact({
   endpoint = configuredEndpoint(),
   resumeAvailable,
   id = "contact",
-  index = 10,
+  index = 11,
 }: ContactProps) {
   const email = isTodo(profile.email) ? null : profile.email;
   const mailto = email ? `mailto:${email}` : null;

@@ -3,7 +3,8 @@ import type { Layer } from "@/content/types";
 /*
  * Site index for the menu (T02). Each homepage section is filed under one part
  * of the Instrument; the menu numbers its links with that part's P/N and draws
- * the part's outline when the link is hovered or focused.
+ * the part's outline when the link is hovered or focused. Education and Awards
+ * are both filed under Data: the two halves of the owner's credentials record.
  * Section ids are the anchors the homepage sections (T04–T13) render.
  */
 
@@ -26,6 +27,7 @@ export const NAV: NavItem[] = [
   { label: "Work", href: "/#work", layer: "interface" },
   { label: "Stack", href: "/#stack", layer: "api" },
   { label: "Experience", href: "/#experience", layer: "services" },
+  { label: "Education", href: "/#education", layer: "data" },
   { label: "Awards", href: "/#awards", layer: "data" },
   { label: "Contact", href: "/#contact", layer: "infrastructure" },
 ];

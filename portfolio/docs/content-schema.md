@@ -58,7 +58,24 @@ export type AwardCategory =
   | 'competition' | 'hackathon' | 'certification' | 'workplace'
   | 'publication' | 'talk' | 'open-source' | 'ranking' | 'scholarship';
 
+export type Grade = { value: number; scaleMin: number; scaleMax: number; label: string };  // label: "GPA", "Average"
+export type Education = {
+  id: string;                    // kebab-case
+  institution: string; location: string;   // location: "City, Country"
+  credential: string;            // degree or program name
+  field?: string;
+  start: string; end: string | 'present';   // "YYYY-MM"; 'present' only while in-progress
+  status: 'completed' | 'in-progress';
+  grade?: Grade;                 // value within scaleMin–scaleMax
+  distinctions: { label: string; awardId?: string }[];  // awardId links to an award card
+  coursework?: string[];         // owner fills; rendered only if present
+  relatedProjects?: string[];    // project slugs
+  featured: boolean;             // exactly ONE featured entry
+  confirm?: ('start' | 'end')[]; // dates the owner still has to confirm; dev builds mark them TODO
+};
+
 export type Award = {
+  id: string;                  // kebab-case, unique; the card's anchor is #award-<id>
   title: string; issuer: string; year: number;
   category: AwardCategory;
   placement?: string;          // "1st of 240 teams"
@@ -70,6 +87,14 @@ export type Award = {
 
 export type Writing = { title: string; venue: string; date: string; href: string; kind: 'article' | 'talk' | 'paper' };
 export type Testimonial = { quote: string; name: string; title: string; company: string; relation: string; href?: string };
+
+## Education (T09b)
+
+`/src/content/education.ts`, rendered newest first between Experience and Awards.
+`next build` fails unless exactly one entry is featured, every `awardId` names an award
+in `awards.ts` and every `relatedProjects` slug names a project. Distinctions are short
+tags; the stories behind them stay in Awards, and certifications are filed there only.
+Completed entries are listed as `alumniOf` in the homepage's Person JSON-LD.
 
 ## Case-study stories (T07)
 

@@ -247,6 +247,54 @@
     overflow-wrap: anywhere;
   }
 
+  /*
+   * A tag that links: bone label, arrow glyph; hover/focus fills gunmetal and
+   * nudges the arrow. On touch screens and phones it is a 44px target.
+   */
+  .tag-item {
+    display: flex;
+  }
+
+  .tag--link {
+    gap: --spacing(2);
+    color: var(--color-bone);
+    text-decoration: none;
+    transition: background-color var(--duration-micro) var(--ease-snap);
+  }
+
+  .tag__arrow {
+    flex: none;
+    transition: transform var(--duration-small) var(--ease-settle);
+  }
+
+  .tag--link:focus-visible {
+    background-color: var(--color-gunmetal);
+  }
+
+  @media (hover: hover) {
+    .tag--link:hover {
+      background-color: var(--color-gunmetal);
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .tag--link:focus-visible .tag__arrow {
+      transform: translateX(var(--nudge));
+    }
+  }
+
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .tag--link:hover .tag__arrow {
+      transform: translateX(var(--nudge));
+    }
+  }
+
+  @media (pointer: coarse), (width < 48rem) {
+    .tag--link {
+      min-height: var(--touch-target);
+    }
+  }
+
   /* Counter ------------------------------------------------------------ */
   .counter {
     display: inline-flex;

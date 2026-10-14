@@ -34,10 +34,10 @@ const contrast = (a: string, b: string) => {
 };
 
 test.describe("awards · homepage", () => {
-  test("section [07] is a paper surface with one placeholder certificate", async ({ page }) => {
+  test("section [08] is a paper surface with one placeholder certificate", async ({ page }) => {
     await page.goto("/");
     await expect(section(page)).toHaveAttribute("aria-labelledby", "awards-index");
-    await expect(section(page).locator(".section-index")).toContainText("[07]");
+    await expect(section(page).locator(".section-index")).toContainText("[08]");
     await expect(section(page).locator(".section-index")).toContainText("Awards & Achievements");
     await expect(section(page).locator("h2")).toHaveText("Qualification record · 01 entry");
     await expect(surface(page)).toHaveAttribute("data-surface", "paper");

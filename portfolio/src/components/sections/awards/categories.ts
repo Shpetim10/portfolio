@@ -26,6 +26,9 @@ export type Group = { category: AwardCategory; entries: Entry[] };
 
 export const pad = (n: number) => String(n).padStart(2, "0");
 
+/** The element id of an award's certificate or card: deep links land on `#award-<id>`. */
+export const awardAnchor = (id: string) => `award-${id}`;
+
 /**
  * The record: the featured award is entry 01; the rest are grouped by category
  * (record order), newest first within a group, and numbered on from 02 in the

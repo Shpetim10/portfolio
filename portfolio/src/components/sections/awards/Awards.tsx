@@ -6,7 +6,7 @@ import { Invert } from "@/motion/signatures/invert";
 import { Reveal } from "@/motion/signatures/reveal";
 import { AwardRecord } from "./AwardRecord";
 import { AwardsStage } from "./AwardsStage";
-import { CATEGORIES, fileAwards, pad, type Entry } from "./categories";
+import { awardAnchor, CATEGORIES, fileAwards, pad, type Entry } from "./categories";
 import { Proof, Stamp, Year } from "./marks";
 
 /*
@@ -36,7 +36,7 @@ type AwardsProps = {
   index?: number;
 };
 
-export function Awards({ awards = getAwards(), id = "awards", index = 7 }: AwardsProps) {
+export function Awards({ awards = getAwards(), id = "awards", index = 8 }: AwardsProps) {
   // The homepage list is validated at build (src/content); a list passed in here gets the same rules.
   checkAwards(awards);
   const { featured, groups, total } = fileAwards(awards);
@@ -78,7 +78,12 @@ function Certificate({ award, id }: { award: Entry; id: string }) {
   const { label } = CATEGORIES[award.category];
 
   return (
-    <article className="certificate" aria-labelledby={titleId} data-awards="certificate">
+    <article
+      id={awardAnchor(award.id)}
+      className="certificate"
+      aria-labelledby={titleId}
+      data-awards="certificate"
+    >
       <p className="certificate__head">
         <Stamp category={award.category} entry={award.entry} />
         <span className="certificate__kind">Featured</span>

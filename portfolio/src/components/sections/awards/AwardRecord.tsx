@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { Content } from "@/components/ui/Content";
 import type { AwardCategory } from "@/content/types";
 import { ScrollTrigger } from "@/motion/gsap";
-import { CATEGORIES, pad, type Entry, type Group } from "./categories";
+import { awardAnchor, CATEGORIES, pad, type Entry, type Group } from "./categories";
 import { Proof, Stamp, Year } from "./marks";
 
 /*
@@ -15,6 +16,11 @@ import { Proof, Stamp, Year } from "./marks";
  * the record now shows. Without JS every group is shown and "All" is pressed.
  * A group that comes back fades in (CSS, @starting-style). The page below the
  * record moves when it changes height, so scroll triggers are re-measured.
+ *
+ * Each card is the target of #award-<id> (Education's distinction tags link
+ * here). A deep link to a card whose group is filtered out shows every group
+ * first — synchronously, before the browser and Lenis measure the target — so
+ * the link always lands on the card.
  */
 
 type Filter = AwardCategory | "all";
@@ -40,6 +46,35 @@ export function AwardRecord({ groups, id }: { groups: Group[]; id: string }) {
     const what = next === "all" ? "all categories" : CATEGORIES[next].label.toLowerCase();
     setStatus(`Showing ${shown} ${shown === 1 ? "entry" : "entries"}, ${what}.`);
   };
+
+  /** Shows every group if `hash` names a card that is filtered out. True when it did. */
+  const reveal = useEffectEvent((hash: string) => {
+    const target = decodeURIComponent(hash.slice(1));
+    const group = groups.find((item) => item.entries.some((entry) => awardAnchor(entry.id) === target));
+    if (!group || filter === "all" || filter === group.category) return false;
+    flushSync(() => choose("all"));
+    return true;
+  });
+
+  useEffect(() => {
+    // Capture phase: runs before the browser's fragment scroll and Lenis's anchor handler.
+    const onClick = (event: MouseEvent) => {
+      const link = event.target instanceof Element ? event.target.closest("a") : null;
+      if (link?.hash && link.pathname === window.location.pathname) reveal(link.hash);
+    };
+    // A fragment typed or restored by history: the browser could not scroll to a hidden card.
+    const onHashChange = () => {
+      if (reveal(window.location.hash)) {
+        document.getElementById(decodeURIComponent(window.location.hash.slice(1)))?.scrollIntoView();
+      }
+    };
+    document.addEventListener("click", onClick, true);
+    window.addEventListener("hashchange", onHashChange);
+    return () => {
+      document.removeEventListener("click", onClick, true);
+      window.removeEventListener("hashchange", onHashChange);
+    };
+  }, []);
 
   const tabs: { value: Filter; label: string; count: number }[] = [
     { value: "all", label: "All", count: total },
@@ -114,7 +149,7 @@ export function AwardRecord({ groups, id }: { groups: Group[]; id: string }) {
  */
 function AwardCard({ entry }: { entry: Entry }) {
   return (
-    <li className="award" data-awards="card">
+    <li id={awardAnchor(entry.id)} className="award" data-awards="card">
       <article className="award__sheet">
         <p className="award__head">
           <Stamp category={entry.category} entry={entry.entry} />

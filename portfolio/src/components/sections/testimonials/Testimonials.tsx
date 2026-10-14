@@ -26,7 +26,7 @@ type TestimonialsProps = {
 export function Testimonials({
   testimonials = getTestimonials(),
   id = "peer-review",
-  index = 9,
+  index = 10,
 }: TestimonialsProps) {
   // The homepage list is validated at build (src/content); a list passed in here gets the same rules.
   checkTestimonials(testimonials);

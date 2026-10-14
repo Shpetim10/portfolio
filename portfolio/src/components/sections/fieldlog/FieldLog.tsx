@@ -33,7 +33,7 @@ export function FieldLog({
   snapshot = getContributions(),
   writing = getWriting(),
   id = "field-log",
-  index = 8,
+  index = 9,
 }: FieldLogProps) {
   return (
     <SectionShell id={id} index={index} title="Open source & Writing">

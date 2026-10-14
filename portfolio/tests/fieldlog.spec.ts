@@ -6,11 +6,11 @@ import { expect, test } from "./fixtures";
  * covered by the build check (scripts/fetch-github.mjs never fails the build).
  */
 
-test("section [08] shows marked placeholders and ships no token", async ({ page }) => {
+test("section [09] shows marked placeholders and ships no token", async ({ page }) => {
   await page.goto("/");
   const section = page.locator("section#field-log");
   await expect(section).toHaveAttribute("aria-labelledby", "field-log-index");
-  await expect(section.locator(".section-index")).toContainText("[08]");
+  await expect(section.locator(".section-index")).toContainText("[09]");
   await expect(section.getByRole("heading", { name: "Field log" })).toBeVisible();
   await expect(section.locator("[data-todo]")).toHaveCount(2);
 

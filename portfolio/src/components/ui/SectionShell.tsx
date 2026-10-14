@@ -5,11 +5,13 @@ import { cx } from "./cx";
 const CORNERS: Corner[] = ["top-left", "top-right", "bottom-left", "bottom-right"];
 
 type SectionShellProps = {
-  /** Anchor id; the section is labelled by its index title. */
+  /** Anchor id; the section is labelled by its index title, or by `labelledBy`. */
   id: string;
   index: number;
   title: string;
   rev?: string;
+  /** id of the section's own heading, when it names the section better than the index title. */
+  labelledBy?: string;
   children: ReactNode;
   className?: string;
   /** Classes for the inner layout grid (children sit on the 4 / 8 / 12 column grid). */
@@ -25,13 +27,14 @@ export function SectionShell({
   index,
   title,
   rev,
+  labelledBy,
   children,
   className,
   contentClassName,
 }: SectionShellProps) {
   const titleId = `${id}-index`;
   return (
-    <section id={id} aria-labelledby={titleId} className={cx("section-shell", className)}>
+    <section id={id} aria-labelledby={labelledBy ?? titleId} className={cx("section-shell", className)}>
       {CORNERS.map((corner) => (
         <RegistrationMark key={corner} corner={corner} />
       ))}

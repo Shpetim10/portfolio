@@ -14,6 +14,7 @@ const image = (file: string, alt: string): Media => ({
 // awards whose link the owner has not supplied yet (Prime Minister's medal, NVIDIA) carry none.
 export const awards: Award[] = [
   {
+    id: "first-ranked-graduate",
     title: "First-Ranked Software Engineering Graduate",
     issuer: "Epoka University",
     year: 2026,
@@ -28,6 +29,7 @@ export const awards: Award[] = [
     media: image("epoka-first-rank-plaque.jpg", "Epoka University First Rank Award plaque"),
   },
   {
+    id: "pm-gold-medal",
     title: "Gold Medal for Excellent Academic Achievement",
     issuer: "Prime Minister's Office, Republic of Albania",
     year: 2023,
@@ -39,6 +41,7 @@ export const awards: Award[] = [
     media: image("pm-gold-medal.jpg", "Gold Medal and certificate awarded by the Prime Minister of Albania"),
   },
   {
+    id: "junction-pyramid-backstage",
     title: "Junction Hackathon — Pyramid Backstage Challenge",
     issuer: "Junction",
     year: 2026,
@@ -49,6 +52,7 @@ export const awards: Award[] = [
     featured: false,
   },
   {
+    id: "nvidia-deep-learning",
     title: "Fundamentals of Deep Learning",
     issuer: "NVIDIA Deep Learning Institute",
     year: 2025,
@@ -58,6 +62,7 @@ export const awards: Award[] = [
     featured: false,
   },
   {
+    id: "java-from-scratch",
     title: "Java From Scratch",
     issuer: "Protik",
     year: 2025,
@@ -70,6 +75,7 @@ export const awards: Award[] = [
     featured: false,
   },
   {
+    id: "n8n-101",
     title: "n8n101 - Essentials: Your First Workflows",
     issuer: "n8n Academy",
     year: 2026,
@@ -83,6 +89,7 @@ export const awards: Award[] = [
     media: image("n8n-101.png", "Certificate"),
   },
   {
+    id: "n8n-102",
     title: "n8n102 - Integrations: APIs and Connected Workflows",
     issuer: "n8n",
     year: 2026,

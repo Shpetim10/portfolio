@@ -77,10 +77,11 @@ export function LeaderLine({ direction = "up-right", children, className, ...res
 type DimensionLineProps = {
   /**
    * Measured value, e.g. "4.2 YRS". TODO values render as a placeholder.
+   * A node is rendered as given (e.g. a figure that CALIBRATE counts up).
    * Omit it when the measurement is printed beside the line (a Counter):
    * the line is then a single ticked rule, and purely graphic.
    */
-  value?: string;
+  value?: ReactNode;
   className?: string;
 };
 
@@ -98,7 +99,7 @@ export function DimensionLine({ value, className }: DimensionLineProps) {
         <>
           <span className="dimension__value" data-anim-part="value">
             <span aria-hidden="true">← </span>
-            <Content value={value} />
+            {typeof value === "string" ? <Content value={value} /> : value}
             <span aria-hidden="true"> →</span>
           </span>
           <span className="dimension__rule" aria-hidden="true" data-anim-part="rule" />
