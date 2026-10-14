@@ -795,6 +795,13 @@
     pointer-events: none;
   }
 
+  /* The role can be a full phrase: the label stays on one line and is cut at the cover edge. */
+  .next-project__note .leader__label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   .next-project__note .part-label {
     padding-inline: --spacing(2);
     background-color: var(--color-carbon);

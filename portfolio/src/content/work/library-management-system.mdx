@@ -1,0 +1,60 @@
+<Chapter id="problem">
+
+Libraries that track books, stock and orders by hand lose time and make mistakes, and readers have no easy way to browse or order online.
+
+</Chapter>
+
+<Chapter id="constraints">
+
+A course timeline, a student team and a classic web stack without frameworks: HTML, SCSS and JavaScript on the frontend, PHP and MySQL on the backend.
+
+</Chapter>
+
+<Chapter id="architecture">
+
+A PHP backend over a MySQL database serves two sides: staff pages for book and stock management, and a client-facing site with a marketplace and ordering flow.
+
+<SystemDiagram
+  nodes={[
+    { id: "staff", label: "Staff pages", part: "N01", col: 0, row: 0 },
+    { id: "client", label: "Client marketplace", part: "N02", col: 0, row: 2 },
+    { id: "php", label: "PHP backend", part: "N03", col: 1, row: 1 },
+    { id: "mysql", label: "MySQL", part: "N04", col: 2, row: 1 },
+  ]}
+  links={[
+    { from: "staff", to: "php" },
+    { from: "client", to: "php" },
+    { from: "php", to: "mysql" },
+  ]}
+  caption="PHP and MySQL backend serving the staff management pages and the client marketplace."
+/>
+
+</Chapter>
+
+<Chapter id="decisions">
+
+Separate staff and client experiences so each stays simple for its users.
+
+Keep stock and orders in one consistent database model, so an order immediately updates availability.
+
+<Spread media={0} caption="The client-facing book marketplace." />
+
+</Chapter>
+
+<Chapter id="results">
+
+Delivered a working library system covering marketplace, ordering, stock management and the client site. I led the team and built the marketplace and ordering system, book and stock management, and the client-facing page.
+
+<Gallery>
+  <Shot media={1} caption="The client-facing marketplace." />
+  <Shot media={2} caption="Book and stock management for staff." />
+  <Shot media={3} caption="Ordering, from cart to confirmation." />
+</Gallery>
+
+</Chapter>
+
+<Chapter id="reflection">
+
+Today I would build it as a REST API with a separate frontend. I would keep the clear split between staff and client experiences.
+
+</Chapter>

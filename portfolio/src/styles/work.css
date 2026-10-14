@@ -118,6 +118,13 @@
     max-width: 88%;
   }
 
+  /* A real stack is long: the label stays on one line (the leader keeps its 45° geometry) and is cut at the panel edge. */
+  .work-panel__stack .leader__label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   .work-panel__duration {
     position: absolute;
     inset-inline: --spacing(4);

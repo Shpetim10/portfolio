@@ -505,9 +505,16 @@
     background-color: var(--color-hairline);
   }
 
-  .section-index__number,
-  .section-index__rev {
+  .section-index__number {
     flex: none;
+  }
+
+  /* A case study's client reads here and can be a full phrase: it wraps instead of pushing the page wide. */
+  .section-index__rev {
+    flex: 0 1 auto;
+    min-width: 0;
+    text-align: end;
+    overflow-wrap: anywhere;
   }
 
   /* SectionShell ------------------------------------------------------- */

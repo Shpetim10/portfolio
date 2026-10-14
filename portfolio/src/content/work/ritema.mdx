@@ -1,0 +1,64 @@
+<Chapter id="problem">
+
+Local businesses rarely have a loyalty program that is easy to run. Paper stamp cards get lost, and large commercial platforms are expensive and complex. Ritema gives a small business a simple way to reward returning customers, and gives customers one app to collect points and redeem rewards.
+
+</Chapter>
+
+<Chapter id="constraints">
+
+A solo project with a fixed graduation deadline, covering backend, mobile app, database and full written documentation. Security mattered from the start, because points and coupons have real value.
+
+</Chapter>
+
+<Chapter id="architecture">
+
+A Spring Boot API secured with Spring Security and JWT manages businesses, customers, points, rewards and coupons. MySQL stores the core records and Redis caches frequently read data. A Flutter mobile app lets customers collect points and redeem rewards by scanning QR codes.
+
+<SystemDiagram
+  nodes={[
+    { id: "app", label: "Flutter app", part: "N01", col: 0, row: 1 },
+    { id: "api", label: "Spring Boot API", part: "N02", col: 1, row: 1 },
+    { id: "redis", label: "Redis cache", part: "N03", col: 2, row: 0 },
+    { id: "mysql", label: "MySQL", part: "N04", col: 2, row: 2 },
+  ]}
+  links={[
+    { from: "app", to: "api", label: "JWT" },
+    { from: "api", to: "redis", label: "cache" },
+    { from: "api", to: "mysql", label: "records" },
+  ]}
+  caption="Flutter mobile app calling a JWT-secured Spring Boot API, with MySQL for records and Redis as a cache."
+/>
+
+</Chapter>
+
+<Chapter id="decisions">
+
+Stateless JWT authentication with Spring Security, so every request is verified and the API can scale without server-side sessions.
+
+QR codes for collecting and redeeming points instead of manual codes, which keeps the interaction at the counter fast and simple.
+
+Redis as a cache in front of MySQL for frequently read data, to keep the app responsive.
+
+Core features first, extras later. With one developer and a fixed deadline, I protected the complete earn-and-redeem flow and scheduled smaller features after it.
+
+<Spread media={0} caption="Collecting points and redeeming a reward by QR code in the Ritema app." />
+
+</Chapter>
+
+<Chapter id="results">
+
+Delivered a complete, working product and its full documentation on time for graduation, built entirely by me across backend, mobile app and database.
+
+<Gallery>
+  <Shot media={1} caption="Customers see their points and rewards in one place." />
+  <Shot media={2} caption="Rewards are redeemed by scanning a QR code." />
+  <Shot media={3} caption="Businesses create and manage their own rewards." />
+</Gallery>
+
+</Chapter>
+
+<Chapter id="reflection">
+
+I would add automated end-to-end tests for the redemption flow and a web dashboard for business owners. I would keep the discipline of defining the core flow first and protecting it from scope creep.
+
+</Chapter>

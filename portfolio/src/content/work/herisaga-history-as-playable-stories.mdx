@@ -1,0 +1,58 @@
+<Chapter id="problem">
+
+History often reaches learners as a wall of dates and names. HERISAGA turns it into a journey: short narratives, interactive questions and review sessions that help learners connect events and understand why they matter. It starts with Albanian history, for students, heritage learners and curious readers in English and Albanian.
+
+</Chapter>
+
+<Chapter id="constraints">
+
+Lessons must feel instant on a phone, yet rewards must be trustworthy: retries, flaky connections and interrupted sessions can never lose progress or award XP twice. Content keeps evolving after release, and the interface has to handle longer Albanian text across both themes.
+
+</Chapter>
+
+<Chapter id="architecture">
+
+A Flutter app, built with Riverpod, go_router and a local Drift/SQLite store, talks to a NestJS API over HTTP/JSON, with Supabase handling authentication. Published episodes arrive as immutable content from a CDN, while answer bundles come from a separate API endpoint. The API grades answers, schedules reviews and records XP, streaks and progress in PostgreSQL through restricted database roles. Shared OpenAPI and JSON Schema contracts keep the app and API aligned.
+
+<SystemDiagram
+  nodes={[
+    { id: "cdn", label: "Episode CDN", part: "N01", col: 0, row: 0 },
+    { id: "auth", label: "Supabase Auth", part: "N02", col: 0, row: 2 },
+    { id: "app", label: "Flutter app", part: "N03", col: 1, row: 1 },
+    { id: "api", label: "NestJS API", part: "N04", col: 2, row: 1 },
+    { id: "db", label: "PostgreSQL", part: "N05", col: 3, row: 1 },
+  ]}
+  links={[
+    { from: "cdn", to: "app", label: "episodes" },
+    { from: "auth", to: "app", label: "sign-in" },
+    { from: "app", to: "api", label: "HTTP/JSON" },
+    { from: "api", to: "db", label: "progress" },
+  ]}
+  caption="Flutter app loading immutable episodes from a CDN, while the NestJS API grades answers and records progress in PostgreSQL, with Supabase for authentication."
+/>
+
+</Chapter>
+
+<Chapter id="decisions">
+
+Separate instant feedback from reward authority. Answers are checked locally, so lessons feel instant, but the server re-grades every submission and alone decides XP, streaks and progression.
+
+Pin each session to a content revision. A lesson in progress never changes under the learner, even when editors publish a new version.
+
+Idempotent events and atomic transactions for progress. A repeated or interrupted request can never duplicate rewards or corrupt a streak.
+
+<Spread media={0} caption="The Road: every chapter of Albanian history laid out as a path to play." />
+
+</Chapter>
+
+<Chapter id="results">
+
+The app and API are implemented and in integration and release validation, ahead of a production launch. In the latest recorded local verification, 2,438 mobile tests and 501 API checks passed across integration, security, end-to-end and smoke suites.
+
+</Chapter>
+
+<Chapter id="reflection">
+
+I would take one real episode through the full journey, from publication to playback, grading and progress recovery, earlier in the project, and grow the features around that proven path. I would keep the strict split between fast local feedback and server-side authority.
+
+</Chapter>

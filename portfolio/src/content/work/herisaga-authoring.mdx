@@ -1,0 +1,61 @@
+<Chapter id="problem">
+
+Writing accurate, engaging history lessons in two languages is slow, and AI can speed it up, but language models confidently invent facts. For an education product, one invented date destroys trust. HERISAGA needed a way to use AI for drafting while keeping every claim traceable to a real source.
+
+</Chapter>
+
+<Chapter id="constraints">
+
+Every lesson must stay traceable to historical evidence. Machine-generated drafts always require human review. Content is bilingual, and once an episode is published it must never change under a learner mid-session.
+
+</Chapter>
+
+<Chapter id="architecture">
+
+A Python and FastAPI pipeline indexes historical sources as vector embeddings in PostgreSQL with pgvector. For each episode it retrieves relevant passages, reranks them with Voyage, and passes the strongest evidence to an LLM through the OpenAI SDK to draft narratives, questions and explanations, each with evidence references attached. Editors work through the Episode Studio, a FastAPI, Jinja2 and HTMX web app, and in Directus. A publication compiler then turns approved episodes into immutable, schema-validated content for the CDN.
+
+<SystemDiagram
+  nodes={[
+    { id: "sources", label: "Sources in pgvector", part: "N01", col: 0, row: 1 },
+    { id: "retrieve", label: "Retrieve and rerank", part: "N02", col: 1, row: 1 },
+    { id: "draft", label: "LLM draft", part: "N03", col: 2, row: 1 },
+    { id: "studio", label: "Episode Studio", part: "N04", col: 3, row: 0 },
+    { id: "directus", label: "Directus", part: "N05", col: 3, row: 2 },
+    { id: "compiler", label: "Publication compiler", part: "N06", col: 4, row: 1 },
+  ]}
+  links={[
+    { from: "sources", to: "retrieve" },
+    { from: "retrieve", to: "draft", label: "evidence" },
+    { from: "draft", to: "studio" },
+    { from: "draft", to: "directus" },
+    { from: "studio", to: "compiler" },
+    { from: "directus", to: "compiler" },
+  ]}
+  caption="Sources indexed in pgvector, retrieved and reranked, drafted by an LLM with evidence attached, reviewed by humans in the Episode Studio and Directus, then compiled into immutable episodes for the app."
+/>
+
+</Chapter>
+
+<Chapter id="decisions">
+
+Retrieve before generating. Instead of trusting unrestricted model output, the model drafts only from retrieved, reranked source passages, which sharply reduces invented facts.
+
+Evidence travels with the content. Every draft carries references to its source passages, so reviewers check claims against the evidence instead of researching from scratch.
+
+Humans approve, compilers publish. Nothing goes live without review, and the compiler produces immutable, revision-pinned content validated against shared JSON Schema contracts, so the app never sees unreviewed or mutable text.
+
+<Spread media={0} caption="The Episode Studio: from historical source to reviewed, publish-ready lesson." />
+
+</Chapter>
+
+<Chapter id="results">
+
+The retrieval, drafting, review and publication workflow is implemented and feeding content into the HERISAGA app as the product moves toward launch.
+
+</Chapter>
+
+<Chapter id="reflection">
+
+I would run one real source through the complete workflow, from retrieval to a learner playing it, earlier, and tune retrieval quality against that real example. I would keep evidence-first drafting, because in education, trust is the product.
+
+</Chapter>

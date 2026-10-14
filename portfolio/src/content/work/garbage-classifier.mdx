@@ -1,0 +1,64 @@
+<Chapter id="problem">
+
+Sorting waste correctly is essential for recycling, yet items often end up in the wrong bin. The project explored whether a neural network could recognize the type of waste from a single photo, a building block for smarter sorting and recycling guidance and tips.
+
+</Chapter>
+
+<Chapter id="constraints">
+
+An image dataset from Kaggle with uneven image quality, limited computing resources that made training slow, and a constant risk of overfitting on a modest dataset.
+
+</Chapter>
+
+<Chapter id="architecture">
+
+A Python and TensorFlow pipeline: images are cleaned and preprocessed, then passed to a convolutional network pretrained on a large image collection, with a new classification head trained for the waste categories. Candidate models were compared on held-out data.
+
+<SystemDiagram
+  nodes={[
+    { id: "images", label: "Kaggle images", part: "N01", col: 0, row: 1 },
+    { id: "prep", label: "Cleaning and preprocessing", part: "N02", col: 1, row: 1 },
+    { id: "backbone", label: "Pretrained CNN", part: "N03", col: 2, row: 1 },
+    { id: "head", label: "New classification head", part: "N04", col: 3, row: 1 },
+    { id: "prediction", label: "Prediction", part: "N05", col: 4, row: 1 },
+  ]}
+  links={[
+    { from: "images", to: "prep" },
+    { from: "prep", to: "backbone" },
+    { from: "backbone", to: "head" },
+    { from: "head", to: "prediction" },
+  ]}
+  caption="From raw image to prediction: cleaning, preprocessing, pretrained convolutional backbone, new classification head."
+/>
+
+</Chapter>
+
+<Chapter id="decisions">
+
+Transfer learning instead of training a network from scratch. A pretrained backbone reached higher accuracy with far less data and compute, which suited our limited resources.
+
+Cleaning the data before training. Removing or fixing low-quality images meant the model learned from reliable examples.
+
+Adjusting the model during training. When validation results showed signs of overfitting, I tuned the training setup rather than simply training longer.
+
+<Spread media={0} caption="Sample predictions from the final model across waste categories." />
+
+</Chapter>
+
+<Chapter id="results">
+
+My transfer-learning model achieved the highest accuracy of the team's candidates and was selected as the final model. That model reached ±97% accuracy in test dataset. We created a small web app which is helpful for everyday use, as an AI assistant for helping classifying garbage and acting as an environment-friendly citizen.
+
+<Gallery>
+  <Shot media={1} caption="The dataset: real photos of uneven quality." />
+  <Shot media={2} caption="Training curves for the transfer-learning model." />
+  <Shot media={3} caption="Where the model is right, and where it confuses categories." />
+</Gallery>
+
+</Chapter>
+
+<Chapter id="reflection">
+
+I would track experiments systematically and report per-class precision and recall, not only overall accuracy. I would keep transfer learning as my default starting point for small image datasets.
+
+</Chapter>

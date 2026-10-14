@@ -1,0 +1,69 @@
+<Chapter id="problem">
+
+Planning events at a venue like the Pyramid meant juggling emails, phone calls and spreadsheets across organizers, venue staff and suppliers. Requests got lost, bookings clashed, and nobody had a single view of the plan.
+
+</Chapter>
+
+<Chapter id="constraints">
+
+48 hours, a team of five, a new problem domain and a jury expecting a working demo. We also had to visualize the physical venue and handle overlapping events correctly.
+
+</Chapter>
+
+<Chapter id="architecture">
+
+A Next.js web application on a Node.js backend, organized around the event lifecycle: request intake, venue matching, proposal creation, equipment booking and task coordination. A scheduling check catches conflicts between overlapping events, and a 3D mockup of the Pyramid helps organizers picture the space.
+
+<SystemDiagram
+  nodes={[
+    { id: "mockup", label: "3D venue mockup", part: "N01", col: 1, row: 0 },
+    { id: "intake", label: "Request intake", part: "N02", col: 0, row: 1 },
+    { id: "venue", label: "Venue matching", part: "N03", col: 1, row: 1 },
+    { id: "proposal", label: "Proposal creation", part: "N04", col: 2, row: 1 },
+    { id: "equipment", label: "Equipment booking", part: "N05", col: 3, row: 1 },
+    { id: "tasks", label: "Task coordination", part: "N06", col: 4, row: 1 },
+    { id: "conflicts", label: "Scheduling check", part: "N07", col: 2, row: 2 },
+  ]}
+  links={[
+    { from: "intake", to: "venue" },
+    { from: "venue", to: "proposal" },
+    { from: "proposal", to: "equipment" },
+    { from: "equipment", to: "tasks" },
+    { from: "mockup", to: "venue" },
+    { from: "conflicts", to: "venue" },
+    { from: "conflicts", to: "equipment" },
+  ]}
+  caption="The event lifecycle in one system: request, venue match, proposal, equipment booking, tasks, with conflict checks on every booking."
+/>
+
+</Chapter>
+
+<Chapter id="decisions">
+
+Cover the whole event lifecycle rather than one step in depth, so the jury could see the full value in a short demo.
+
+Treat scheduling conflicts as a core rule, checking for overlaps whenever a venue or piece of equipment is booked.
+
+Build a 3D mockup of the venue, so venue matching felt concrete instead of abstract.
+
+<Spread media={0} caption="Planning an event at the Pyramid, from request to booked equipment." />
+
+</Chapter>
+
+<Chapter id="results">
+
+Placed in the Top 3 of the Pyramid Backstage challenge and reached the Top 11 teams overall in the final round. As team lead and developer, I kept the team's scope and timing on track across the 48 hours.
+
+<Gallery>
+  <Shot media={1} caption="One flow from event request to matched venue." />
+  <Shot media={2} caption="Overlapping bookings are caught automatically." />
+  <Shot media={3} caption="A 3D mockup makes the space easy to picture." />
+</Gallery>
+
+</Chapter>
+
+<Chapter id="reflection">
+
+I would validate the workflow with venue staff earlier in the weekend. I would keep the habit of cutting scope quickly and protecting a demo-ready core.
+
+</Chapter>

@@ -1,0 +1,67 @@
+<Chapter id="problem">
+
+Small companies often run HR on spreadsheets, chat messages and paper. Managers lose track of attendance and leave, and employees working in the field have no simple way to clock in. WorkTrezz set out to give these companies one dependable system for their everyday HR processes.
+
+</Chapter>
+
+<Chapter id="constraints">
+
+A university team of six, a fixed semester schedule and three separate repositories developed in parallel. Several people changed the database at the same time, and the product had to work both for office staff and for employees in the field without a desk.
+
+</Chapter>
+
+<Chapter id="architecture">
+
+One Spring Boot REST API backed by PostgreSQL serves two clients: a Next.js web app for admins and managers, and a React Native mobile app for employees. Liquibase versions every schema change, so all three codebases stay on the same database. A WebSocket channel pushes attendance status and notifications to clients in real time.
+
+<SystemDiagram
+  nodes={[
+    { id: "web", label: "Next.js web app", part: "N01", col: 0, row: 0 },
+    { id: "mobile", label: "React Native app", part: "N02", col: 0, row: 2 },
+    { id: "api", label: "Spring Boot API", part: "N03", col: 1, row: 1 },
+    { id: "liquibase", label: "Liquibase migrations", part: "N04", col: 2, row: 0 },
+    { id: "db", label: "PostgreSQL", part: "N05", col: 2, row: 1 },
+  ]}
+  links={[
+    { from: "web", to: "api", label: "REST, WebSocket" },
+    { from: "mobile", to: "api", label: "REST, WebSocket" },
+    { from: "api", to: "db" },
+    { from: "liquibase", to: "db", label: "schema" },
+  ]}
+  caption="Spring Boot API and PostgreSQL at the center, serving the Next.js admin app and the React Native employee app, with Liquibase migrations and a WebSocket channel for live updates."
+/>
+
+</Chapter>
+
+<Chapter id="decisions">
+
+Liquibase instead of ad-hoc SQL scripts. With several developers changing the schema at once, versioned and reviewable migrations kept every environment consistent and surfaced conflicts early.
+
+A dedicated mobile app for clock-in instead of a web-only feature. The original plan was web only, but field employees would have struggled with logins and usability. I proposed a small mobile app, which also made location tracking possible.
+
+WebSockets instead of polling for attendance and notifications. Status changes reach managers immediately, without clients repeatedly asking the server.
+
+<Spread
+  media={0}
+  caption="The manager dashboard: attendance, leave requests and announcements in one place."
+/>
+
+</Chapter>
+
+<Chapter id="results">
+
+The team delivered a working three-part platform: API, manager web app and employee mobile app. Clock-in moved to a purpose-built mobile flow with location tracking, and live updates replaced manual refreshes. As one of two main developers, I worked across all three repositories, supported the project manager and product owner with planning and requirements, and helped teammates when they were blocked.
+
+<Gallery>
+  <Shot media={1} caption="Managers see attendance and leave at a glance." />
+  <Shot media={2} caption="Field employees clock in from a dedicated mobile app." />
+  <Shot media={3} caption="Live updates over WebSockets, no manual refresh." />
+</Gallery>
+
+</Chapter>
+
+<Chapter id="reflection">
+
+I would add contract tests between the API and both clients from day one, so breaking changes are caught automatically. I would keep the migration-first approach to the database and the habit of designing features around the people who actually use them.
+
+</Chapter>
