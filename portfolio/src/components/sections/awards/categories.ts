@@ -6,6 +6,7 @@ import type { Award, AwardCategory } from "@/content/types";
  * filter tabs follow it (content-schema.md lists the categories the same way).
  */
 export const CATEGORIES: Record<AwardCategory, { label: string; code: string }> = {
+  ranking: { label: "Ranking", code: "RNK" },
   competition: { label: "Competition", code: "CMP" },
   hackathon: { label: "Hackathon", code: "HCK" },
   certification: { label: "Certification", code: "CRT" },
@@ -13,7 +14,6 @@ export const CATEGORIES: Record<AwardCategory, { label: string; code: string }> 
   publication: { label: "Publication", code: "PUB" },
   talk: { label: "Talk", code: "TLK" },
   "open-source": { label: "Open source", code: "OSS" },
-  ranking: { label: "Ranking", code: "RNK" },
   scholarship: { label: "Scholarship", code: "SCH" },
 };
 

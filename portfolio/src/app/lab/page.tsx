@@ -184,6 +184,14 @@ const SITE_GATES: Award[] = [
     why: "CI fails if any audited route scores under 0.95 for accessibility.",
     proof: LIGHTHOUSE,
     featured: true,
+    // Synthetic frames: they exercise the photo strip and lightbox, and are not the owner's photos.
+    gallery: [1, 2, 3, 4].map((n) => ({
+      src: `/assets/lab/specimen-photo-${n}.svg`,
+      alt: `Specimen photo ${n} of 4: a crossed frame`,
+      width: 1200,
+      height: 800,
+      kind: "image" as const,
+    })),
   },
   {
     id: "gate-cls",
@@ -195,6 +203,15 @@ const SITE_GATES: Award[] = [
     why: "CI fails if cumulative layout shift exceeds 0.05 on any audited route.",
     proof: LIGHTHOUSE,
     featured: false,
+    gallery: [
+      {
+        src: "/assets/lab/specimen-photo-2.svg",
+        alt: "Specimen photo: a crossed frame",
+        width: 1200,
+        height: 800,
+        kind: "image" as const,
+      },
+    ],
   },
   {
     id: "gate-lcp",

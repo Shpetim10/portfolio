@@ -103,8 +103,9 @@ function validate(): void {
     if (role.end !== "present" && toMonths(role.end) < toMonths(role.start)) {
       throw new ContentError(`${name} ends before it starts.`);
     }
-    if (!role.highlights.some(isTodo) && (role.highlights.length < 2 || role.highlights.length > 3)) {
-      throw new ContentError(`${name} needs 2–3 highlights (found ${role.highlights.length}).`);
+    // None is allowed (a role whose highlights are not written yet); otherwise 2–3.
+    if (role.highlights.length === 1 || role.highlights.length > 3) {
+      throw new ContentError(`${name} needs 2–3 highlights, or none yet (found ${role.highlights.length}).`);
     }
   }
 
@@ -174,8 +175,10 @@ export function checkAwards(list: Award[]): void {
     if (award.proof && (!award.proof.label.trim() || !/^https?:\/\//.test(award.proof.href))) {
       throw new ContentError(`${name} needs a proof label and an absolute http(s) link.`);
     }
-    if (award.media && !award.media.alt.trim()) {
-      throw new ContentError(`Media "${award.media.src}" of ${name.toLowerCase()} is missing alt text.`);
+    for (const media of award.gallery ?? []) {
+      if (!media.alt.trim() || isTodo(media.alt)) {
+        throw new ContentError(`Photo "${media.src}" of ${name.toLowerCase()} is missing alt text.`);
+      }
     }
   }
 }

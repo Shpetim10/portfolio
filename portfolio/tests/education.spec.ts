@@ -57,7 +57,7 @@ test.describe("education · homepage", () => {
     await expect(section(page).locator("[data-featured]")).toHaveCount(1);
     await expect(rows(page).nth(1)).toHaveAttribute("data-featured", "true");
     await expect(rows(page).first().locator(".schooling__dates")).toHaveText(/^2026\.09 —to Present$/);
-    await expect(rows(page).nth(1).locator(".schooling__dates")).toHaveText(/^2023\.09 —to 2026\.06$/);
+    await expect(rows(page).nth(1).locator(".schooling__dates")).toHaveText(/^2023\.10 —to 2026\.06$/);
 
     // The gauge is decorative; the row says the grade, and the HTML carries the final values.
     await expect(rows(page).locator(".gauge")).toHaveCount(2);

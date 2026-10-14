@@ -2,10 +2,20 @@ import type { CSSProperties } from "react";
 import { awardAnchor } from "@/components/sections/awards/categories";
 import { DimensionLine } from "@/components/ui/Annotation";
 import { Content } from "@/components/ui/Content";
+import { PhotoGallery } from "@/components/ui/PhotoGallery";
 import { Link } from "@/components/ui/Link";
 import { SectionShell } from "@/components/ui/SectionShell";
 import { Tag } from "@/components/ui/Tag";
-import { getEducation, getProject, parseMonth, type Education as Entry, type Grade } from "@/content";
+import {
+  getAwards,
+  getEducation,
+  getProject,
+  parseMonth,
+  type Award,
+  type Education as Entry,
+  type Grade,
+} from "@/content";
+import { publishedPhotos } from "@/content/files";
 import { todo } from "@/content/todo";
 import { Reveal } from "@/motion/signatures/reveal";
 import { EducationStage } from "./EducationStage";
@@ -40,11 +50,18 @@ const MARK_UNCONFIRMED = process.env.NODE_ENV !== "production";
 
 type EducationProps = {
   education?: Entry[];
+  /** The awards the entries' distinctions link to; their photos open from the entry. */
+  awards?: Award[];
   id?: string;
   index?: number;
 };
 
-export function Education({ education = getEducation(), id = "education", index = 7 }: EducationProps) {
+export function Education({
+  education = getEducation(),
+  awards = getAwards(),
+  id = "education",
+  index = 7,
+}: EducationProps) {
   const titleId = `${id}-title`;
 
   return (
@@ -66,7 +83,7 @@ export function Education({ education = getEducation(), id = "education", index 
         ) : (
           <ol className="education__list">
             {education.map((entry) => (
-              <Row key={entry.id} entry={entry} />
+              <Row key={entry.id} entry={entry} awards={awards} />
             ))}
           </ol>
         )}
@@ -75,7 +92,13 @@ export function Education({ education = getEducation(), id = "education", index 
   );
 }
 
-function Row({ entry }: { entry: Entry }) {
+function Row({ entry, awards }: { entry: Entry; awards: Award[] }) {
+  // The photos behind the distinctions (medal, plaque…), for the files that exist.
+  const photos = publishedPhotos(
+    entry.distinctions.flatMap(
+      (distinction) => awards.find((award) => award.id === distinction.awardId)?.gallery ?? [],
+    ),
+  );
   const inProgress = entry.status === "in-progress";
   const projects = (entry.relatedProjects ?? []).flatMap((slug) => getProject(slug) ?? []);
 
@@ -134,6 +157,12 @@ function Row({ entry }: { entry: Entry }) {
               </Tag>
             ))}
           </ul>
+        )}
+
+        {photos.length > 0 && (
+          <div data-edu="cell">
+            <PhotoGallery photos={photos} label={entry.institution} />
+          </div>
         )}
 
         {entry.coursework && entry.coursework.length > 0 && (

@@ -215,7 +215,8 @@ function When({ value }: { value: string }) {
 }
 
 function Changes({ highlights }: { highlights: string[] }) {
-  if (highlights.length === 0) return <Content value={todo("Highlights")} />;
+  // A role with no highlights yet shows its dates, company and title only: no placeholder.
+  if (highlights.length === 0) return null;
   return (
     <ul className="rev__changes">
       {highlights.map((highlight, i) => (

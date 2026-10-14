@@ -8,3 +8,7 @@ import { join } from "node:path";
  */
 export const isPublished = (href: string): boolean =>
   href.startsWith("/") && !href.includes("..") && existsSync(join(process.cwd(), "public", href));
+
+/** The photos whose files are in /public at build: a photo declared before its file arrives is left out. Server / build only. */
+export const publishedPhotos = <T extends { src: string }>(photos: T[] = []): T[] =>
+  photos.filter((photo) => isPublished(photo.src));

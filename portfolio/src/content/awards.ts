@@ -1,12 +1,13 @@
 import type { Award, Media } from "./types";
 
-// Files are named as the owner supplied them and live in /public/assets/awards/.
-// TODO(content): the assets are not yet in /public; width and height are 0 until they are.
-const image = (file: string, alt: string): Media => ({
+// Photos live in /public/assets/awards/. A photo whose file is not there yet is simply left out of
+// the page at build (no dead thumbnails), so entries can be declared before the files arrive. The
+// lightbox sizes each photo by its natural dimensions, so none are needed here.
+const photo = (file: string, alt: string): Media => ({
   src: `/assets/awards/${file}`,
   alt,
-  width: 0, // TODO(content)
-  height: 0, // TODO(content)
+  width: 0,
+  height: 0,
   kind: "image",
 });
 
@@ -26,7 +27,7 @@ export const awards: Award[] = [
       href: "https://www.linkedin.com/posts/shpetimshabanaj_graduation-epokauniversity-softwareengineering-activity-7478016323202244608-CjuQ",
     },
     featured: true,
-    media: image("epoka-first-rank-plaque.jpg", "Epoka University First Rank Award plaque"),
+    gallery: [photo("epoka-first-rank-plaque.jpg", "Epoka University First Rank Award plaque")],
   },
   {
     id: "pm-gold-medal",
@@ -38,7 +39,9 @@ export const awards: Award[] = [
     why: "Recognized nationally for an outstanding high school record at Gjimnazi Babë Dudë Karbunara, Berat.",
     // TODO(content): proof link for "Medal and certificate".
     featured: false,
-    media: image("pm-gold-medal.jpg", "Gold Medal and certificate awarded by the Prime Minister of Albania"),
+    gallery: [
+      photo("pm-gold-medal.jpg", "Gold Medal and certificate awarded by the Prime Minister of Albania"),
+    ],
   },
   {
     id: "junction-pyramid-backstage",
@@ -58,7 +61,10 @@ export const awards: Award[] = [
     year: 2025,
     category: "certification",
     why: "Completed hands-on training in neural networks, model training, data preparation and GPU-accelerated deep learning workflows.",
-    // TODO(content): proof link for "Certificate".
+    proof: {
+      label: "Certificate",
+      href: "https://learn.nvidia.com/certificates?id=ZojwdLboSBeQDTMKQQ4NMg#&trk=public_profile_see-credential",
+    },
     featured: false,
   },
   {
@@ -86,7 +92,7 @@ export const awards: Award[] = [
       href: "https://badges.n8n.io/f8902a36-44b5-4fc1-abc7-561c512f679b#acc.YuMIdf0C",
     },
     featured: false,
-    media: image("n8n-101.png", "Certificate"),
+    gallery: [photo("n8n-101.png", "n8n101 Essentials certificate")],
   },
   {
     id: "n8n-102",
@@ -100,6 +106,6 @@ export const awards: Award[] = [
       href: "https://badges.n8n.io/d18ecaaa-e4c5-42bb-a314-a296c4b7b546#acc.EkWwgZOG",
     },
     featured: false,
-    media: image("n8n-102.png", "Certificate"),
+    gallery: [photo("n8n-102.png", "n8n102 Integrations certificate")],
   },
 ];

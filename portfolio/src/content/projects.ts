@@ -61,6 +61,7 @@ export const projects: Project[] = [
     slug: "herisaga-history-as-playable-stories",
     partNumber: "P/N 01",
     title: "HERISAGA — History as Playable Stories",
+    client: "Personal startup",
     year: 2026,
     role: "Co-Founder, Full-Stack Software Engineer",
     team: "Co-founding team (2)",
@@ -105,7 +106,7 @@ export const projects: Project[] = [
     slug: "herisaga-authoring",
     partNumber: "P/N 02",
     title: "HERISAGA Authoring",
-    // TODO(content): the client field was cut off ("Co") in the intake; omitted until the owner confirms it.
+    client: "Personal startup",
     year: 2026,
     role: "Co-Founder, Software Engineer",
     team: "Co-Founding Team (2)",

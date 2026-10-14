@@ -3,6 +3,7 @@
 import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { Content } from "@/components/ui/Content";
+import { PhotoGallery } from "@/components/ui/PhotoGallery";
 import type { AwardCategory } from "@/content/types";
 import { ScrollTrigger } from "@/motion/gsap";
 import { awardAnchor, CATEGORIES, pad, type Entry, type Group } from "./categories";
@@ -169,6 +170,7 @@ function AwardCard({ entry }: { entry: Entry }) {
           )}
         </dl>
         <Content as="p" value={entry.why} className="award__why" />
+        <PhotoGallery photos={entry.gallery ?? []} label={entry.title} />
         {entry.proof && <Proof proof={entry.proof} title={entry.title} className="award__proof" />}
       </article>
     </li>

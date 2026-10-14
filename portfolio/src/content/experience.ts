@@ -1,4 +1,3 @@
-import { todo } from "./todo";
 import type { Experience } from "./types";
 
 // Most recent first.
@@ -9,8 +8,8 @@ export const experience: Experience[] = [
     start: "2026-10",
     end: "present",
     location: "Tirana, Albania",
-    // TODO(content): the intake has no duties for this role yet; 2–3 achievement-first highlights needed.
-    highlights: [todo("Achievement-first highlight"), todo("Achievement-first highlight")],
+    // Highlights are added once the role has achievements to report; until then the row lists the stack only.
+    highlights: [],
     stack: ["n8n", "LLM", "JEV"],
   },
   {

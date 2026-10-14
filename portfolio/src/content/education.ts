@@ -21,7 +21,7 @@ export const education: Education[] = [
     institution: "Epoka University",
     location: "Tirana, Albania",
     credential: "B.Sc. Software Engineering",
-    start: "2023-09",
+    start: "2023-10",
     end: "2026-06",
     status: "completed",
     grade: { value: 4.0, scaleMin: 0, scaleMax: 4, label: "GPA" },
@@ -32,7 +32,6 @@ export const education: Education[] = [
     // The brief named these "beloyal" and "worknest": the projects were published as Ritema and WorkTrezz.
     relatedProjects: ["ritema", "garbage-classifier", "worktrezz", "library-management-system"],
     featured: true,
-    confirm: ["start"],
   },
   {
     id: "high-school",
@@ -45,6 +44,5 @@ export const education: Education[] = [
     grade: { value: 9.94, scaleMin: 0, scaleMax: 10, label: "Average" },
     distinctions: [{ label: "Prime Minister's Gold Medal", awardId: "pm-gold-medal" }],
     featured: false,
-    confirm: ["start"],
   },
 ];

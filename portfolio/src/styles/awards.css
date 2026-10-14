@@ -229,6 +229,8 @@
 
   .certificate__proof {
     grid-area: proof;
+    display: grid;
+    gap: --spacing(2);
   }
 
   /* Seal: hairlines, a faint relief under each line, a signal centre. */
@@ -312,6 +314,14 @@
     .certificate__proof {
       align-self: end;
       justify-self: end;
+    }
+
+    .certificate__proof .photos {
+      justify-items: end;
+    }
+
+    .certificate__proof .photos__strip {
+      justify-content: flex-end;
     }
   }
 

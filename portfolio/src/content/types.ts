@@ -112,7 +112,7 @@ export type Award = {
   why: string; // one line: what you did to earn it
   proof?: Link; // credential / article / certificate
   featured: boolean; // exactly ONE featured award
-  media?: Media;
+  gallery?: Media[]; // photos of the award, medal or certificate; opened in a lightbox
 };
 
 export type Writing = {

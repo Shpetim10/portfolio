@@ -179,3 +179,42 @@ test.describe("awards · reduced motion", () => {
     await expect(exitPlate(page)).toHaveCSS("transform", "matrix(1, 0, 0, 1, 0, 0)");
   });
 });
+
+test.describe("awards · photo gallery", () => {
+  test("a record's photos open in a lightbox that moves between them and returns focus", async ({ page }) => {
+    await page.goto("/lab/");
+    const strip = section(page).locator(".certificate .photos__strip");
+    await expect(strip.locator("button")).toHaveCount(3);
+    await expect(strip.locator(".photos__more")).toHaveText("+1");
+
+    const first = strip.locator("button").first();
+    await first.scrollIntoViewIfNeeded();
+    await first.click();
+    const box = page.locator("dialog.lightbox");
+    await expect(box).toBeVisible();
+    await expect(box.locator(".lightbox__count")).toContainText("01 / 04");
+    await expect(box.locator(".lightbox__photo")).toHaveAttribute("alt", /Specimen photo 1 of 4/);
+
+    await page.keyboard.press("ArrowRight");
+    await expect(box.locator(".lightbox__count")).toContainText("02 / 04");
+    await box.getByRole("button", { name: "Prev photo" }).click();
+    await page.keyboard.press("ArrowLeft"); // wraps to the last
+    await expect(box.locator(".lightbox__count")).toContainText("04 / 04");
+
+    await page.keyboard.press("Escape");
+    await expect(box).toHaveCount(0);
+    await expect(first).toBeFocused();
+  });
+
+  test("a single photo has no navigation and the backdrop closes it", async ({ page }) => {
+    await page.goto("/lab/");
+    const card = section(page).locator(".award").filter({ hasText: "Layout shift" });
+    await card.scrollIntoViewIfNeeded();
+    await card.locator(".photos__thumb").click();
+    const box = page.locator("dialog.lightbox");
+    await expect(box).toBeVisible();
+    await expect(box.locator(".lightbox__nav")).toHaveCount(0);
+    await box.getByRole("button", { name: /^Close/ }).click();
+    await expect(box).toHaveCount(0);
+  });
+});
