@@ -164,15 +164,17 @@
     row-gap: --spacing(2);
   }
 
-  .status__availability,
   .status__time {
     white-space: nowrap;
   }
 
+  /* The availability note is the owner's own sentence: it wraps instead of running past the screen. */
   .status__availability {
     display: inline-flex;
     align-items: center;
     gap: --spacing(2);
+    min-width: 0;
+    max-width: 100%;
   }
 
   /* Hollow dust ring when closed; solid signal when open for work. */
