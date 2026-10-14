@@ -4,7 +4,8 @@ import { getWriting, type Writing } from "@/content";
 import { getContributions, type ContributionSnapshot } from "@/content/github";
 import { todo } from "@/content/todo";
 import { FieldLogStage } from "./FieldLogStage";
-import { layout, ROWS, WEEKS } from "./matrix";
+import { ContributionMatrix } from "./ContributionMatrix";
+import { layout } from "./matrix";
 
 /*
  * T11 · Open source & Writing — "FIELD LOG".
@@ -45,12 +46,8 @@ export function FieldLog({
   );
 }
 
-const pitch = 12; // dot grid unit in the SVG's own coordinates
-const dot = 8;
-
 function Matrix({ snapshot }: { snapshot: ContributionSnapshot }) {
-  const cells = layout(snapshot.days);
-  if (cells.length === 0) {
+  if (layout(snapshot.days).length === 0) {
     return (
       <Content
         as="p"
@@ -58,50 +55,7 @@ function Matrix({ snapshot }: { snapshot: ContributionSnapshot }) {
       />
     );
   }
-
-  const busiest = cells.reduce((a, b) => (b.count > a.count ? b : a));
-  const columns = Array.from({ length: WEEKS + 1 }, (_, col) => cells.filter((cell) => cell.col === col));
-  const label = `${snapshot.total.toLocaleString("en-US")} contributions on GitHub in the last year; busiest day ${busiest.date} with ${busiest.count}.`;
-
-  return (
-    <figure className="fieldlog__figure" data-fieldlog="matrix">
-      <svg
-        className="fieldlog__matrix"
-        viewBox={`0 0 ${(WEEKS + 1) * pitch - (pitch - dot)} ${ROWS * pitch - (pitch - dot)}`}
-        role="img"
-        aria-label={label}
-      >
-        {columns.map((column, col) => (
-          <g key={col} data-fieldlog="col">
-            {column.map((cell) => (
-              <rect
-                key={cell.date}
-                className={`fieldlog__dot--${cell.level}`}
-                x={col * pitch}
-                y={cell.row * pitch}
-                width={dot}
-                height={dot}
-                rx="1"
-              />
-            ))}
-          </g>
-        ))}
-      </svg>
-      <figcaption className="fieldlog__caption">
-        <span>
-          {snapshot.login && `@${snapshot.login} · `}
-          {snapshot.total.toLocaleString("en-US")} contributions · last 52 weeks
-        </span>
-        <span className="fieldlog__legend" aria-hidden="true">
-          less
-          {[0, 1, 2, 3, 4].map((level) => (
-            <i key={level} className={`fieldlog__swatch fieldlog__dot--${level}`} />
-          ))}
-          more
-        </span>
-      </figcaption>
-    </figure>
-  );
+  return <ContributionMatrix snapshot={snapshot} />;
 }
 
 function Log({ writing }: { writing: Writing[] }) {
