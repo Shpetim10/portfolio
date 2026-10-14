@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/fetch-github.mjs && next build",
+    "build": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/fetch-github.mjs && next build",
     "serve": "serve out --listen 3100 --no-request-logging",
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit",
