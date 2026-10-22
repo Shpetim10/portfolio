@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
   images: { unoptimized: true },
   // The 404 (src/app/global-not-found.tsx) renders outside the root layout, so it skips the
   // layout's motion runtime and stays inside its JS budget (T14).
-  experimental: { globalNotFound: true },
+  experimental: { globalNotFound: true, agentUpgrade: "security" },
   turbopack: {
     rules: {
       "*.css": {
