@@ -1,3 +1,4 @@
+import { SectionIndicator } from "@/components/chrome/SectionIndicator";
 import { Awards } from "@/components/sections/awards/Awards";
 import { Contact } from "@/components/sections/contact/Contact";
 import { Education } from "@/components/sections/education/Education";
@@ -60,6 +61,7 @@ export default function HomePage() {
       <FieldLog />
       <Testimonials />
       <Contact />
+      <SectionIndicator />
     </>
   );
 }

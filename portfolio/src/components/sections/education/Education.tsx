@@ -65,7 +65,13 @@ export function Education({
   const titleId = `${id}-title`;
 
   return (
-    <SectionShell id={id} index={index} title="Training record" labelledBy={titleId}>
+    <SectionShell
+      id={id}
+      index={index}
+      title="Training record"
+      labelledBy={titleId}
+      indicatorTitle="Education"
+    >
       <EducationStage>
         <header className="education__head">
           <Reveal as="h2" id={titleId} className="education__title">

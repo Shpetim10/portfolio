@@ -12,6 +12,8 @@ type SectionShellProps = {
   rev?: string;
   /** id of the section's own heading, when it names the section better than the index title. */
   labelledBy?: string;
+  /** The section's name in the fixed section indicator, when it differs from the index title. */
+  indicatorTitle?: string;
   children: ReactNode;
   className?: string;
   /** Classes for the inner layout grid (children sit on the 4 / 8 / 12 column grid). */
@@ -20,7 +22,8 @@ type SectionShellProps = {
 
 /**
  * Every page section: registration marks on the four corners, the section index
- * across the top, then section padding around a layout grid.
+ * across the top, then section padding around a layout grid. The data-indicator-*
+ * attributes feed the fixed section indicator (chrome/SectionIndicator).
  */
 export function SectionShell({
   id,
@@ -28,13 +31,20 @@ export function SectionShell({
   title,
   rev,
   labelledBy,
+  indicatorTitle = title,
   children,
   className,
   contentClassName,
 }: SectionShellProps) {
   const titleId = `${id}-index`;
   return (
-    <section id={id} aria-labelledby={labelledBy ?? titleId} className={cx("section-shell", className)}>
+    <section
+      id={id}
+      aria-labelledby={labelledBy ?? titleId}
+      className={cx("section-shell", className)}
+      data-indicator-index={String(index).padStart(2, "0")}
+      data-indicator-title={indicatorTitle}
+    >
       {CORNERS.map((corner) => (
         <RegistrationMark key={corner} corner={corner} />
       ))}

@@ -477,3 +477,47 @@
 html[data-menu="open"] {
   overflow: hidden;
 }
+
+/* Section indicator ------------------------------------------------------ */
+/*
+ * Bottom-left sheet reference (SectionIndicator). Difference blending keeps it
+ * legible on the paper surface (Awards) without a plate behind it: bone on
+ * carbon, near-ink on paper. Never interactive.
+ */
+@layer components {
+  .section-indicator {
+    position: fixed;
+    bottom: var(--grid-margin);
+    left: var(--grid-margin);
+    z-index: var(--z-sticky);
+    display: flex;
+    gap: --spacing(3);
+    margin: 0;
+    color: var(--color-bone);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    line-height: var(--text-micro--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+    text-transform: uppercase;
+    white-space: nowrap;
+    mix-blend-mode: difference;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--duration-small) var(--ease-snap);
+  }
+
+  .section-indicator[data-shown] {
+    opacity: 1;
+  }
+
+  .section-indicator__number {
+    color: var(--color-dust);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .section-indicator {
+      transition-duration: var(--duration-reduced);
+      transition-timing-function: linear;
+    }
+  }
+}
