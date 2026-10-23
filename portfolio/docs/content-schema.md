@@ -3,6 +3,8 @@ export type Link = { label: string; href: string };
 export type Media = {
   src: string;            // /assets/... path from Section 12 naming
   alt: string;            // required, written by you
+  caption?: string;       // short plate title for a record's photo gallery, e.g. "The plaques"
+  document?: string;      // /assets/... PDF this image previews; the lightbox offers it to open
   width: number; height: number;
   kind: 'image' | 'video';
   poster?: string;        // for video
@@ -55,7 +57,7 @@ export type Experience = {
 };
 
 export type AwardCategory =
-  | 'competition' | 'hackathon' | 'certification' | 'workplace'
+  | 'competition' | 'hackathon' | 'certification' | 'mentorship' | 'membership' | 'workplace'
   | 'publication' | 'talk' | 'open-source' | 'ranking' | 'scholarship';
 
 export type Grade = { value: number; scaleMin: number; scaleMax: number; label: string };  // label: "GPA", "Average"

@@ -188,6 +188,7 @@ const SITE_GATES: Award[] = [
     gallery: [1, 2, 3, 4].map((n) => ({
       src: `/assets/lab/specimen-photo-${n}.svg`,
       alt: `Specimen photo ${n} of 4: a crossed frame`,
+      caption: `Specimen ${n}`,
       width: 1200,
       height: 800,
       kind: "image" as const,

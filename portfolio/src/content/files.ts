@@ -12,3 +12,7 @@ export const isPublished = (href: string): boolean =>
 /** The photos whose files are in /public at build: a photo declared before its file arrives is left out. Server / build only. */
 export const publishedPhotos = <T extends { src: string }>(photos: T[] = []): T[] =>
   photos.filter((photo) => isPublished(photo.src));
+
+/** The award with its badge only if the badge file is in /public at build, so a badge declared before its file arrives is left out. Server / build only. */
+export const withPublishedBadge = <T extends { badge?: { src: string } }>(award: T): T =>
+  award.badge && !isPublished(award.badge.src) ? { ...award, badge: undefined } : award;

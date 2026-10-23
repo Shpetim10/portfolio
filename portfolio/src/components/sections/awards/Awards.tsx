@@ -2,7 +2,7 @@ import { Content } from "@/components/ui/Content";
 import { PhotoGallery } from "@/components/ui/PhotoGallery";
 import { SectionShell } from "@/components/ui/SectionShell";
 import { checkAwards, getAwards, isTodo, type Award } from "@/content";
-import { publishedPhotos } from "@/content/files";
+import { publishedPhotos, withPublishedBadge } from "@/content/files";
 import { todo } from "@/content/todo";
 import { Invert } from "@/motion/signatures/invert";
 import { Reveal } from "@/motion/signatures/reveal";
@@ -41,9 +41,11 @@ type AwardsProps = {
 export function Awards({ awards = getAwards(), id = "awards", index = 8 }: AwardsProps) {
   // The homepage list is validated at build (src/content); a list passed in here gets the same rules.
   checkAwards(awards);
-  // Photos declared before their files arrive are left out, so the page never shows a dead thumbnail.
+  // Photos and badges declared before their files arrive are left out, so the page never shows a dead image.
   const { featured, groups, total } = fileAwards(
-    awards.map((award) => (award.gallery ? { ...award, gallery: publishedPhotos(award.gallery) } : award)),
+    awards.map((award) =>
+      withPublishedBadge(award.gallery ? { ...award, gallery: publishedPhotos(award.gallery) } : award),
+    ),
   );
 
   return (
@@ -133,7 +135,7 @@ function Certificate({ award, id }: { award: Entry; id: string }) {
 
       <div className="certificate__proof">
         {award.proof ? (
-          <Proof proof={award.proof} title={award.title} />
+          <Proof proof={award.proof} title={award.title} badge={award.badge} />
         ) : (
           <Content as="p" value={todo("Proof link: credential, article or certificate")} />
         )}

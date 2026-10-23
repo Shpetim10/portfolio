@@ -10,6 +10,8 @@ export const CATEGORIES: Record<AwardCategory, { label: string; code: string }> 
   competition: { label: "Competition", code: "CMP" },
   hackathon: { label: "Hackathon", code: "HCK" },
   certification: { label: "Certification", code: "CRT" },
+  mentorship: { label: "Mentorship", code: "MNT" },
+  membership: { label: "Membership", code: "MBR" },
   workplace: { label: "Workplace", code: "WRK" },
   publication: { label: "Publication", code: "PUB" },
   talk: { label: "Talk", code: "TLK" },

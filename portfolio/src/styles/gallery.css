@@ -33,16 +33,64 @@
     list-style: none;
   }
 
+  /* Up to three plates in a row: each is 7rem, and they shrink together on a narrow screen rather than wrapping. */
+  .photos__strip {
+    flex-wrap: nowrap;
+    align-items: start;
+  }
+
+  .photos__strip > li {
+    flex: 0 1 --spacing(28);
+    min-width: 0;
+  }
+
+  /* A plate: the framed print with its number, and its title beneath. */
   .photos__thumb {
+    display: grid;
+    gap: --spacing(2);
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .photos__frame {
     position: relative;
     display: block;
-    width: --spacing(20);
     aspect-ratio: 4 / 3;
-    padding: 0;
     overflow: hidden;
     border: var(--line) solid var(--color-hairline);
     background: var(--color-gunmetal);
-    cursor: pointer;
+    transition: border-color var(--duration-micro) var(--ease-snap);
+  }
+
+  /* Registration ticks in two corners; they turn signal when the plate is hot. */
+  .photos__frame::before,
+  .photos__frame::after {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    width: --spacing(2);
+    height: --spacing(2);
+    border: var(--line) solid var(--color-paper); /* on the photo, not the surface: never remapped */
+    opacity: 0.7;
+    pointer-events: none;
+    transition: border-color var(--duration-micro) var(--ease-snap);
+  }
+
+  .photos__frame::before {
+    top: --spacing(1);
+    right: --spacing(1);
+    border-width: var(--line) var(--line) 0 0;
+  }
+
+  .photos__frame::after {
+    bottom: --spacing(1);
+    left: --spacing(1);
+    border-width: 0 0 var(--line) var(--line);
   }
 
   .photos__thumb img {
@@ -53,13 +101,63 @@
     transition: opacity var(--duration-micro) var(--ease-snap);
   }
 
-  .photos__thumb:hover img {
+  .photos__thumb:hover img,
+  .photos__thumb:focus-visible img {
     opacity: 0.8;
+  }
+
+  .photos__thumb:hover .photos__frame,
+  .photos__thumb:focus-visible .photos__frame {
+    border-color: var(--color-bone);
+  }
+
+  .photos__thumb:hover .photos__frame::before,
+  .photos__thumb:hover .photos__frame::after,
+  .photos__thumb:focus-visible .photos__frame::before,
+  .photos__thumb:focus-visible .photos__frame::after {
+    border-color: var(--color-signal);
+    opacity: 1;
+  }
+
+  .photos__no {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: --spacing(0.5) --spacing(1.5);
+    background: var(--color-carbon);
+    color: var(--color-paper);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    line-height: var(--text-micro--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+  }
+
+  .photos__doc {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    padding: --spacing(0.5) --spacing(1.5);
+    background: var(--color-signal);
+    color: var(--color-carbon);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    line-height: var(--text-micro--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+  }
+
+  .photos__caption {
+    color: var(--color-dust);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    line-height: var(--text-micro--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+    text-transform: uppercase;
   }
 
   .photos__more {
     position: absolute;
     inset: 0;
+    z-index: 2;
     display: grid;
     place-items: center;
     background: var(--color-carbon);
@@ -119,6 +217,7 @@
 
   .lightbox__count,
   .lightbox__close,
+  .lightbox__doc,
   .lightbox__step {
     margin: 0;
     font-family: var(--font-mono);
@@ -139,19 +238,30 @@
     color: var(--color-dust);
   }
 
+  .lightbox__actions {
+    display: flex;
+    gap: --spacing(2);
+  }
+
   .lightbox__close,
+  .lightbox__doc,
   .lightbox__step {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     min-width: 44px;
     min-height: 44px;
     padding: 0 --spacing(3);
     border: var(--line) solid var(--color-hairline);
     background: transparent;
     color: var(--color-bone);
+    text-decoration: none;
     cursor: pointer;
     transition: background-color var(--duration-micro) var(--ease-snap);
   }
 
   .lightbox__close:hover,
+  .lightbox__doc:hover,
   .lightbox__step:hover {
     background: var(--color-gunmetal);
   }
@@ -165,23 +275,39 @@
     user-select: none;
   }
 
+  /* The print: matted on gunmetal with a hairline, sized by the photo itself. */
   .lightbox__photo {
     justify-self: center;
     align-self: center;
+    box-sizing: border-box;
     max-width: 100%;
     max-height: 100%;
     min-height: 0;
+    padding: --spacing(2);
+    border: var(--line) solid var(--color-hairline);
+    background: var(--color-gunmetal);
     object-fit: contain;
     animation: lightbox-in var(--duration-small) var(--ease-settle);
   }
 
   .lightbox__caption {
+    display: grid;
+    gap: --spacing(1);
     max-width: var(--container-measure);
     margin-inline: auto;
     color: var(--color-dust);
     font-size: var(--text-small);
     line-height: var(--text-small--line-height);
     text-align: center;
+  }
+
+  .lightbox__title {
+    color: var(--color-bone);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
   }
 
   .lightbox__nav {

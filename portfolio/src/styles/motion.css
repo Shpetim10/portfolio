@@ -201,6 +201,17 @@
     html[data-cursor="custom"] :is(input, textarea, select, [contenteditable="true"]) {
       cursor: auto;
     }
+
+    /* A modal <dialog> sits in the top layer, above the custom cursor, so inside the
+     * lightbox the native pointer comes back (a hand over what can be pressed). */
+    html[data-cursor="custom"] .lightbox,
+    html[data-cursor="custom"] .lightbox * {
+      cursor: auto;
+    }
+
+    html[data-cursor="custom"] .lightbox :is(button, a) {
+      cursor: pointer;
+    }
   }
 
   /* High-contrast modes keep the system cursor, which honours the user's size and colour. */

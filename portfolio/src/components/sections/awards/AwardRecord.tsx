@@ -171,7 +171,9 @@ function AwardCard({ entry }: { entry: Entry }) {
         </dl>
         <Content as="p" value={entry.why} className="award__why" />
         <PhotoGallery photos={entry.gallery ?? []} label={entry.title} />
-        {entry.proof && <Proof proof={entry.proof} title={entry.title} className="award__proof" />}
+        {entry.proof && (
+          <Proof proof={entry.proof} title={entry.title} badge={entry.badge} className="award__proof" />
+        )}
       </article>
     </li>
   );
