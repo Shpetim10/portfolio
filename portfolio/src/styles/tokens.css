@@ -154,13 +154,38 @@
   --hero-figure-static: 32rem; /* max width of the static (exploded) figure */
   --led-cycle: 2.4s; /* indicator LED breathing period */
 
-  /* Manifesto + portrait (T04) */
-  --manifesto-read: 0.6; /* a sentence already read: bone at 60% over carbon, ≈ 6:1 contrast */
-  --manifesto-unread: 0.4; /* a sentence still to come: ≈ 3.4:1, AA for large text (3:1; the paragraph is ≥ 24px) */
+  /* Manifesto + Victory + signature (T04c) */
+  --manifesto-unread: 0.4; /* a word still to light: ≈ 3.4:1, AA for large text (3:1; the paragraph is ≥ 24px) */
   --manifesto-size: clamp(1.5rem, 2.6vw, 2.5rem); /* each sentence reads as a lyric line: 24px phone → 40px */
+  --manifesto-size-pinned: clamp(
+    1.5rem,
+    1.9vw,
+    2.25rem
+  ); /* from lg: the whole manifesto fits the pinned stage */
   --manifesto-leading: 1.3; /* tight enough to hold a sentence together, open enough to separate wrapped lines */
-  --manifesto-line-gap: clamp(1.5rem, 4svh, 3rem); /* between sentences: room for the lit line to hand over */
-  --manifesto-run: 12svh; /* above the first and below the last line, so each can reach the viewport centre */
+  --manifesto-line-gap: clamp(1.5rem, 4svh, 3rem); /* between sentences */
+  --manifesto-line-gap-pinned: clamp(1rem, 2.5svh, 2rem);
+  --manifesto-pin: 180vh; /* scroll length the desktop stage stays pinned for */
+  --victory-height: min(80vh, 780px); /* the sculpture's box on desktop: fitted inside, never cropped */
+  --victory-static: 26rem; /* its width in flow on compact (reduced motion / no JS) */
+  --victory-sticky: 46svh; /* the compact sticky band, sculpture + caption, never taller */
+  --victory-fade: 32px; /* carbon fade at the band's bottom edge */
+  --victory-dwell: 12svh; /* compact: scroll the finished, annotated band holds for after the last line */
+  --victory-rise: 15cqi; /* the wing annotation's 45° leg, from the sculpture's width */
+  --hall-width: 30rem; /* the plaque: the full page width on phones, 30rem from there up */
+  --hall-mat: clamp(0.75rem, 2.5vw, 1.25rem); /* graphite mat between the mount's two frames */
+  --hall-rule: 6rem; /* each hairline beside "Hall of Fame" */
+  --hall-bar: 3rem; /* the signal bar on the nameplate's top edge */
+  --hall-bar-weight: 2px;
+  --hall-name-size: clamp(
+    1.75rem,
+    6vw,
+    3rem
+  ); /* the engraved name: fits a 320px phone on two lines at most */
+  --hall-figure-size: clamp(2.5rem, 9vw, 4rem); /* the tenure figures */
+  --hall-hover-scale: 1.03; /* the photo leaning in under a fine pointer */
+  --hall-lift: 2.5rem; /* the mount rises this far as it enters */
+  --hall-settle-scale: 1.12; /* the photo settles from this scale as the plate drops */
   --portrait-ratio: 4 / 5; /* until the asset supplies its own width / height */
 
   /* Metrics (T05) */

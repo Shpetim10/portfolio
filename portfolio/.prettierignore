@@ -10,3 +10,4 @@ next-env.d.ts
 src/styles/fonts/*.txt
 docs
 *.md
+src/content/sculpture/*.json

@@ -24,6 +24,21 @@ export const profile: Profile = {
     height: 1402,
     kind: "image",
   },
+  // The signature plaque under the manifesto (T04c). Figures as stated by the owner, Oct 2026.
+  tenure: [
+    {
+      value: 1,
+      suffix: "YR",
+      label: "Industry experience",
+      source: "Owner, Oct 2026: Logistiqo, Aug 2025 to Jun 2026; Joint Services since Oct 2026",
+    },
+    {
+      value: 4,
+      suffix: "YRS",
+      label: "Field involvement",
+      source: "Owner, Oct 2026",
+    },
+  ],
 };
 
 // The first is the lead metric (T05). Every figure has a verifiable `source`.

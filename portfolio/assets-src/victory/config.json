@@ -1,0 +1,8 @@
+{
+  "core": { "x": 0.38, "y": 0.45 },
+  "windFrom": "left",
+  "threshold": 28,
+  "gamma": 0.85,
+  "colsDesktop": 88,
+  "colsMobile": 56
+}

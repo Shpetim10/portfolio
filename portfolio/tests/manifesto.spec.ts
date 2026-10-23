@@ -1,26 +1,44 @@
 import { expect, test, type Page } from "./fixtures";
 
 /*
- * T04 manifesto + portrait. One sentence to a line; the line at the viewport
- * centre is lit (opacity), the lines above it read, the lines below unread, continuously
- * with scroll, like lyrics. The portrait unmasks top → bottom.
- * Contrast is measured from what is painted: each line's effective opacity
- * (its own × every ancestor's) blends bone over carbon.
+ * T04c manifesto with Winged Victory + signature block. One progress value p
+ * drives the section: words light in reading order up to p 0.88, Victory
+ * assembles and completes exactly with the last word, and the wing annotation
+ * shows from p 0.9. Desktop pins the stage (CSS sticky); compact keeps Victory
+ * in a sticky band. Contrast is measured from what is painted: each word's
+ * effective opacity (its own × every ancestor's) blends bone over carbon.
  */
+
+type Read = {
+  p: number;
+  sculpture: number;
+  formedAt: number;
+  noted: boolean;
+  start: number;
+  end: number;
+};
+type ProbeWindow = Window & { __MANIFESTO_PROBE__?: { read?: () => Read } };
+
+const withProbe = (page: Page) =>
+  page.addInitScript(() => {
+    (window as ProbeWindow).__MANIFESTO_PROBE__ = {};
+  });
+const read = (page: Page) => page.evaluate(() => (window as ProbeWindow).__MANIFESTO_PROBE__!.read!());
+const ready = (page: Page) =>
+  expect
+    .poll(() => page.evaluate(() => typeof (window as ProbeWindow).__MANIFESTO_PROBE__?.read))
+    .toBe("function");
 
 const section = (page: Page) => page.locator("section#manifesto");
 
-/** Scrolls so the paragraph's top sits at `ratio` of the viewport height, then lets things settle. */
-async function placeText(page: Page, ratio: number, settle = 400) {
-  await page.evaluate((r) => {
-    const text = document.querySelector<HTMLElement>('[data-manifesto="text"]')!;
-    const top = text.getBoundingClientRect().top + window.scrollY;
-    window.scrollTo(0, top - window.innerHeight * r);
-  }, ratio);
+/** Scrolls to progress p, then lets the scroll settle. */
+async function toProgress(page: Page, p: number, settle = 300) {
+  const { start, end } = await read(page);
+  await page.evaluate((y) => window.scrollTo(0, y), start + (end - start) * p);
   await page.waitForTimeout(settle);
 }
 
-/** Minimum WCAG contrast of any line against carbon, plus each line's opacity. */
+/** Every word's painted opacity, and the minimum WCAG contrast of any word against carbon. */
 const measure = (page: Page) =>
   page.evaluate(() => {
     const root = getComputedStyle(document.documentElement);
@@ -45,9 +63,8 @@ const measure = (page: Page) =>
       for (let el = node; el; el = el.parentElement) value *= Number(getComputedStyle(el).opacity);
       return value;
     };
-    const text = document.querySelector('[data-manifesto="text"]')!;
-    const lines = [...text.querySelectorAll(".manifesto__line")];
-    const opacities = lines.map(opacity);
+    const words = [...document.querySelectorAll('[data-manifesto="word"]')];
+    const opacities = words.map(opacity);
     const contrast = (alpha: number) => {
       const lit = luminance(bone.map((c, i) => c * alpha + carbon[i] * (1 - alpha)));
       return (lit + 0.05) / (luminance(carbon) + 0.05);
@@ -56,157 +73,264 @@ const measure = (page: Page) =>
   });
 
 test.describe("manifesto · layout", () => {
-  test("section index, manifesto and portrait with its caption", async ({ page }) => {
+  test("manifesto, Victory and the signature block, in reading order", async ({ page }) => {
     await page.goto("/");
     const manifesto = section(page);
     await expect(manifesto).toHaveAttribute("aria-labelledby", "manifesto-index");
     await expect(manifesto.locator(".section-index")).toContainText("[02]");
-    await expect(manifesto.locator(".section-index")).toContainText("Manifesto");
-    // Missing content is marked, never invented.
-    await expect(manifesto.locator(".manifesto__todo")).toBeVisible();
-    await expect(manifesto.locator('[data-manifesto="text"]')).toHaveAttribute("data-todo", "");
-    await expect(manifesto.locator(".portrait__placeholder [data-todo]")).toBeVisible();
 
-    // The label decodes once the portrait has unmasked.
-    const caption = manifesto.locator("figcaption");
-    await caption.scrollIntoViewIfNeeded();
-    await expect(caption.locator(".part-label")).toContainText(/operator —/i, { timeout: 4000 });
-    // No experience dates yet: the dimension value is a marked placeholder, not a number.
-    await expect(caption.locator(".dimension [data-todo]")).toHaveCount(1);
+    // Real text, one sentence per line, in order, before the figure in the DOM.
+    const lines = manifesto.locator(".manifesto__line");
+    expect(await lines.count()).toBeGreaterThan(1);
+    for (const text of await lines.allTextContents()) expect(text.trim()).toMatch(/[.!?]$/);
+    const order = await manifesto.evaluate((node) => {
+      const text = node.querySelector(".manifesto__text")!;
+      const figure = node.querySelector(".victory")!;
+      return text.compareDocumentPosition(figure) & Node.DOCUMENT_POSITION_FOLLOWING;
+    });
+    expect(order).toBeTruthy();
+    // No extra headline: the manifesto is the only large text.
+    await expect(manifesto.locator("h1, h2, h3")).toHaveCount(0);
+
+    await expect(manifesto.locator(".victory figcaption")).toHaveText(
+      "After the Winged Victory of Samothrace, c. 190 BC. Rebuilt in code.",
+    );
+    await expect(manifesto.locator(".sculpture__pre")).toHaveAttribute("aria-hidden", "true");
+
+    // Signature: portrait (alt from content), name, role · city, signed line. The old caption is gone.
+    const signature = manifesto.locator(".signature");
+    await expect(signature.locator("img")).toHaveAttribute("alt", /Shpëtim Shabanaj/);
+    await expect(signature.locator(".signature__name")).toHaveText("Shpëtim Shabanaj");
+    await expect(signature.locator(".signature__role")).toHaveText("Software Engineer · Tiranë");
+    await expect(signature.locator(".signature__sign")).toHaveText("— Shpëtim Shabanaj");
+    await expect(manifesto.locator(".part-label, .dimension")).toHaveCount(0);
   });
 
-  test("manifesto at reading size beside the portrait on desktop; portrait first on mobile", async ({
+  test("desktop: manifesto in columns 1–7, Victory in 8–12, fitted and facing it", async ({
     page,
     isMobile,
   }) => {
+    test.skip(isMobile, "desktop layout");
+    await withProbe(page);
     await page.goto("/");
-    const text = (await page.locator(".manifesto__text").boundingBox())!;
-    const portrait = (await page.locator(".portrait").boundingBox())!;
-    const style = await page.locator(".manifesto__text").evaluate((node) => {
-      const s = getComputedStyle(node);
-      return { fontSize: parseFloat(s.fontSize), lineHeight: s.lineHeight, family: s.fontFamily };
-    });
-    expect(style.family).not.toMatch(/Big Shoulders/i); // text face, not the condensed display face
-
-    if (isMobile) {
-      expect(portrait.y + portrait.height).toBeLessThanOrEqual(text.y);
-      expect(style.fontSize).toBeLessThanOrEqual(40); // --manifesto-size: clamp(1.5rem, 2.6vw, 2.5rem)
-    } else {
-      expect(portrait.x).toBeGreaterThanOrEqual(text.x + text.width); // portrait in the right columns
-      expect(Math.abs(portrait.y - text.y)).toBeLessThan(portrait.height); // same row
-      expect(style.fontSize).toBeCloseTo(37.44, 1); // --manifesto-size at 1440: 2.6vw
-      expect(parseFloat(style.lineHeight) / style.fontSize).toBeGreaterThanOrEqual(1.25);
+    await ready(page);
+    await toProgress(page, 0.5);
+    const box = (selector: string) =>
+      page.locator(selector).evaluate((el) => el.getBoundingClientRect().toJSON());
+    const [text, plate] = [await box(".manifesto__text"), await box(".victory__plate")];
+    expect(plate.x).toBeGreaterThanOrEqual(text.x + text.width);
+    const viewport = page.viewportSize()!;
+    expect(plate.height).toBeLessThanOrEqual(Math.min(viewport.height * 0.8, 780) + 0.5);
+    // Never cropped: the whole sculpture and the whole manifesto are on screen while pinned.
+    for (const rect of [text, plate]) {
+      expect(rect.y).toBeGreaterThanOrEqual(0);
+      expect(rect.y + rect.height).toBeLessThanOrEqual(viewport.height);
     }
   });
 });
 
-/** Scrolls so line `index` sits at the viewport centre. */
-async function centreLine(page: Page, index: number) {
-  await page.evaluate((i) => {
-    const line = document.querySelectorAll<HTMLElement>(".manifesto__line")[i];
-    const rect = line.getBoundingClientRect();
-    window.scrollBy(0, rect.top + rect.height / 2 - window.innerHeight / 2);
-  }, index);
-  await page.waitForTimeout(400);
-}
-
-test.describe("manifesto · lines", () => {
-  test("one sentence per line, in order", async ({ page }) => {
+test.describe("manifesto · progress", () => {
+  test.beforeEach(async ({ page }) => {
+    await withProbe(page);
     await page.goto("/");
-    const lines = page.locator(".manifesto__line");
-    expect(await lines.count()).toBeGreaterThan(1);
-    for (const text of await lines.allTextContents()) expect(text.trim()).toMatch(/[.!?]$/);
-    // Stacked, never side by side.
-    const boxes = await lines.evaluateAll((nodes) =>
-      nodes.map((node) => {
-        const { top, bottom } = node.getBoundingClientRect();
-        return { top, bottom };
-      }),
-    );
-    for (let i = 1; i < boxes.length; i++) expect(boxes[i].top).toBeGreaterThanOrEqual(boxes[i - 1].bottom);
+    await ready(page);
   });
 
-  test("read · reading · unread: the line at the centre is lit, above it read, below it unread", async ({
-    page,
-  }) => {
-    await page.goto("/");
-    const token = (name: string) =>
-      section(page).evaluate((node, n) => parseFloat(getComputedStyle(node).getPropertyValue(n)), name);
-    const [read, unread] = [await token("--manifesto-read"), await token("--manifesto-unread")];
-    expect(read).toBeGreaterThan(unread); // told apart by brightness alone
-    const count = await page.locator(".manifesto__line").count();
-
-    // Before the paragraph: everything is still to be read.
-    await placeText(page, 0.95);
+  test("words light in order; contrast holds at every position", async ({ page }) => {
+    const unread = await section(page).evaluate((node) =>
+      parseFloat(getComputedStyle(node).getPropertyValue("--manifesto-unread")),
+    );
+    await toProgress(page, 0);
     let state = await measure(page);
     for (const value of state.opacities) expect(value).toBeCloseTo(unread, 2);
-    expect(state.minContrast).toBeGreaterThanOrEqual(3);
 
-    // Each line, centred in turn, is the one being read: lit; earlier lines read; later ones unread.
-    for (const index of [0, Math.floor(count / 2), count - 1]) {
-      await centreLine(page, index);
-      state = await measure(page);
-      expect(state.opacities[index]).toBeCloseTo(1, 1);
-      expect(state.opacities[index]).toBe(Math.max(...state.opacities));
-      expect(state.minContrast).toBeGreaterThanOrEqual(3);
-      state.opacities.forEach((value, i) => {
-        if (i < index) expect(value).toBeGreaterThanOrEqual(read - 0.01);
-        if (i > index) expect(value).toBeLessThanOrEqual(unread + 0.01);
-      });
-    }
-
-    // In the gap between two lines: the one leaving is part-way down to read, the one arriving part-way up
-    // from unread (a hand-over, not a jump).
-    await centreLine(page, 0);
-    await page.evaluate(() => {
-      const [a, b] = [...document.querySelectorAll<HTMLElement>(".manifesto__line")];
-      const mid = (a.getBoundingClientRect().bottom + b.getBoundingClientRect().top) / 2; // the gap between them
-      window.scrollBy(0, mid - window.innerHeight / 2);
-    });
-    await page.waitForTimeout(400);
+    await toProgress(page, 0.44);
     state = await measure(page);
-    expect(state.opacities[0]).toBeLessThan(1);
-    expect(state.opacities[1]).toBeLessThan(1);
-    expect(state.opacities[0]).toBeGreaterThan(read - 0.01);
-    expect(state.opacities[1]).toBeGreaterThan(unread);
+    const half = state.opacities.length / 2;
+    expect(state.opacities[0]).toBeCloseTo(1, 2);
+    expect(state.opacities[Math.floor(half * 0.5)]).toBeCloseTo(1, 2);
+    expect(state.opacities.at(-1)).toBeCloseTo(unread, 2);
+    // Monotonic: lit words never follow unlit ones.
+    for (let i = 1; i < state.opacities.length; i++)
+      expect(state.opacities[i]).toBeLessThanOrEqual(state.opacities[i - 1] + 0.001);
 
-    // Sweep the whole range in small steps: contrast never dips.
-    for (let ratio = 1; ratio >= -1; ratio -= 0.125) {
-      await placeText(page, ratio, 120);
+    for (let p = -0.2; p <= 1.2; p += 0.1) {
+      await toProgress(page, p, 80);
       expect((await measure(page)).minContrast).toBeGreaterThanOrEqual(3);
     }
+    await toProgress(page, 1);
+    for (const value of (await measure(page)).opacities) expect(value).toBeCloseTo(1, 2);
+  });
 
-    // Long past: all read, none gone.
-    await placeText(page, -3);
-    state = await measure(page);
-    for (const value of state.opacities) expect(value).toBeCloseTo(read, 2);
+  test("Victory completes exactly with the last word, at any speed, both ways", async ({ page }) => {
+    const { formedAt } = await read(page);
+    expect(formedAt).toBeGreaterThan(0.8);
+    expect(formedAt).toBeLessThanOrEqual(0.88);
+    // Probe and painted word read in one task, so they always describe the same update.
+    const sample = () =>
+      page.evaluate(() => {
+        const words = document.querySelectorAll('[data-manifesto="word"]');
+        const lit = Number(getComputedStyle(words[words.length - 1]).opacity);
+        return { ...(window as ProbeWindow).__MANIFESTO_PROBE__!.read!(), lit };
+      });
+
+    // Jumps, no settling: forwards past the end, back to the start, to just short of the end, and back.
+    for (const [p, settle] of [
+      [1, 0],
+      [0, 0],
+      [formedAt - 0.03, 0],
+      [1.3, 0],
+      [0.2, 0],
+      [formedAt, 0],
+    ] as const) {
+      await toProgress(page, p, settle);
+      const { lit, ...state } = await sample();
+      if (state.p >= state.formedAt) {
+        expect(state.sculpture).toBe(1);
+        expect(lit).toBeCloseTo(1, 2);
+      } else if (state.p < state.formedAt - 0.001) {
+        expect(state.sculpture).toBeLessThan(1);
+        expect(lit).toBeLessThan(1);
+        expect(state.sculpture).toBeCloseTo(state.p / state.formedAt, 3);
+      }
+    }
+  });
+
+  test("the annotation shows from p 0.9 and hides again below it", async ({ page, isMobile }) => {
+    await toProgress(page, 0.85);
+    expect((await read(page)).noted).toBe(false);
+    await toProgress(page, 0.95, 1200);
+    expect((await read(page)).noted).toBe(true);
+    if (isMobile) {
+      await expect(page.locator(".victory__spec")).toHaveCSS("opacity", "1");
+      await expect(page.locator(".victory__spec")).toHaveText(/Material: Code\s*Direction: Forward/i);
+    } else {
+      const label = page.locator(".victory__leader .leader__label");
+      await expect(label).toHaveText(/Material: Code\s*Direction: Forward/i);
+      await expect(label).toHaveCSS("opacity", "1");
+    }
+    await toProgress(page, 0.5, 1200);
+    expect((await read(page)).noted).toBe(false);
+    if (isMobile) await expect(page.locator(".victory__spec")).toHaveCSS("opacity", "0");
+    else await expect(page.locator(".victory__leader .leader__label")).toHaveCSS("opacity", "0");
+  });
+
+  test("the canvas takes over the pre's exact box", async ({ page }) => {
+    await toProgress(page, 0.5);
+    const sculpture = section(page).locator(".sculpture[data-live]");
+    await sculpture.waitFor();
+    const [pre, canvas] = await Promise.all(
+      [".sculpture__pre", ".sculpture__canvas"].map((selector) =>
+        sculpture
+          .locator(selector)
+          .first()
+          .evaluate((el) => el.getBoundingClientRect().toJSON()),
+      ),
+    );
+    expect(canvas).toEqual(pre);
+  });
+});
+
+test.describe("manifesto · pin and band", () => {
+  test("desktop: the stage holds still for the pin, ≥ 40vh after the hero's", async ({ page, isMobile }) => {
+    test.skip(isMobile, "desktop pin");
+    await withProbe(page);
+    await page.goto("/");
+    await ready(page);
+    const { start, end } = await read(page);
+    const height = page.viewportSize()!.height;
+    expect(end - start).toBeCloseTo(height * 1.8, -1); // --manifesto-pin: 180vh
+
+    // The hero's pinned scene ends when its track's bottom meets the viewport's.
+    const heroEnd = await page.evaluate(() => {
+      const hero = document.querySelector<HTMLElement>(".hero")!;
+      return hero.getBoundingClientRect().bottom + window.scrollY - window.innerHeight;
+    });
+    expect(start - heroEnd).toBeGreaterThanOrEqual(height * 0.4);
+
+    const stageTop = () => page.locator(".manifesto__stage").evaluate((el) => el.getBoundingClientRect().top);
+    await toProgress(page, 0.1);
+    const pinned = await stageTop();
+    for (const p of [0.5, 0.9]) {
+      await toProgress(page, p);
+      expect(await stageTop()).toBeCloseTo(pinned, 0);
+    }
+  });
+
+  test("compact: Victory sticks in a band no taller than 46svh", async ({ page, isMobile }) => {
+    test.skip(!isMobile, "compact band");
+    await withProbe(page);
+    await page.goto("/");
+    await ready(page);
+    const band = page.locator(".victory");
+    const height = page.viewportSize()!.height;
+    for (const p of [0.2, 0.6, 1]) {
+      await toProgress(page, p);
+      const rect = await band.evaluate((el) => el.getBoundingClientRect().toJSON());
+      expect(rect.height).toBeLessThanOrEqual(height * 0.46 + 0.5);
+      expect(rect.top).toBeCloseTo(64, 0); // under the header
+    }
+  });
+
+  test("no horizontal scroll at 320px", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await withProbe(page);
+    await page.goto("/");
+    await ready(page);
+    for (const p of [0, 0.5, 1]) {
+      await toProgress(page, p);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+    }
   });
 });
 
 test.describe("manifesto · portrait", () => {
-  test("unmasks top → bottom when it enters, then the caption is drawn", async ({ page }) => {
+  test("unmasks top → bottom when it enters", async ({ page }) => {
     await page.goto("/");
     const plate = page.locator('[data-manifesto="plate"]');
     const scaleY = () => plate.evaluate((node) => new DOMMatrix(getComputedStyle(node).transform).d);
     await expect.poll(scaleY).toBe(1); // covered, waiting below the fold
-
     await page.locator(".portrait").scrollIntoViewIfNeeded();
     await expect.poll(scaleY, { timeout: 4000 }).toBe(0);
-    const label = page.locator(".portrait__label");
-    await expect(label).toHaveCSS("opacity", "1");
-    await expect(label).toContainText(/^Operator — /i);
+  });
+
+  test("the hall-of-fame plaque sits on the page's centre axis, with both tenure figures", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await page.locator(".portrait").scrollIntoViewIfNeeded();
+    const signature = page.locator(".signature");
+    await expect(signature.locator(".signature__eyebrow")).toHaveText("Hall of Fame");
+    await expect(signature.locator(".signature__figure")).toHaveText([
+      /1\s*YR\s*Industry experience/,
+      /4\s*YRS\s*Field involvement/,
+    ]);
+    const vw = page.viewportSize()!.width;
+    for (const selector of [".portrait", ".signature__text"]) {
+      const box = (await page.locator(selector).boundingBox())!;
+      expect(Math.abs(box.x - (vw - box.x - box.width))).toBeLessThanOrEqual(1);
+    }
   });
 });
 
 test.describe("manifesto · reduced motion", () => {
   test.use({ reducedMotion: "reduce" });
 
-  test("no scrubbed lyric, no unmask: the paragraph and portrait fade in", async ({ page }) => {
+  test("no pin, no band: all bone, Victory complete, annotation shown, portrait faded in", async ({
+    page,
+    isMobile,
+  }) => {
     await page.goto("/");
-    await placeText(page, 0.3, 600);
-    for (const value of (await measure(page)).opacities) expect(value).toBeCloseTo(1, 2);
-    const plate = page.locator('[data-manifesto="plate"]');
-    expect(await plate.evaluate((node) => new DOMMatrix(getComputedStyle(node).transform).d)).toBe(0);
+    await page.waitForTimeout(500);
+    await expect(page.locator(".manifesto")).not.toHaveAttribute("data-mode", /.*/);
+    await expect(page.locator(".manifesto__stage")).toHaveCSS("position", "static");
+    await expect(page.locator(".victory")).toHaveCSS("position", "static");
+    await page.locator(".manifesto__text").scrollIntoViewIfNeeded();
+    for (const value of (await measure(page)).opacities) expect(value).toBe(1);
+    await expect(section(page).locator(".sculpture__canvas")).toHaveCount(0);
+    await expect(section(page).locator(".sculpture__pre")).toBeVisible();
+    await expect(page.locator(isMobile ? ".victory__spec" : ".victory__leader .leader__label")).toBeVisible();
+    await page.locator(".portrait").scrollIntoViewIfNeeded();
     await expect(page.locator(".portrait")).toHaveCSS("opacity", "1");
   });
 });
@@ -214,14 +338,15 @@ test.describe("manifesto · reduced motion", () => {
 test.describe("manifesto · no JavaScript", () => {
   test.use({ javaScriptEnabled: false });
 
-  test("text fully readable at full contrast, portrait uncovered", async ({ page }) => {
+  test("text fully readable at full contrast, Victory complete, portrait uncovered", async ({ page }) => {
     await page.goto("/");
     await expect(page.locator(".manifesto__text")).toBeVisible();
     const state = await measure(page);
     for (const value of state.opacities) expect(value).toBe(1);
     expect(state.minContrast).toBeGreaterThan(15);
+    await expect(section(page).locator(".sculpture__pre")).toBeVisible();
+    await expect(page.locator(".victory figcaption")).toBeVisible();
     const plate = page.locator('[data-manifesto="plate"]');
     expect(await plate.evaluate((node) => new DOMMatrix(getComputedStyle(node).transform).d)).toBe(0);
-    await expect(page.locator(".portrait__label")).toContainText(/^Operator — /i);
   });
 });

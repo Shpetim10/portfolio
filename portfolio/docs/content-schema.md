@@ -21,6 +21,7 @@ export type Profile = {
   socials: Link[];
   resumeUrl: string;               // static PDF in /public
   portrait: Media;
+  tenure: Metric[];                // the signature plaque's two figures under the portrait
 };
 
 export type Metric = {

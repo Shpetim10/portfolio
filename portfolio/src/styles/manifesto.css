@@ -1,33 +1,51 @@
 /*
- * T04 manifesto + portrait (src/components/sections/manifesto). Static
- * geometry only; GSAP animates opacity (words, label) and transform (cover
- * plate, dimension rules). Tokens only.
+ * T04c manifesto + Winged Victory + signature block
+ * (src/components/sections/manifesto). Static geometry only; GSAP animates
+ * opacity (words, the compact label) and transform (cover plate, leader line);
+ * the sculpture animates inside its own canvas. Tokens only.
  *
- * Grid: the section's layout grid, carried through .manifesto as a subgrid.
- *   < 48rem   portrait (3 of 4) · manifesto (4 of 4), one sentence to a block
- *   ≥ 48rem   portrait (4 of 8) · manifesto (8 of 8), same size
- *   ≥ 64rem   manifesto (cols 1–8) beside the portrait (cols 9–12, sticky)
+ * Modes, on .manifesto:
+ *   (none)             static — reduced motion or no JS: everything in flow,
+ *                      the manifesto all bone, Victory complete, annotation drawn.
+ *   data-mode="live"   set before first paint by an inline script:
+ *                        ≥ 64rem  the stage (manifesto + Victory) is sticky inside
+ *                                 a track --manifesto-pin taller than itself;
+ *                        < 64rem  Victory is a sticky band (--victory-sticky) the
+ *                                 manifesto scrolls beneath.
+ *
+ * Grid: the section's layout grid, carried through as subgrids.
+ *   < 64rem   Victory (row 1) · manifesto (row 2) · signature: the plaque, centred, the page width
+ *   ≥ 64rem   manifesto (cols 1–7) beside Victory (cols 8–12) · signature: the plaque, centred, 30rem
  */
 
 @layer components {
-  .manifesto {
+  .manifesto,
+  .manifesto__track,
+  .manifesto__stage,
+  .signature {
     grid-column: 1 / -1;
     display: grid;
     grid-template-columns: subgrid;
-    row-gap: --spacing(16);
+  }
+
+  .manifesto {
+    row-gap: --spacing(24);
+  }
+
+  .manifesto__stage {
+    row-gap: --spacing(12);
     align-items: start;
   }
 
   /* Manifesto ---------------------------------------------------------- */
   .manifesto__body {
+    grid-row: 2;
     grid-column: 1 / -1;
   }
 
-  /* One sentence to a block, like lyrics. ManifestoStage lights them by scroll position. */
+  /* One sentence to a block, like lyrics. ManifestoStage lights the words by progress. */
   .manifesto__text {
-    position: relative; /* the lines' offsetParent */
     margin: 0;
-    padding-block: var(--manifesto-run);
     color: var(--color-bone);
     font-family: var(--font-text);
     font-size: var(--manifesto-size);
@@ -39,11 +57,15 @@
 
   .manifesto__line {
     display: block;
-    transform-origin: left center;
   }
 
   .manifesto__line + .manifesto__line {
     margin-top: var(--manifesto-line-gap);
+  }
+
+  /* Live: words wait at the unread level from the first paint; ManifestoStage takes over. */
+  .manifesto[data-mode="live"] .manifesto__word {
+    opacity: var(--manifesto-unread);
   }
 
   .manifesto__todo {
@@ -60,10 +82,341 @@
     text-transform: uppercase;
   }
 
+  /* Victory ------------------------------------------------------------ */
+  /*
+   * figure: [slot] over [label] over [caption]. The slot centres the plate; the
+   * plate is the sculpture's exact box (SymbolSculpture sizes itself from its
+   * width), so the annotation can be placed in the sculpture's own proportions.
+   */
+  .victory {
+    grid-row: 1;
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-rows: auto auto auto;
+    row-gap: --spacing(2);
+    margin: 0;
+  }
+
+  .victory__slot {
+    display: grid;
+    place-items: center;
+    min-width: 0;
+  }
+
+  .victory__plate {
+    position: relative;
+    container-type: inline-size;
+    width: min(100%, var(--victory-static));
+  }
+
+  .victory__caption,
+  .victory__spec {
+    margin: 0;
+    color: var(--color-dust);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    line-height: var(--text-micro--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  .victory__spec-line {
+    display: block;
+  }
+
+  /* The wing annotation (desktop): from the wing's lower edge, a 45° leg and an
+     elbow to the sculpture's right edge, the label hanging under the elbow's end. */
+  .leader.victory__leader[data-direction] {
+    --leader-rise: var(--victory-rise);
+    position: absolute;
+    top: 25%;
+    right: 0;
+    left: 72%;
+    display: none;
+    grid-template-columns: var(--leader-rise) minmax(var(--leader-run), 1fr);
+    grid-template-rows: var(--leader-rise) auto;
+  }
+
+  .victory__leader[data-direction] .leader__leg {
+    grid-row: 1;
+    grid-column: 1;
+    margin: 0;
+  }
+
+  .victory__leader[data-direction] .leader__run {
+    grid-row: 1;
+    grid-column: 2;
+    align-self: end;
+  }
+
+  .victory__leader[data-direction] .leader__label {
+    grid-row: 2;
+    grid-column: 1 / -1;
+    justify-self: end;
+    padding: var(--annotation-gap) 0 0;
+    font-family: var(--font-mono);
+    text-align: end;
+    text-transform: uppercase;
+  }
+
+  /* Live compact: the label waits for p ≥ 0.9 (opacity only; its row is always reserved). */
+  .manifesto[data-mode="live"] .victory__spec {
+    opacity: 0;
+    transition: opacity var(--duration-small) var(--ease-settle);
+  }
+
+  .manifesto[data-mode="live"] .victory__spec[data-shown] {
+    opacity: 1;
+  }
+
+  /* Live compact: the sticky band. Carbon, fading out over its bottom edge so
+     the manifesto slides beneath it; the sculpture fits what the notes leave. */
+  .manifesto[data-mode="live"] .victory {
+    position: sticky;
+    top: var(--header-height);
+    z-index: var(--z-sticky);
+    box-sizing: border-box;
+    height: var(--victory-sticky);
+    grid-template-rows: minmax(0, 1fr) auto auto;
+    margin-inline: calc(var(--grid-margin) * -1);
+    padding: --spacing(2) var(--grid-margin) var(--victory-fade);
+    background: linear-gradient(to bottom, var(--color-carbon) calc(100% - var(--victory-fade)), transparent);
+  }
+
+  /* Room under the last line, so the band holds through p = 1 and the finished
+     figure, annotated, stays a moment before it scrolls away. */
+  .manifesto[data-mode="live"] .manifesto__body {
+    padding-bottom: var(--victory-dwell);
+  }
+
+  /* Carbon above the band too: when the header slides away, nothing shows over it. */
+  .manifesto[data-mode="live"] .victory::before {
+    content: "";
+    position: absolute;
+    inset: calc(var(--header-height) * -1) 0 100%;
+    background-color: var(--color-carbon);
+  }
+
+  .manifesto[data-mode="live"] .victory__slot {
+    container-type: size;
+  }
+
+  .manifesto[data-mode="live"] .victory__plate {
+    width: min(100cqw, 100cqh * var(--victory-aspect));
+  }
+
+  /* Signature: the hall-of-fame plaque ------------------------------- */
+  /*
+   * One centred column on every width: eyebrow · mounted portrait · nameplate ·
+   * signed line. Not on the subgrid: it centres on the section's axis, so on a
+   * phone the plaque sits in the exact middle with the page margin either side.
+   */
+  .signature {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    row-gap: --spacing(10);
+    padding-top: --spacing(16);
+    border-top: var(--line) solid var(--color-hairline);
+    text-align: center;
+  }
+
+  /* "Hall of Fame" between two hairlines, drawn out from the words. */
+  .signature__eyebrow {
+    display: grid;
+    grid-template-columns: minmax(0, var(--hall-rule)) auto minmax(0, var(--hall-rule));
+    align-items: center;
+    gap: --spacing(4);
+    width: 100%;
+    max-width: var(--hall-width);
+    justify-content: center;
+    margin: 0;
+    color: var(--color-dust);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  .signature__rule {
+    border-top: var(--line) solid var(--color-hairline);
+  }
+
+  .signature__rule:first-child {
+    transform-origin: right center;
+  }
+
+  .signature__rule:last-child {
+    transform-origin: left center;
+  }
+
+  /* The nameplate: a machined plate under the mount, a signal bar on its top edge. */
+  .signature__text {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: --spacing(3);
+    box-sizing: border-box;
+    width: 100%;
+    max-width: var(--hall-width);
+    padding: --spacing(8) --spacing(5);
+    border: var(--line) solid var(--color-hairline);
+    background-color: var(--color-graphite);
+  }
+
+  .signature__bar {
+    position: absolute;
+    top: calc(var(--line) * -1);
+    left: 50%;
+    width: var(--hall-bar);
+    border-top: var(--hall-bar-weight) solid var(--color-signal);
+    translate: -50% 0;
+  }
+
+  .signature__name {
+    margin: 0;
+    color: var(--color-bone);
+    font-family: var(--font-display);
+    font-size: var(--hall-name-size);
+    font-weight: var(--font-weight-black);
+    line-height: var(--text-display-m--line-height);
+    text-transform: uppercase;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+  }
+
+  .signature__role {
+    margin: 0;
+    color: var(--color-dust);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  /* Two figures side by side on every width, a hairline between them. */
+  .signature__tenure {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    margin: --spacing(5) 0 0;
+    padding: --spacing(6) 0 0;
+    border-top: var(--line) solid var(--color-hairline);
+    list-style: none;
+  }
+
+  .signature__figure {
+    display: grid;
+    justify-items: center;
+    padding-inline: --spacing(2);
+  }
+
+  .signature__figure + .signature__figure {
+    border-left: var(--line) solid var(--color-hairline);
+  }
+
+  .signature__figure .counter {
+    align-items: center;
+    gap: --spacing(2);
+  }
+
+  .signature__figure .counter__figure {
+    align-items: baseline;
+  }
+
+  .signature__figure .counter__value {
+    font-size: var(--hall-figure-size);
+    line-height: var(--text-display-m--line-height);
+  }
+
+  .signature__figure .counter__suffix,
+  .signature__figure .counter__label {
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    line-height: var(--text-micro--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  .signature__figure .counter__suffix {
+    color: var(--color-signal);
+  }
+
+  /* The signed line under the plate: a hairline, the name under it in the text face. */
+  .signature__sign {
+    display: grid;
+    justify-items: center;
+    gap: --spacing(2);
+    margin: 0;
+    color: var(--color-bone);
+    font-family: var(--font-text);
+    font-size: var(--text-body-l);
+    line-height: var(--text-body-l--line-height);
+  }
+
+  .signature__line {
+    width: min(100%, 20rem);
+    border-top: var(--line) solid var(--color-hairline);
+  }
+
   /* Portrait ----------------------------------------------------------- */
   .portrait {
-    grid-column: 1 / span 3;
+    width: 100%;
+    max-width: var(--hall-width);
     margin: 0;
+  }
+
+  /* The mount: a graphite mat between two hairline frames, a registration mark on each corner. */
+  .portrait__mount {
+    position: relative;
+    padding: var(--hall-mat);
+    border: var(--line) solid var(--color-hairline);
+    background-color: var(--color-graphite);
+  }
+
+  .portrait__corner {
+    position: absolute;
+    display: block;
+    width: var(--registration-mark);
+    height: var(--registration-mark);
+  }
+
+  .portrait__corner .registration-mark {
+    color: var(--color-bone);
+  }
+
+  .portrait__corner[data-corner^="top"] {
+    top: 0;
+  }
+
+  .portrait__corner[data-corner^="bottom"] {
+    bottom: 0;
+  }
+
+  .portrait__corner[data-corner$="left"] {
+    left: 0;
+  }
+
+  .portrait__corner[data-corner$="right"] {
+    right: 0;
+  }
+
+  .portrait__corner[data-corner="top-left"] {
+    translate: -50% -50%;
+  }
+
+  .portrait__corner[data-corner="top-right"] {
+    translate: 50% -50%;
+  }
+
+  .portrait__corner[data-corner="bottom-left"] {
+    translate: -50% 50%;
+  }
+
+  .portrait__corner[data-corner="bottom-right"] {
+    translate: 50% 50%;
   }
 
   .portrait__frame {
@@ -72,7 +425,7 @@
     aspect-ratio: var(--portrait-ratio);
     overflow: hidden;
     border: var(--line) solid var(--color-hairline);
-    background-color: var(--color-graphite);
+    background-color: var(--color-carbon);
   }
 
   /* Warm duotone, carbon → bone: luminance only, then bone multiplies the highlights
@@ -93,6 +446,7 @@
     height: 100%;
     object-fit: cover;
     filter: grayscale(1);
+    transition: scale var(--duration-medium) var(--ease-settle);
   }
 
   .portrait__media::before,
@@ -109,6 +463,13 @@
   .portrait__media::after {
     background-color: var(--color-carbon);
     mix-blend-mode: lighten;
+  }
+
+  /* Fine pointers: the photo leans in a touch under the cursor. Nothing is hidden behind it. */
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    .portrait:hover .portrait__media img {
+      scale: var(--hall-hover-scale);
+    }
   }
 
   .portrait__placeholder {
@@ -133,35 +494,86 @@
     pointer-events: none;
   }
 
-  .portrait__caption {
-    display: grid;
-    gap: --spacing(3);
-    margin-top: --spacing(3);
-  }
-
-  /* The name may be long; let the label wrap rather than overflow its 3–4 columns. */
-  .portrait__label {
-    white-space: normal;
-  }
-
-  /* Breakpoints -------------------------------------------------------- */
-  @media (width >= 48rem) {
-    .portrait {
-      grid-column: 1 / span 4;
-    }
-  }
-
+  /* Desktop ------------------------------------------------------------ */
   @media (width >= 64rem) {
+    .manifesto__stage {
+      align-items: center;
+    }
+
     .manifesto__body {
       grid-row: 1;
-      grid-column: 1 / span 8;
+      grid-column: 1 / span 7;
     }
 
-    .portrait {
-      position: sticky;
-      top: calc(var(--header-height) + --spacing(8));
+    .manifesto__text {
+      font-size: var(--manifesto-size-pinned);
+    }
+
+    .manifesto__line + .manifesto__line {
+      margin-top: var(--manifesto-line-gap-pinned);
+    }
+
+    .victory {
       grid-row: 1;
-      grid-column: 9 / span 4;
+      grid-column: 8 / span 5;
+      grid-template-rows: auto auto;
+      row-gap: --spacing(3);
+    }
+
+    .victory__slot {
+      container-type: size;
+      height: var(--victory-height);
+    }
+
+    .victory__plate {
+      width: min(100cqw, 100cqh * var(--victory-aspect));
+    }
+
+    .leader.victory__leader[data-direction] {
+      display: grid;
+    }
+
+    .victory__spec {
+      display: none;
+    }
+
+    /* Live: the pin. The track adds the scroll length as an empty row (a sticky box
+       never travels into its parent's padding); the stage holds the viewport. */
+    .manifesto[data-mode="live"] .manifesto__track {
+      grid-template-rows: auto var(--manifesto-pin);
+    }
+
+    .manifesto[data-mode="live"] .manifesto__stage {
+      position: sticky;
+      top: var(--manifesto-stick, var(--header-height));
+      min-height: calc(100svh - var(--header-height));
+    }
+
+    /* The band is compact only. */
+    .manifesto[data-mode="live"] .victory {
+      position: static;
+      height: auto;
+      grid-template-rows: auto auto;
+      margin-inline: 0;
+      padding: 0;
+      background: none;
+    }
+
+    .manifesto[data-mode="live"] .victory::before {
+      content: none;
+    }
+
+    .manifesto[data-mode="live"] .manifesto__body {
+      padding-bottom: 0;
+    }
+
+    .signature {
+      row-gap: --spacing(12);
+      padding-top: --spacing(24);
+    }
+
+    .signature__text {
+      padding: --spacing(10) --spacing(8);
     }
   }
 }
