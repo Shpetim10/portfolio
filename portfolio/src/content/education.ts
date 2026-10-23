@@ -12,7 +12,7 @@ export const education: Education[] = [
     start: "2026-09",
     end: "present",
     status: "in-progress",
-    distinctions: [],
+    distinctions: [{ label: "AADF & AKPA scholarship", awardId: "holberton-ml-scholarship" }],
     coursework: ["Core machine learning", "Deep learning", "AI agents", "Generative AI"],
     featured: false,
   },
@@ -28,6 +28,7 @@ export const education: Education[] = [
     distinctions: [
       { label: "Rank #1 in program", awardId: "first-ranked-graduate" },
       { label: "High Honors" },
+      { label: "100% scholarship", awardId: "epoka-full-scholarship" },
     ],
     // The brief named these "beloyal" and "worknest": the projects were published as Ritema and WorkTrezz.
     relatedProjects: ["ritema", "garbage-classifier", "worktrezz", "library-management-system"],

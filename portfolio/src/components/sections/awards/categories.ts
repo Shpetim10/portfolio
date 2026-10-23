@@ -7,6 +7,7 @@ import type { Award, AwardCategory } from "@/content/types";
  */
 export const CATEGORIES: Record<AwardCategory, { label: string; code: string }> = {
   ranking: { label: "Ranking", code: "RNK" },
+  scholarship: { label: "Scholarship", code: "SCH" },
   competition: { label: "Competition", code: "CMP" },
   hackathon: { label: "Hackathon", code: "HCK" },
   certification: { label: "Certification", code: "CRT" },
@@ -16,7 +17,6 @@ export const CATEGORIES: Record<AwardCategory, { label: string; code: string }> 
   publication: { label: "Publication", code: "PUB" },
   talk: { label: "Talk", code: "TLK" },
   "open-source": { label: "Open source", code: "OSS" },
-  scholarship: { label: "Scholarship", code: "SCH" },
 };
 
 const ORDER = Object.keys(CATEGORIES) as AwardCategory[];

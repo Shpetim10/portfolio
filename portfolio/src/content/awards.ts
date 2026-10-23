@@ -78,6 +78,26 @@ export const awards: Award[] = [
     ],
   },
   {
+    id: "epoka-full-scholarship",
+    title: "Full Scholarship",
+    issuer: "Epoka University",
+    // Held for all three years of the degree (2023–2026); the year it ended.
+    year: 2026,
+    category: "scholarship",
+    placement: "100% tuition · 2023–2026",
+    why: "Awarded a full scholarship for the B.Sc. Software Engineering on the strength of excellent high school results, and kept it through all three years of study.",
+    featured: false,
+  },
+  {
+    id: "holberton-ml-scholarship",
+    title: "Machine Learning Scholarship",
+    issuer: "AADF & AKPA",
+    year: 2026,
+    category: "scholarship",
+    why: "Awarded a scholarship by the Albanian-American Development Foundation (AADF) and AKPA to study the Machine Learning course at Holberton School Albania.",
+    featured: false,
+  },
+  {
     id: "junction-pyramid-backstage",
     title: "Junction Hackathon — Pyramid Backstage Challenge",
     issuer: "Junction",

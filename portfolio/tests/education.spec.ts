@@ -109,13 +109,19 @@ test.describe("education · homepage", () => {
   test("distinctions link to their award cards", async ({ page }) => {
     await page.goto("/");
     const linked = section(page).locator("a.tag--link");
-    await expect(linked).toHaveCount(2);
+    await expect(linked).toHaveCount(4);
     await expect(
       section(page).getByRole("link", { name: /^Rank #1 in program\s*, View award$/ }),
     ).toHaveAttribute("href", "#award-first-ranked-graduate");
     await expect(
       section(page).getByRole("link", { name: /^Prime Minister's Gold Medal\s*, View award$/ }),
     ).toHaveAttribute("href", "#award-pm-gold-medal");
+    await expect(
+      section(page).getByRole("link", { name: /^100% scholarship\s*, View award$/ }),
+    ).toHaveAttribute("href", "#award-epoka-full-scholarship");
+    await expect(
+      section(page).getByRole("link", { name: /^AADF & AKPA scholarship\s*, View award$/ }),
+    ).toHaveAttribute("href", "#award-holberton-ml-scholarship");
     // A distinction without an award is a plain tag.
     await expect(section(page).locator("li.tag", { hasText: "High Honors" })).toHaveCount(1);
 
@@ -198,7 +204,7 @@ test.describe("education · mobile", () => {
     const heights = await section(page)
       .locator("a.tag--link, .schooling__project")
       .evaluateAll((all) => all.map((a) => a.getBoundingClientRect().height));
-    expect(heights.length).toBe(6);
+    expect(heights.length).toBe(8);
     for (const height of heights) expect(height).toBeGreaterThanOrEqual(44);
   });
 });
