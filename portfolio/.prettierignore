@@ -11,3 +11,4 @@ src/styles/fonts/*.txt
 docs
 *.md
 src/content/sculpture/*.json
+src/content/drawing/*.json

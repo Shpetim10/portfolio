@@ -1,0 +1,14 @@
+{
+  "crop": { "left": 48, "top": 109, "size": 860 },
+  "square": { "x": 0.11, "y": 0.194, "size": 0.785 },
+  "circle": { "cx": 0.5, "cy": 0.5, "r": 0.477 },
+  "navel": { "x": 0.5, "y": 0.5 },
+  "exclude": [
+    { "x": 0, "y": 0, "w": 1, "h": 0.16 },
+    { "x": 0.9, "y": 0.6, "w": 0.08, "h": 0.12 }
+  ],
+  "inkThreshold": 0.42,
+  "geometryMaskPx": 6,
+  "colsDesktop": 96,
+  "colsMobile": 60
+}

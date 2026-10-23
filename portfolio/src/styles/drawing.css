@@ -1,0 +1,141 @@
+/*
+ * T09c glyph line drawing (src/components/drawing). Static geometry only; the
+ * canvas animates inside its own bitmap, the compass point by transform.
+ * Tokens only.
+ *
+ * The grid is sized from the container's width alone, as the sculpture's is:
+ * font-size makes `cols` monospace advances span exactly 100cqi, and the line
+ * height makes every cell --drawing-cell (width / height) — the ratio the
+ * tracer derived the rows from. The <pre>'s box is fully determined before any
+ * font loads, and the canvas and SVG take that box over without a pixel of shift.
+ */
+
+@layer components {
+  .drawing {
+    /* Martian Mono's advance, in em (base.css). TODO(fonts): recompute for Berkeley Mono. */
+    --drawing-advance: 0.7;
+    --drawing-line: calc(1em * var(--drawing-advance) / var(--drawing-cell));
+    /* The canvas reads its ink from here. */
+    --drawing-ink: var(--color-bone);
+    /* Box height / width: the orbit is squashed by it to stay on the (stretched) circle. */
+    --drawing-squash: calc(var(--drawing-rows) / (var(--drawing-cols) * var(--drawing-cell)));
+
+    position: relative;
+    container-type: inline-size;
+    background: var(--color-carbon);
+  }
+
+  .drawing__geometry {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    fill: none;
+    stroke: var(--color-dust);
+    stroke-width: 1px;
+    stroke-linecap: butt;
+    pointer-events: none;
+  }
+
+  .drawing__pre {
+    /* Above the geometry: the figure is drawn over Leonardo's construction. */
+    position: relative;
+    display: grid;
+    width: 100%;
+    height: calc(var(--drawing-rows) * var(--drawing-line));
+    margin: 0;
+    overflow: hidden;
+    font-family: var(--font-mono);
+    font-size: calc(100cqi / var(--drawing-cols) / var(--drawing-advance));
+    font-weight: 400;
+    font-variant-ligatures: none;
+    font-feature-settings:
+      "liga" 0,
+      "calt" 0;
+    line-height: var(--drawing-line);
+    letter-spacing: 0;
+    white-space: pre;
+    color: var(--drawing-ink);
+    user-select: none;
+  }
+
+  /* One text layer per alpha level, stacked in the same cell. */
+  .drawing__layer {
+    grid-area: 1 / 1;
+  }
+
+  .drawing__canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    visibility: hidden;
+  }
+
+  .drawing[data-live] .drawing__canvas {
+    visibility: visible;
+  }
+
+  .drawing[data-live] .drawing__pre {
+    visibility: hidden;
+  }
+
+  /* The compass point: a square box the circle's diameter wide, squashed onto the
+     stretched circle; the arm turns inside it, the point rides its bottom edge. */
+  .drawing__orbit {
+    position: absolute;
+    top: calc(var(--drawing-cy) * 100%);
+    left: calc(var(--drawing-cx) * 100%);
+    width: calc(var(--drawing-r) * 200%);
+    aspect-ratio: 1;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, -50%) scaleY(var(--drawing-squash));
+    transition: opacity var(--duration-small) var(--ease-settle);
+  }
+
+  .drawing[data-orbit] .drawing__orbit {
+    opacity: 1;
+  }
+
+  .drawing__arm {
+    position: absolute;
+    inset: 0;
+    animation: drawing-orbit var(--drawing-orbit) linear infinite;
+    animation-play-state: paused;
+  }
+
+  /* Runs only while the engine's loop does: on-screen, in motion. */
+  .drawing[data-running][data-orbit] .drawing__arm {
+    animation-play-state: running;
+  }
+
+  .drawing__compass {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    width: var(--drawing-compass);
+    height: var(--drawing-compass);
+    border-radius: 50%;
+    background: var(--color-bone);
+    transform: translate(-50%, -50%);
+  }
+
+  .drawing__navel {
+    position: absolute;
+    width: var(--leader-dot);
+    height: var(--leader-dot);
+    border-radius: 50%;
+    background: var(--color-signal);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+  }
+
+  @keyframes drawing-orbit {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+}

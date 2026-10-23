@@ -392,6 +392,7 @@ export default function LabPage() {
           <p className="flex gap-6 font-mono text-label uppercase">
             <Link href="/">← Index</Link>
             <Link href="/lab/sculpture/">T04b · Sculpture bench →</Link>
+            <Link href="/lab/drawing/">T09c · Drawing bench →</Link>
           </p>
         </nav>
       </header>

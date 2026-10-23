@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/fetch-github.mjs && next build",
     "sculpture": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/sculpture/sample.mjs",
+    "drawing": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/drawing/trace.mjs",
     "serve": "serve out --listen 3100 --no-request-logging",
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit",
