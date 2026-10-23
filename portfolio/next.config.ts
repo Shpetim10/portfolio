@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
   trailingSlash: true,
   // Images are pre-optimized at build time (AVIF + WebP); the default loader needs a server.
   images: { unoptimized: true },
+  // Dev only: lets a phone load /_next chunks and HMR from the LAN IP or a Cloudflare quick tunnel.
+  // Without it the JS is blocked, React never hydrates and the page stays as unstyled server HTML.
+  allowedDevOrigins: ["192.168.*.*", "10.*.*.*", "*.local", "*.trycloudflare.com"],
   // The 404 (src/app/global-not-found.tsx) renders outside the root layout, so it skips the
   // layout's motion runtime and stays inside its JS budget (T14).
   experimental: { globalNotFound: true, agentUpgrade: "security" },
