@@ -218,6 +218,16 @@
   --drawing-orbit: 14s; /* one revolution of the compass point around Leonardo's circle */
   --drawing-compass: 3px; /* the compass point */
 
+  /* Proportion bridge (T09d) */
+  --proportion-band: 110vh; /* desktop band height without the hold (reduced motion, no JS) */
+  --proportion-band-compact: 90svh;
+  --proportion-hold: 130svh; /* scroll the drawing stays put for while the figure forms (full motion) */
+  --proportion-dwell: 15svh; /* of that, held on the finished drawing before it scrolls on */
+  --proportion-square: min(64vh, 620px); /* desktop: Leonardo's square, capped to columns 4–9 below */
+  --proportion-compact-max: 92vw; /* compact: the drawing's width ceiling */
+  --proportion-compact-reserve: 12rem; /* compact: band height kept for the notes and caption (landscape phones) */
+  --proportion-stem: 32px; /* compact: leader from a note to its target, beyond the drawing's edge */
+
   /* Experience (T09) */
   --rev-rail: 2rem; /* spine → REV marker: node, tick, gap */
   --rev-tick: calc(var(--rev-rail) - var(--leader-dot) - var(--annotation-gap));

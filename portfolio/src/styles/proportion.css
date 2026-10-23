@@ -1,0 +1,334 @@
+/*
+ * T09d proportion bridge (src/components/sections/proportion). Static geometry
+ * only; ProportionStage draws the notes (ANNOTATE: transform + opacity) and
+ * the drawing scrubs inside its own canvas. Tokens only.
+ *
+ * Coordinates
+ *   The band is the query container. layout-grid pads its margins, so its
+ *   content box is exactly the column grid: 100cqw spans the columns, and
+ *   --col is one column. The plate is the drawing's box; every mark sits on
+ *   an anchor (--top-*, --bottom-*, --practice-*, --theory-*: fractions of
+ *   the box, from the server) as a percentage of the plate, so marks and
+ *   drawing share one box at every width.
+ *
+ * Layout
+ *   < 64rem   band --proportion-band-compact; the drawing at full width (max
+ *             --proportion-compact-max); notes centred above and below, each on
+ *             a vertical leader; the leaders are not rendered.
+ *   ≥ 64rem   band --proportion-band; the square --proportion-square wide,
+ *             capped to columns 4–9, the drawing centred on them; PRACTICE
+ *             runs out to columns 10–12, THEORY to 1–3; the vertical notes are
+ *             not rendered.
+ *   live      (full motion, set before first paint) the band is a track
+ *             --proportion-hold taller than the screen; the figure is a
+ *             full-screen stage, sticky inside it, centred. Reduced motion and
+ *             no JS keep the plain band above.
+ */
+
+@layer components {
+  .proportion {
+    --col: calc((100cqw - (var(--grid-columns) - 1) * var(--grid-gutter)) / var(--grid-columns));
+    /* One note: two micro lines and the link's underline room. */
+    --note-label: calc(2 * var(--text-micro) * var(--text-micro--line-height) + --spacing(1));
+    --note-reach: calc(var(--proportion-stem) + var(--note-label));
+
+    position: relative;
+    container-type: inline-size;
+    /* The hairlines run to the band's edges — to Experience above, Education below — and stop there. */
+    overflow: clip;
+    min-height: var(--proportion-band-compact);
+    align-content: center;
+    padding-block: --spacing(12);
+  }
+
+  /* Live: the hold. The stage stays put while the figure forms; the scroll runs on underneath. */
+  .proportion[data-mode="live"] {
+    height: calc(100svh + var(--proportion-hold));
+    min-height: 0;
+    padding-block: 0;
+    align-content: start;
+  }
+
+  .proportion[data-mode="live"] .proportion__figure {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    justify-content: center;
+    height: 100svh;
+  }
+
+  /* Where p reaches 1 (ProportionStage): the dwell before the stage releases. */
+  .proportion__end {
+    position: absolute;
+    bottom: var(--proportion-dwell);
+    left: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .proportion__figure {
+    --plate: min(
+      100cqw,
+      var(--proportion-compact-max),
+      var(--proportion-band-compact) - var(--proportion-compact-reserve)
+    );
+
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+  }
+
+  .proportion__plate {
+    position: relative;
+    width: var(--plate);
+    /* Compact: room for the notes above and below the drawing. */
+    margin-block: var(--note-reach);
+  }
+
+  /* Caption: micro mono, dust, right-aligned in the drawing's right half — clear of the hairline. */
+  .proportion__caption {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    width: var(--plate);
+    margin-top: --spacing(4);
+    padding-inline-start: calc(var(--plate) / 2 + var(--annotation-gap));
+    color: var(--color-dust);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    line-height: var(--text-micro--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+    text-align: end;
+    text-transform: uppercase;
+  }
+
+  .proportion__credit {
+    margin-top: --spacing(1);
+  }
+
+  .proportion__credit-link {
+    color: inherit;
+  }
+
+  /* Hairlines ----------------------------------------------------------- */
+  .proportion__thread,
+  .proportion__stem-thread {
+    position: absolute;
+    width: var(--line);
+    height: 200vh; /* longer than any band; clipped at its edge */
+    background-color: var(--color-dust);
+    pointer-events: none;
+  }
+
+  .proportion__thread {
+    display: none;
+  }
+
+  .proportion__thread[data-end="top"] {
+    left: calc(var(--top-x) * 100%);
+    bottom: calc((1 - var(--top-y)) * 100%);
+  }
+
+  .proportion__thread[data-end="bottom"] {
+    left: calc(var(--bottom-x) * 100%);
+    top: calc(var(--bottom-y) * 100%);
+  }
+
+  /* Note text: "PRACTICE" / "↑ EXPERIENCE" -------------------------------- */
+  .proportion__line {
+    display: block;
+  }
+
+  .proportion__link {
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    line-height: var(--text-micro--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  /* A touch-sized hit area around the one-line link, without moving its text or underline. */
+  .proportion__hit {
+    position: absolute;
+    inset: calc((var(--text-micro) * var(--text-micro--line-height) - var(--touch-target)) / 2) --spacing(-2);
+  }
+
+  /* Compact notes: centred, on a vertical leader ------------------------ */
+  .proportion__stem {
+    position: absolute;
+    left: calc(var(--stem-x) * 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--color-dust);
+    transform: translateX(-50%);
+  }
+
+  .proportion__stem[data-note="practice"] {
+    --stem-x: var(--top-x);
+    /* From above the plate down to the square's top centre. */
+    top: calc(var(--note-reach) * -1);
+    bottom: calc((1 - var(--top-y)) * 100%);
+  }
+
+  .proportion__stem[data-note="theory"] {
+    --stem-x: var(--bottom-x);
+    /* From the circle's bottom centre down below the plate: line, then label. */
+    flex-direction: column-reverse;
+    top: calc(var(--bottom-y) * 100%);
+    bottom: calc(var(--note-reach) * -1);
+  }
+
+  .proportion__stem-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    white-space: nowrap;
+  }
+
+  .proportion__stem-thread {
+    left: 50%;
+  }
+
+  .proportion__stem[data-note="practice"] .proportion__stem-thread {
+    bottom: 100%;
+  }
+
+  .proportion__stem[data-note="theory"] .proportion__stem-thread {
+    top: 100%;
+  }
+
+  .proportion__stem-line {
+    position: relative;
+    flex: 1;
+    width: var(--line);
+    margin-block: var(--annotation-gap) 0;
+  }
+
+  .proportion__stem[data-note="theory"] .proportion__stem-line {
+    margin-block: 0 var(--annotation-gap);
+  }
+
+  .proportion__stem-stroke {
+    position: absolute;
+    inset: 0;
+    background-color: currentColor;
+  }
+
+  .proportion__stem-dot {
+    position: absolute;
+    left: 50%;
+    width: var(--leader-dot);
+    height: var(--leader-dot);
+    border-radius: 50%;
+    background-color: var(--color-signal);
+  }
+
+  .proportion__stem[data-note="practice"] .proportion__stem-dot {
+    bottom: 0;
+    transform: translate(-50%, 50%);
+  }
+
+  .proportion__stem[data-note="theory"] .proportion__stem-dot {
+    top: 0;
+    transform: translate(-50%, -50%);
+  }
+
+  /* Desktop leaders ------------------------------------------------------ */
+  /*
+   * Each leader's target corner sits on its anchor; its label column is three
+   * columns wide and starts on the label's column edge (10 / ends on 3). The
+   * elbow absorbs the distance and never drops below the minimum run, so a
+   * drawing crowding the side columns pushes the label out, never detaches it.
+   * Two-line labels: row 1 (down-left: row 2) is one line high, level with the
+   * elbow; the second line hangs below it, so the leg stays a 45° square.
+   */
+  .leader.proportion__leader[data-direction] {
+    --label-w: calc(3 * var(--col) + 2 * var(--grid-gutter));
+    --plate-left: calc((100cqw - var(--plate)) / 2);
+    --reach-min: calc(var(--leader-rise) + var(--leader-run));
+    --line-box: calc(var(--leader-half-line) * 2);
+
+    position: absolute;
+    display: none;
+  }
+
+  .proportion__leader .leader__label {
+    align-self: start;
+  }
+
+  .leader.proportion__leader[data-note="practice"] {
+    left: calc(var(--practice-x) * 100%);
+    bottom: calc((1 - var(--practice-y)) * 100%);
+    width: calc(
+      max(
+          9 * (var(--col) + var(--grid-gutter)) - var(--plate-left) - var(--practice-x) * var(--plate),
+          var(--reach-min)
+        ) +
+        var(--label-w)
+    );
+    grid-template-columns: var(--leader-rise) minmax(0, 1fr) var(--label-w);
+    grid-template-rows: var(--line-box) calc(var(--leader-rise) - var(--leader-half-line));
+  }
+
+  .leader.proportion__leader[data-note="theory"] {
+    right: calc((1 - var(--theory-x)) * 100%);
+    top: calc(var(--theory-y) * 100%);
+    width: calc(
+      max(
+          var(--plate-left) + var(--theory-x) * var(--plate) - 3 * var(--col) - 2 * var(--grid-gutter),
+          var(--reach-min)
+        ) +
+        var(--label-w)
+    );
+    grid-template-columns: var(--label-w) minmax(0, 1fr) var(--leader-rise);
+    grid-template-rows: calc(var(--leader-rise) - var(--leader-half-line)) var(--line-box);
+  }
+
+  .proportion__leader[data-note="theory"] .leader__label {
+    text-align: end;
+  }
+
+  @media (width >= 64rem) {
+    .proportion {
+      min-height: var(--proportion-band);
+      padding-block: 0;
+    }
+
+    .proportion__figure {
+      /* Leonardo's square is the measure: the drawing's box is the square / its share of the box. */
+      --plate: calc(
+        min(var(--proportion-square), 6 * var(--col) + 5 * var(--grid-gutter)) / var(--square-size)
+      );
+    }
+
+    .proportion__plate {
+      margin-block: 0;
+    }
+
+    .proportion__thread {
+      display: block;
+    }
+
+    .leader.proportion__leader[data-direction] {
+      display: grid;
+    }
+
+    .proportion__stem {
+      display: none;
+    }
+  }
+}
+
+/* Experience · Proportion · Education read as one passage: the facing paddings halve. */
+@layer utilities {
+  .section-shell:has(+ .proportion) > .section-pad {
+    padding-bottom: calc(var(--section-pad-y) / 2);
+  }
+
+  .proportion + .section-shell > .section-pad {
+    padding-top: calc(var(--section-pad-y) / 2);
+  }
+}

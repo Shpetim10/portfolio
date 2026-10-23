@@ -6,6 +6,7 @@ import { FieldLog } from "@/components/sections/fieldlog/FieldLog";
 import { Hero } from "@/components/sections/hero/Hero";
 import { Manifesto } from "@/components/sections/manifesto/Manifesto";
 import { Metrics } from "@/components/sections/metrics/Metrics";
+import { ProportionBridge } from "@/components/sections/proportion/ProportionBridge";
 import { Stack } from "@/components/sections/stack/Stack";
 import { Testimonials } from "@/components/sections/testimonials/Testimonials";
 import { Work } from "@/components/sections/work/Work";
@@ -53,6 +54,7 @@ export default function HomePage() {
       <Work />
       <Stack />
       <Experience />
+      <ProportionBridge />
       <Education />
       <Awards />
       <FieldLog />

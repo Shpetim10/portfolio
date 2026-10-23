@@ -13,8 +13,8 @@ import { cx } from "./cx";
 /* Part label ---------------------------------------------------------- */
 
 type PartLabelProps = {
-  /** e.g. "P/N 03" */
-  number: string;
+  /** e.g. "P/N 03". Omitted, the label is the name alone. */
+  number?: string;
   name: string;
   className?: string;
 };
@@ -23,7 +23,12 @@ type PartLabelProps = {
 export function PartLabel({ number, name, className }: PartLabelProps) {
   return (
     <span className={cx("part-label", className)} data-anim-part="decode">
-      <span className="part-label__number">{number}</span> — <Content value={name} />
+      {number && (
+        <>
+          <span className="part-label__number">{number}</span> —{" "}
+        </>
+      )}
+      <Content value={name} />
     </span>
   );
 }
