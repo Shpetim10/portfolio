@@ -21,7 +21,13 @@ export type Profile = {
   socials: Link[];
   resumeUrl: string;               // static PDF in /public
   portrait: Media;
-  tenure: Metric[];                // the signature plaque's two figures under the portrait
+  tenure: Tenure[];                // the signature plaque's two figures under the portrait
+};
+
+export type Tenure = {
+  since: string;                   // "2025-08": counted live in years and months, a month added on each 1st
+  label: string;                   // "Industry experience"
+  source?: string;                 // where the start date comes from (not shown)
 };
 
 export type Metric = {

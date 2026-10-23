@@ -24,19 +24,17 @@ export const profile: Profile = {
     height: 1402,
     kind: "image",
   },
-  // The signature plaque under the manifesto (T04c). Figures as stated by the owner, Oct 2026.
+  // The signature plaque under the manifesto (T04c). Counted live from these months (owner, Oct 2026).
   tenure: [
     {
-      value: 1,
-      suffix: "YR",
+      since: "2025-08",
       label: "Industry experience",
-      source: "Owner, Oct 2026: Logistiqo, Aug 2025 to Jun 2026; Joint Services since Oct 2026",
+      source: "Owner, Oct 2026: Logistiqo from Aug 2025; Joint Services since Oct 2026",
     },
     {
-      value: 4,
-      suffix: "YRS",
+      since: "2022-09",
       label: "Field involvement",
-      source: "Owner, Oct 2026",
+      source: "Owner, Oct 2026: in the field since Sep 2022",
     },
   ],
 };

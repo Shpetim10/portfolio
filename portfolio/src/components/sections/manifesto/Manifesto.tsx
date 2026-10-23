@@ -3,13 +3,14 @@ import { Fragment, type CSSProperties } from "react";
 import { stillOf, type SculptureData } from "@/components/sculpture/model";
 import { LeaderLine, RegistrationMark } from "@/components/ui/Annotation";
 import { Content } from "@/components/ui/Content";
-import { Counter } from "@/components/ui/Counter";
 import { SectionShell } from "@/components/ui/SectionShell";
 import { getProfile, isTodo, type Media } from "@/content";
 import victoryData from "@/content/sculpture/victory.json";
 import { todo } from "@/content/todo";
 import { ManifestoSculpture } from "./ManifestoSculpture";
 import { ManifestoStage } from "./ManifestoStage";
+import { currentMonth } from "./tenure";
+import { TenureFigure } from "./TenureFigure";
 
 /*
  * T04c · Manifesto with Winged Victory + signature block. Static, readable
@@ -22,7 +23,8 @@ import { ManifestoStage } from "./ManifestoStage";
  *   compact  Victory in a sticky band at the top (--victory-sticky), the
  *            manifesto scrolling beneath it, then the signature block.
  *   both     the signature block is a centred hall-of-fame plaque: the mounted
- *            portrait, the nameplate with the tenure figures, the signed line.
+ *            portrait, the nameplate with the tenure figures (years and months,
+ *            counted live: TenureFigure), the signed line.
  *
  * DOM order is reading order: the manifesto, then the figure (its caption names
  * the sculpture), then the signature. The grid moves the figure up on compact.
@@ -44,7 +46,7 @@ const sentences = (text: string) =>
     .filter(Boolean);
 
 export function Manifesto() {
-  const { manifesto, name, role, location, portrait, tenure } = getProfile();
+  const { manifesto, name, role, location, timezone, portrait, tenure } = getProfile();
   const missing = isTodo(manifesto);
   const city = isTodo(location) ? location : location.split(",")[0].trim();
 
@@ -153,7 +155,12 @@ export function Manifesto() {
               <ul className="signature__tenure" aria-label="Tenure">
                 {tenure.map((figure) => (
                   <li key={figure.label} className="signature__figure">
-                    <Counter value={figure.value} suffix={figure.suffix} label={figure.label} />
+                    <TenureFigure
+                      since={figure.since}
+                      label={figure.label}
+                      timeZone={timezone}
+                      builtMonth={currentMonth(timezone)}
+                    />
                   </li>
                 ))}
               </ul>

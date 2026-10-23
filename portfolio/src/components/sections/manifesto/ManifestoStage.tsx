@@ -28,7 +28,8 @@ import { EASE, motionTokens } from "@/motion/tokens";
  *                            photo            scale               --hall-settle-scale → 1      settle    large          same
  *                            corner marks     scale · rotate      0, -90° → 1, 0 (staggered)   settle    small          same
  *                            nameplate        y · opacity         half the lift → 0            settle    medium         same
- *                            tenure figures   CALIBRATE count     0 → value                    settle    large          same
+ *                            tenure figures   CALIBRATE count     0 → years, 0 → months        settle    large          same
+ *                            month scale      scaleY              0 → 1 (left → right)         settle    small          same
  *                            signed line      scaleX · opacity    0 → 1                        machine   medium         same
  *
  * Sync: Victory reaches 1 exactly when the last word of the final sentence is
@@ -273,6 +274,7 @@ export function ManifestoStage({ children }: { children: ReactNode }) {
             .flatMap((plaque) => [...plaque.querySelectorAll<HTMLElement>('[data-anim="calibrate"]')])
             .forEach((counter) => counters.push(calibrateCounter(counter, tokens)));
         }, 0.45)
+        .from(all("tick"), { scaleY: 0, duration: duration.small, stagger: { amount: duration.small } }, 0.7)
         .from(part("line-sign"), { scaleX: 0, duration: duration.medium, ease: EASE.machine }, 0.8)
         .from(part("sign"), { opacity: 0, duration: duration.medium }, 0.8);
 

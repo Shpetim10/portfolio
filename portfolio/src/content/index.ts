@@ -119,6 +119,14 @@ function validate(): void {
     if (!metric.label.trim()) throw new ContentError(`Metric ${metric.value} is missing its label.`);
   }
 
+  // T04c counts each plaque figure from its start month to the visitor's month.
+  for (const figure of profile.tenure) {
+    if (!figure.label.trim()) throw new ContentError(`Tenure since "${figure.since}" is missing its label.`);
+    if (!parseMonth(figure.since)) {
+      throw new ContentError(`Tenure "${figure.label}" starts "${figure.since}": write it as YYYY-MM.`);
+    }
+  }
+
   // T10 files the awards as one featured certificate and a record grouped by category.
   checkAwards(awards);
 

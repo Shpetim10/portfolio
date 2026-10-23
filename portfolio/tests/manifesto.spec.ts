@@ -297,19 +297,46 @@ test.describe("manifesto · portrait", () => {
   test("the hall-of-fame plaque sits on the page's centre axis, with both tenure figures", async ({
     page,
   }) => {
+    await page.clock.setFixedTime(new Date("2026-10-23T12:00:00+02:00"));
     await page.goto("/");
     await page.locator(".portrait").scrollIntoViewIfNeeded();
     const signature = page.locator(".signature");
     await expect(signature.locator(".signature__eyebrow")).toHaveText("Hall of Fame");
     await expect(signature.locator(".signature__figure")).toHaveText([
-      /1\s*YR\s*Industry experience/,
-      /4\s*YRS\s*Field involvement/,
+      /1 year, 2 months\s*1\s*YR\s*2\s*MOS\s*Industry experience\s*Since Aug 2025/,
+      /4 years, 1 month\s*4\s*YRS\s*1\s*MO\s*Field involvement\s*Since Sep 2022/,
     ]);
+    await expect(
+      signature.locator(".signature__figure").first().locator(".tenure__tick[data-on]"),
+    ).toHaveCount(2);
     const vw = page.viewportSize()!.width;
     for (const selector of [".portrait", ".signature__text"]) {
       const box = (await page.locator(selector).boundingBox())!;
       expect(Math.abs(box.x - (vw - box.x - box.width))).toBeLessThanOrEqual(1);
     }
+  });
+});
+
+test.describe("manifesto · tenure", () => {
+  test("gains a month on the 1st in the owner's time zone, not the visitor's", async ({ page }) => {
+    // 00:30 on 1 Nov in Tiranë is still 31 Oct in UTC.
+    await page.clock.setFixedTime(new Date("2026-10-31T23:30:00Z"));
+    await page.goto("/");
+    await page.locator(".portrait").scrollIntoViewIfNeeded();
+    await expect(page.locator(".signature__figure .tenure__figure")).toHaveText([
+      /1 year, 3 months/,
+      /4 years, 2 months/,
+    ]);
+  });
+
+  test("rolls months over into years", async ({ page }) => {
+    await page.clock.setFixedTime(new Date("2027-08-01T12:00:00+02:00"));
+    await page.goto("/");
+    await page.locator(".portrait").scrollIntoViewIfNeeded();
+    await expect(page.locator(".signature__figure .tenure__figure")).toHaveText([
+      /2 years, 0 months\s*2\s*YRS\s*0\s*MOS/,
+      /4 years, 11 months\s*4\s*YRS\s*11\s*MOS/,
+    ]);
   });
 });
 

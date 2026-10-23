@@ -317,22 +317,41 @@
     border-left: var(--line) solid var(--color-hairline);
   }
 
-  .signature__figure .counter {
-    align-items: center;
+  /* A tenure figure: years and months, a twelve-month scale, the label, the start month. */
+  .tenure {
+    display: grid;
+    justify-items: center;
     gap: --spacing(2);
   }
 
-  .signature__figure .counter__figure {
+  .tenure__figure {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     align-items: baseline;
+    column-gap: --spacing(3);
+    margin: 0;
   }
 
-  .signature__figure .counter__value {
+  .tenure__part {
+    display: inline-flex;
+    align-items: baseline;
+    gap: --spacing(1);
+  }
+
+  .tenure__value {
+    color: var(--color-bone);
+    font-family: var(--font-display);
     font-size: var(--hall-figure-size);
+    font-weight: var(--font-weight-black);
+    font-variant-numeric: tabular-nums;
     line-height: var(--text-display-m--line-height);
   }
 
-  .signature__figure .counter__suffix,
-  .signature__figure .counter__label {
+  .tenure__unit,
+  .tenure__label,
+  .tenure__since {
+    margin: 0;
     font-family: var(--font-mono);
     font-size: var(--text-micro);
     line-height: var(--text-micro--line-height);
@@ -340,8 +359,50 @@
     text-transform: uppercase;
   }
 
-  .signature__figure .counter__suffix {
+  .tenure__unit {
     color: var(--color-signal);
+  }
+
+  .tenure__label {
+    color: var(--color-bone);
+  }
+
+  .tenure__since {
+    color: var(--color-dust);
+  }
+
+  .tenure__since time {
+    white-space: nowrap;
+  }
+
+  /* Twelve month ticks on a hairline base; every third is a quarter mark.
+     Lit, full height in signal: the months into the current year. */
+  .tenure__scale {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    align-items: end;
+    width: min(100%, var(--hall-scale));
+    height: var(--dimension-tick);
+    margin-block: --spacing(1);
+    border-bottom: var(--line) solid var(--color-hairline);
+  }
+
+  .tenure__tick {
+    justify-self: center;
+    width: var(--line);
+    height: 50%;
+    background-color: var(--color-dust);
+    transform-origin: bottom center;
+  }
+
+  .tenure__tick[data-major] {
+    height: 100%;
+  }
+
+  .tenure__tick[data-on] {
+    width: var(--hall-bar-weight);
+    height: 100%;
+    background-color: var(--color-signal);
   }
 
   /* The signed line under the plate: a hairline, the name under it in the text face. */

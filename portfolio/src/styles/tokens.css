@@ -183,6 +183,7 @@
     3rem
   ); /* the engraved name: fits a 320px phone on two lines at most */
   --hall-figure-size: clamp(2.5rem, 9vw, 4rem); /* the tenure figures */
+  --hall-scale: 7rem; /* the twelve-month scale under each tenure figure */
   --hall-hover-scale: 1.03; /* the photo leaning in under a fine pointer */
   --hall-lift: 2.5rem; /* the mount rises this far as it enters */
   --hall-settle-scale: 1.12; /* the photo settles from this scale as the plate drops */
