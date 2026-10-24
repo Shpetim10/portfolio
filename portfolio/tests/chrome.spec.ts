@@ -14,7 +14,7 @@ async function openMenu(page: Page) {
 }
 
 test.describe("header", () => {
-  test("monogram, status and MENU", async ({ page, isMobile }) => {
+  test("mark, status and MENU", async ({ page, isMobile }) => {
     await page.goto("/");
     const header = page.locator("header.site-header");
     await expect(header.getByRole("link", { name: /home/i })).toBeVisible();

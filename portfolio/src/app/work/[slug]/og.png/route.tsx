@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
+import { MARK as SH2 } from "@/components/brand/geometry";
 import { getProject, getProjectSlugs, isTodo } from "@/content";
 
 /*
@@ -8,8 +9,9 @@ import { getProject, getProjectSlugs, isTodo } from "@/content";
  * /work/<slug>/og.png (a static GET handler, like the metadata image routes,
  * but with an extension: the bare `opengraph-image` file convention exports
  * without one, and static hosts then serve it untyped). page.tsx links it.
- * A drawing sheet: registration marks, part number with the one signal dot,
- * the title in the display face, a title block of the facts that are known.
+ * A drawing sheet: registration marks, the Sh² mark (its exponent square is
+ * the card's one signal accent) and part number, the title in the display
+ * face, a title block of the facts that are known.
  * Unsupplied facts are left off the card (the page marks them TODO); a
  * project without a title shows its part number.
  * Colours are read from src/styles/tokens.css, so the card can't drift from
@@ -41,7 +43,7 @@ const colors = readFile(join(root, "src/styles/tokens.css"), "utf8").then((css) 
 // Card geometry, px of the 1200 × 630 image.
 const MARGIN = 56;
 const MARK = 24;
-const DOT = 14;
+const LOGO = 30; // Sh² mark height
 
 export async function GET(_request: Request, { params }: RouteContext<"/work/[slug]/og.png">) {
   const project = getProject((await params).slug)!;
@@ -117,7 +119,10 @@ export async function GET(_request: Request, { params }: RouteContext<"/work/[sl
       ))}
 
       <div style={{ display: "flex", alignItems: "center", gap: 20, color: color.dust, ...label }}>
-        <div style={{ width: DOT, height: DOT, borderRadius: DOT, backgroundColor: color.signal }} />
+        <svg viewBox={SH2.viewBox} height={LOGO} width={(LOGO * 32) / 24}>
+          <path d={SH2.ink} fill={color.bone} />
+          <path d={SH2.exponent} fill={color.signal} />
+        </svg>
         <span style={{ color: color.bone }}>{project.partNumber}</span>
         <span>Case study</span>
         <div style={{ flexGrow: 1, height: 1, backgroundColor: color.dust, opacity: 0.4 }} />

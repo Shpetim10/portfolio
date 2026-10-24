@@ -12,3 +12,4 @@ docs
 *.md
 src/content/sculpture/*.json
 src/content/drawing/*.json
+src/components/brand/geometry.ts

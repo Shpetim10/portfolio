@@ -1,0 +1,172 @@
+/*
+ * BRAND-01 · Sh² mark (src/components/brand/Logo.tsx). The S, h and
+ * wordmark take currentColor; the exponent square takes --signal, which
+ * "color" points at the accent and "mono" at the ink. Tokens only.
+ *
+ * /lab/logo bench: variants on carbon and paper, with every specimen at its
+ * drawn height. Phones stack the rows and let the 512 px drawing shrink to
+ * the column (its label keeps the drawn size); nothing scrolls sideways.
+ */
+
+@layer components {
+  /* <Logo>: height from --logo-size, width from the drawing's own ratio. */
+  .logo {
+    display: block;
+    flex: none;
+    width: auto;
+    height: var(--logo-size);
+    overflow: visible;
+  }
+
+  .logo__exponent {
+    fill: var(--signal);
+  }
+
+  /* The square's unlit socket: a 1px hairline at any size. */
+  .logo__socket {
+    fill: none;
+    stroke: var(--color-hairline);
+    stroke-width: var(--line);
+  }
+
+  [data-mark-tone="color"] {
+    --signal: var(--color-signal);
+  }
+
+  [data-mark-tone="mono"] {
+    --signal: currentColor;
+  }
+
+  .logo-lab__mark {
+    display: block;
+    height: var(--mark-height);
+    aspect-ratio: 32 / 24;
+    overflow: visible;
+  }
+
+  .logo-lab__favicon .logo-lab__mark {
+    aspect-ratio: 1;
+  }
+
+  .logo-lab__draw {
+    --lab-draw-size: clamp(6rem, 24vw, 16rem);
+  }
+
+  .logo-lab__variant {
+    padding-block: --spacing(16);
+    border-top: var(--line) solid var(--color-hairline);
+  }
+
+  .logo-lab__surfaces {
+    display: grid;
+    gap: var(--grid-gutter);
+    padding-inline: var(--grid-margin);
+  }
+
+  .logo-lab__surface,
+  .logo-lab__browser {
+    display: flex;
+    flex-direction: column;
+    gap: --spacing(8);
+    min-width: 0;
+    padding: --spacing(6);
+    border: var(--line) solid var(--color-hairline);
+  }
+
+  .logo-lab__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: --spacing(8);
+    align-items: end;
+  }
+
+  .logo-lab__tone {
+    flex-basis: 100%;
+  }
+
+  .logo-lab__specimen {
+    display: flex;
+    flex-direction: column;
+    gap: --spacing(3);
+    min-width: 0;
+  }
+
+  .logo-lab__large {
+    display: grid;
+    gap: --spacing(12);
+  }
+
+  /* 512 px tall is 683 px wide: wider than a phone, so it fits the column there. */
+  .logo-lab__large .logo-lab__mark {
+    width: min(100%, calc(var(--mark-height) * 32 / 24));
+    height: auto;
+  }
+
+  /* Favicon preview: a tab strip, address bar, and the tile at 2×. */
+  .logo-lab__browser[data-chrome="dark"] {
+    background: var(--color-graphite);
+    color: var(--color-bone);
+  }
+
+  .logo-lab__browser[data-chrome="light"] {
+    background: var(--color-paper);
+    color: var(--color-ink);
+  }
+
+  .logo-lab__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--line);
+  }
+
+  .logo-lab__tab {
+    display: flex;
+    flex: 1 1 12rem;
+    gap: --spacing(2);
+    align-items: center;
+    min-width: 0;
+    padding: --spacing(2) --spacing(3);
+    border: var(--line) solid currentColor;
+    border-bottom: 0;
+    font-size: var(--text-small);
+    line-height: var(--text-small--line-height);
+  }
+
+  /* Background tabs dim their title only: every favicon is compared at full strength. */
+  .logo-lab__tab:not([data-active]) .logo-lab__tab-title {
+    opacity: 0.6;
+  }
+
+  .logo-lab__tab-title {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .logo-lab__favicon {
+    display: inline-block;
+    flex: none;
+    background: var(--color-carbon);
+    color: var(--color-bone);
+  }
+
+  .logo-lab__address {
+    margin-top: calc(-1 * --spacing(8));
+    padding: --spacing(2) --spacing(3);
+    border: var(--line) solid currentColor;
+  }
+
+  .logo-lab__retina {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: --spacing(3) --spacing(4);
+    align-items: center;
+  }
+
+  @media (width >= 64rem) {
+    .logo-lab__surfaces[data-pair] {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+}

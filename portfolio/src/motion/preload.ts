@@ -62,17 +62,20 @@ export function watchPreload(onChange: (done: number, total: number) => void) {
 /*
  * Intro gate. Resolves the moment the preloader stops blocking (its exit starts),
  * or straight away when it is skipped (repeat visit, JS late past the cap).
+ * The value says whether the preloader played: the header's logo draws on
+ * only after it (BRAND-01), i.e. on the first load of a tab session.
  * Hero choreography (T03) awaits this before starting its entrance.
  */
-let releaseIntroGate: () => void = () => {};
+let releaseIntroGate: (played: boolean) => void = () => {};
 export const introReady =
   typeof window === "undefined"
-    ? Promise.resolve()
-    : new Promise<void>((resolve) => {
+    ? Promise.resolve(false)
+    : new Promise<boolean>((resolve) => {
         releaseIntroGate = resolve;
       });
 
-export const releaseIntro = () => {
+/** Opens the intro gate; only the first call counts. `played`: the preloader ran its exit. */
+export const releaseIntro = (played = false) => {
   document.documentElement.dataset.preloader = "done";
-  releaseIntroGate();
+  releaseIntroGate(played);
 };

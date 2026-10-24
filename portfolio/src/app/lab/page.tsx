@@ -389,10 +389,11 @@ export default function LabPage() {
               </ul>
             </div>
           ))}
-          <p className="flex gap-6 font-mono text-label uppercase">
+          <p className="flex flex-wrap gap-x-6 gap-y-3 font-mono text-label uppercase">
             <Link href="/">← Index</Link>
             <Link href="/lab/sculpture/">T04b · Sculpture bench →</Link>
             <Link href="/lab/drawing/">T09c · Drawing bench →</Link>
+            <Link href="/lab/logo/">BRAND-01 · Logo bench →</Link>
           </p>
         </nav>
       </header>

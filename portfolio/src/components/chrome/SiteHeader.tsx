@@ -2,16 +2,19 @@
 
 import NextLink from "next/link";
 import { useRef, useState } from "react";
+import { drawMark } from "@/components/brand/drawMark";
+import { Logo } from "@/components/brand/Logo";
 import { isTodo } from "@/content/todo";
 import type { Profile } from "@/content/types";
 import { gsap, useGSAP } from "@/motion/gsap";
 import { useReducedMotion } from "@/motion/hooks/useReducedMotion";
+import { introReady } from "@/motion/preload";
 import { EASE, motionTokens } from "@/motion/tokens";
 import { Menu, MENU_ID } from "./Menu";
 import { Status } from "./Status";
 
 /*
- * T02 · Header — monogram left, live status centre (desktop), MENU right.
+ * T02 · Header — Sh² mark left, live status centre (desktop), MENU right.
  *
  * Motion score
  *   trigger            element    property   from → to       ease     duration  mobile  reduced
@@ -20,8 +23,10 @@ import { Status } from "./Status";
  *   focus inside
  *   leave the top      backdrop   opacity    0 → 1           snap     small     same    reduced (CSS)
  *   clock              time text  —          ticks each second                 same    HH:MM, once a minute
+ *   preloader exit     mark       draws on (src/components/brand/drawMark.ts), first load of a tab session only;
+ *                                 starts as the preloader's screen starts to clear       same    static
  *
- * Mobile (< lg): monogram + MENU only; status moves into the menu footer.
+ * Mobile (< lg): mark + MENU only; status moves into the menu footer.
  */
 
 type SiteHeaderProps = {
@@ -82,6 +87,26 @@ export function SiteHeader({ name, availability, timezone }: SiteHeaderProps) {
     { scope: header, dependencies: [prefersReduced], revertOnUpdate: true },
   );
 
+  // The mark draws itself in once, after the preloader played (a repeat visit skips both).
+  useGSAP(
+    () => {
+      const svg = header.current!.querySelector<SVGSVGElement>(".home-mark svg")!;
+      let active = true;
+      let cleanup = () => {};
+      introReady.then((played) => {
+        if (!active || !played || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        // The preloader's exit holds its screen opaque for `large − medium`, then fades it (Preloader.tsx).
+        const { duration } = motionTokens();
+        cleanup = drawMark(svg, duration.large - duration.medium);
+      });
+      return () => {
+        active = false;
+        cleanup();
+      };
+    },
+    { scope: header },
+  );
+
   const status = <Status availability={availability} timezone={timezone} />;
 
   return (
@@ -89,7 +114,7 @@ export function SiteHeader({ name, availability, timezone }: SiteHeaderProps) {
       <header ref={header} className="site-header">
         <span className="site-header__backdrop" aria-hidden="true" />
         <div className="site-header__bar">
-          <Monogram name={name} />
+          <HomeMark name={name} drawable />
           <div className="site-header__status">{status}</div>
           <button
             ref={menuButton}
@@ -109,36 +134,19 @@ export function SiteHeader({ name, availability, timezone }: SiteHeaderProps) {
         open={open}
         onClose={() => setOpen(false)}
         returnFocus={menuButton}
-        monogram={<Monogram name={name} />}
+        mark={<HomeMark name={name} />}
         status={status}
       />
     </>
   );
 }
 
-/** Up to two initials, from the owner's name. A TODO name renders a marked placeholder. */
-const initials = (name: string) =>
-  name
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((word) => word[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-
-function Monogram({ name }: { name: string }) {
-  const missing = isTodo(name);
+/** The Sh² mark, linking home. It is decorative; the link is named by hidden text. */
+function HomeMark({ name, drawable = false }: { name: string; drawable?: boolean }) {
   return (
-    // The link is named by hidden text, not aria-label, so its visible initials never contradict its name.
-    <NextLink href="/" className="monogram">
-      {missing ? (
-        <span className="monogram__todo" data-todo="" title={name}>
-          TODO
-        </span>
-      ) : (
-        <span aria-hidden="true">{initials(name)}</span>
-      )}
-      <span className="sr-only">{missing ? "Home" : `${name} — home`}</span>
+    <NextLink href="/" className="home-mark">
+      <Logo variant="mark" size="var(--logo-header)" drawable={drawable} />
+      <span className="sr-only">{isTodo(name) ? "Home" : `${name} — home`}</span>
     </NextLink>
   );
 }

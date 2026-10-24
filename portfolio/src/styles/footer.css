@@ -67,6 +67,14 @@
     overflow-wrap: anywhere;
   }
 
+  /* The mark sits over the name, both on the field's foot. */
+  .title-block__maker {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: --spacing(3);
+  }
+
   .title-block__field dd.title-block__project {
     font-family: var(--font-display);
     font-size: var(--text-display-m);

@@ -1,3 +1,4 @@
+import { Logo } from "@/components/brand/Logo";
 import { Content } from "@/components/ui/Content";
 import { getProfile } from "@/content";
 import { LocalTime } from "./Status";
@@ -5,7 +6,8 @@ import { LocalTime } from "./Status";
 /*
  * T13 · Footer — the sheet's engineering title block (design-system.md §
  * Annotation system): DRAWN BY · PROJECT · REV · SCALE · SHEET · LOCAL TIME.
- * A ruled grid of fields, each a micro mono caption over its value.
+ * A ruled grid of fields, each a micro mono caption over its value. DRAWN BY
+ * carries the Sh² mark over the name, the drawing's maker's mark.
  *
  * Layout (src/styles/footer.css)
  *   ≥ 64rem   one row of six fields; PROJECT is the wide one.
@@ -27,7 +29,8 @@ export function TitleBlock() {
       <dl className="title-block__grid">
         <div className="title-block__field" data-field="drawn-by">
           <dt>Drawn by</dt>
-          <dd>
+          <dd className="title-block__maker">
+            <Logo variant="mark" size="var(--logo-title-block)" />
             <Content value={profile.name} />
           </dd>
         </div>

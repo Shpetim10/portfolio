@@ -62,21 +62,20 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* Signal LED: an unlit hairline socket; the light inside blinks at 100. */
-  .preloader__led {
-    position: relative;
-    width: var(--preloader-led);
-    height: var(--preloader-led);
-    border: var(--line) solid var(--color-hairline);
-    border-radius: 50%;
+  /*
+   * The Sh² mark (BRAND-01), drawing with the count; its square is the signal
+   * LED over an unlit hairline socket. Hidden until JS owns the screen, so
+   * the server-rendered (finished) drawing never shows before it is dashed off.
+   */
+  .preloader__mark {
+    margin-block-end: calc(var(--spacing) * 8);
+    color: var(--color-bone);
+    visibility: hidden;
   }
 
-  .preloader__led-light {
-    position: absolute;
-    inset: calc(var(--line) * -1);
-    border-radius: 50%;
-    background-color: var(--color-signal);
-    opacity: 0;
+  .preloader[data-state="live"] .preloader__mark,
+  .preloader[data-state="exit"] .preloader__mark {
+    visibility: visible;
   }
 
   /* Hairline progress line between two end ticks, like a dimension line. */

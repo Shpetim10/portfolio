@@ -31,6 +31,15 @@
     gap: --spacing(4);
   }
 
+  /* The lockup, then the label; they stack when the bar is narrow. */
+  .resume__bar-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: --spacing(3) --spacing(6);
+    color: var(--color-bone);
+  }
+
   .resume__bar-label {
     margin: 0;
     color: var(--color-dust);

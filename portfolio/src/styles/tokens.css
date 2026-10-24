@@ -139,14 +139,20 @@
   /* Preloader (T01) */
   --preloader-cap: 2500ms; /* never blocks longer, even on slow 4G */
   --preloader-gauge: 40rem; /* max length of the calibration line */
-  --preloader-led: 6px;
+  --preloader-mark: clamp(4rem, 12vw, 7.5rem); /* the Sh² mark drawing over the readout */
 
   /* Header + menu (T02) */
   --header-height: 64px;
-  --monogram-size: 40px;
+  --logo-header: 28px; /* height of the Sh² mark in the header and menu bar */
   --status-dot: 6px;
   --menu-figure-height: min(64vh, 36rem);
   --menu-chrome: 22rem; /* menu height that isn't label type: bar, footer, body and row padding, part labels */
+
+  /* Brand (BRAND-01) */
+  --logo-draw: 300ms; /* header mark: the arc, then the squared strokes, one phase each */
+  --logo-breath: 360ms; /* …then the exponent square lights and breathes once (ends at 0.96s) */
+  --logo-title-block: 32px; /* the maker's mark over DRAWN BY in the title block */
+  --logo-resume: 20px; /* the lockup over the resume */
 
   /* Hero (T03) */
   --hero-pin: 100vh; /* scroll length the stage stays pinned for (150vh from lg) */

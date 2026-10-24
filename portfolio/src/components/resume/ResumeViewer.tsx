@@ -1,3 +1,4 @@
+import { Logo } from "@/components/brand/Logo";
 import { Content } from "@/components/ui/Content";
 import { Link } from "@/components/ui/Link";
 import { todo } from "@/content/todo";
@@ -7,7 +8,7 @@ import { todo } from "@/content/todo";
  * it was written: not rebuilt from content. Static markup, no motion.
  *
  * Layout (src/styles/resume.css)
- *   screen   a bar (label, open, download) over the browser's own PDF viewer,
+ *   screen   a bar (lockup, label, open, download) over the browser's own PDF viewer,
  *            framed on carbon, page-width and as tall as the viewport allows.
  *   < 48rem  phones can't scroll an embedded PDF, so the viewer gives way to a
  *            card that opens or downloads the file.
@@ -30,9 +31,12 @@ export function ResumeViewer({ pdf, title }: ResumeViewerProps) {
   return (
     <div className="resume layout-grid">
       <div className="resume__bar">
-        <p className="resume__bar-label">
-          Resume <span aria-hidden="true">·</span> PDF
-        </p>
+        <div className="resume__bar-title">
+          <Logo variant="lockup" size="var(--logo-resume)" />
+          <p className="resume__bar-label">
+            Resume <span aria-hidden="true">·</span> PDF
+          </p>
+        </div>
         {pdf.published && (
           <div className="resume__bar-actions">
             <Link href={pdf.href} target="_blank" className="resume__action" data-resume="open">

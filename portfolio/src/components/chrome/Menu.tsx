@@ -48,7 +48,7 @@ type MenuProps = {
   onClose: (reason: CloseReason) => void;
   /** Receives focus back when the menu is dismissed. */
   returnFocus: RefObject<HTMLElement | null>;
-  monogram: ReactNode;
+  mark: ReactNode;
   status: ReactNode;
 };
 
@@ -56,7 +56,7 @@ export const MENU_ID = "site-menu";
 
 const FOCUSABLE = "a[href], button:not([disabled]), [tabindex]:not([tabindex='-1'])";
 
-export function Menu({ open, onClose, returnFocus, monogram, status }: MenuProps) {
+export function Menu({ open, onClose, returnFocus, mark, status }: MenuProps) {
   const root = useRef<HTMLDivElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
   const reason = useRef<CloseReason>("dismiss");
@@ -213,7 +213,7 @@ export function Menu({ open, onClose, returnFocus, monogram, status }: MenuProps
     >
       <div className="menu__panel" data-part="panel">
         <div className="menu__bar" data-part="content">
-          <div data-part="chrome">{monogram}</div>
+          <div data-part="chrome">{mark}</div>
           <button ref={closeButton} type="button" className="menu-toggle" onClick={() => close("dismiss")}>
             <span>Close</span>
             <span className="menu-toggle__glyph" data-variant="close" aria-hidden="true" />

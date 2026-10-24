@@ -1,6 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { scrubMark } from "@/components/brand/drawMark";
+import { Logo } from "@/components/brand/Logo";
 import { gsap, useGSAP } from "@/motion/gsap";
 import { PRELOADER_FLAG, releaseIntro, watchPreload } from "@/motion/preload";
 import { EASE, motionTokens } from "@/motion/tokens";
@@ -12,15 +14,19 @@ import { EASE, motionTokens } from "@/motion/tokens";
  *   trigger        element        property           from → to         ease     duration          mobile         reduced
  *   hydrate        readout        text 000 → 100     real progress     none     1.0–1.5s          0.6–0.9s       hidden
  *   hydrate        gauge rule     scaleX             0 → progress      none     (with readout)    same           full, static
- *   100            signal LED     opacity            0 → 1, ×2 blink   none     micro/2 per edge  same           —
+ *   hydrate        Sh² mark       strokes draw       0 → progress      none     (with readout)    same           drawn, static
+ *   100            mark's square  opacity            0 → 1, ×2 blink   none     micro/2 per edge  same           lit, static
  *   exit           readout, ticks opacity            1 → 0             snap     micro             same           —
  *   exit           gauge rule     x, y, scaleX       gauge → horizon   machine  large (1000ms)    same           —
- *   exit           screen         opacity            1 → 0             machine  medium, ends with rule        —
+ *   exit           screen, mark   opacity            1 → 0             machine  medium, ends with rule        —
  *   ready | cap    whole overlay  opacity            1 → 0             none     —                 —              reduced (200ms)
  *   key/tap/wheel  whole overlay  opacity            1 → 0             none     reduced (200ms)   same           same
  *
  * The readout never runs ahead of the real work (src/motion/preload.ts) and never
  * finishes before the minimum count, so it reads as a sequence, not a flash.
+ * The Sh² mark draws with it, stroke by stroke (BRAND-01); its exponent square
+ * is the instrument's LED, an unlit socket until it blinks at 100. The mark
+ * shows only once JS owns the screen, so it never flashes finished first.
  *
  * Blocking cap (--preloader-cap, 2.5s from navigation start): the count is cut
  * short so the exit always starts inside it; the overlay is pointer-transparent
@@ -83,7 +89,8 @@ export function Preloader() {
         root.querySelector<T>(`[data-part="${part}"]`)!;
       const value = q("value");
       const rule = q("rule");
-      const led = q("led");
+      const mark = root.querySelector<SVGSVGElement>(".preloader__mark")!;
+      const led = mark.querySelector('[data-part="exponent"]')!;
       const reduced = window.matchMedia(REDUCED_QUERY).matches;
       const blink = (duration.micro / 2) * 3; // off→on→off→on: two blinks, LED left lit
 
@@ -101,7 +108,7 @@ export function Preloader() {
         count?.kill();
         gsap.ticker.remove(tick);
         root.dataset.state = "exit";
-        releaseIntro();
+        releaseIntro(true);
 
         if (quick) {
           gsap.to(root, { opacity: 0, duration: duration.reduced, ease: "none", onComplete: finish });
@@ -129,7 +136,7 @@ export function Preloader() {
           )
           .to(rule, { ...to, duration: duration.large, ease: EASE.machine }, 0)
           .to(
-            q("screen"),
+            [q("screen"), mark],
             { opacity: 0, duration: duration.medium, ease: EASE.machine },
             duration.large - duration.medium,
           );
@@ -166,6 +173,8 @@ export function Preloader() {
       const minCount = Math.min(span.min, maxCount);
 
       const paint = gsap.quickSetter(rule, "scaleX");
+      const strokes = scrubMark(mark);
+      gsap.set(led, { opacity: 0 });
       const state = { shown: 0 };
       let real = 0;
       const start = gsap.ticker.time;
@@ -173,6 +182,7 @@ export function Preloader() {
       const render = () => {
         value.textContent = readout(state.shown);
         paint(state.shown);
+        strokes.paint(state.shown);
       };
 
       const complete = contextSafe(() => {
@@ -241,10 +251,8 @@ export function Preloader() {
       </noscript>
       <div className="preloader__screen" data-part="screen" />
       <div className="preloader__instrument">
+        <Logo variant="mark" size="var(--preloader-mark)" drawable socket className="preloader__mark" />
         <p className="preloader__readout" data-part="readout">
-          <span className="preloader__led">
-            <span className="preloader__led-light" data-part="led" />
-          </span>
           <span>Calibrating</span>
           <span className="preloader__value" data-part="value">
             000
