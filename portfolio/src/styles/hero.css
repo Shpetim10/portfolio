@@ -109,6 +109,8 @@
     width: min(100%, var(--hero-figure-static));
     aspect-ratio: 4 / 5;
     margin: --spacing(8) 0 0;
+    /* The labels fit the plate pitch, which follows the figure's own box (see the compact tiers). */
+    container: hero-figure / size;
   }
 
   /* Live, mobile: fills the space between name and horizon, tucked a little under the name. */
@@ -284,6 +286,40 @@
 
     .instrument-note__line {
       max-width: 14ch;
+    }
+  }
+
+  /*
+   * The plates sit ~0.18 × the figure's height apart; a full note (two-line label
+   * plus its description) needs ~74px of it. Shorter figures drop to a label with
+   * the description kept for screen readers, then (under ~34px) to a one-line label,
+   * so the notes never overlap. Narrow figures shorten the elbow so the longest
+   * label ("INFRASTRUCTURE") stays on screen.
+   */
+  @container hero-figure (height < 27rem) and (width < 64rem) {
+    .instrument-note__line {
+      clip-path: inset(50%);
+      pointer-events: none;
+    }
+  }
+
+  @container hero-figure (width < 22rem) {
+    .instrument-note {
+      --leader-rise: --spacing(4);
+      --leader-run: --spacing(2);
+    }
+  }
+
+  @container hero-figure (height < 12rem) and (width < 64rem) {
+    .instrument-note {
+      --note-label-lines: 1;
+      --leader-run: 0px;
+    }
+
+    /* The part number stays in the list for screen readers; the name is what fits beside a 92px figure. */
+    .instrument-note__label .part-label__number {
+      position: absolute;
+      clip-path: inset(50%);
     }
   }
 
