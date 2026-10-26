@@ -1,34 +1,36 @@
-import { todo } from "./todo";
 import type { Media, Project } from "./types";
 
 // Image files are named as the owner supplied them and live in /public/assets/work/<slug>/.
 // TODO(content): the assets are not yet in /public; width and height are 0 until they are,
 // and every figure shows a marked placeholder frame until then.
-const image = (slug: string, file: string, alt: string): Media => ({
+const image = (slug: string, file: string, alt: string, size?: [width: number, height: number]): Media => ({
   src: `/assets/work/${slug}/${file}`,
   alt,
-  width: 0, // TODO(content)
-  height: 0, // TODO(content)
-  kind: "image",
-});
-
-const missingCover = (slug: string): Media => ({
-  src: `/assets/work/${slug}/cover.jpg`, // TODO(content): asset not yet supplied
-  alt: todo("Cover alt text"),
-  width: 0, // TODO(content)
-  height: 0, // TODO(content)
+  width: size?.[0] ?? 0, // TODO(content) until the file is supplied
+  height: size?.[1] ?? 0, // TODO(content) until the file is supplied
   kind: "image",
 });
 
 /**
  * The story's figures index the gallery: `Spread media={0}` is the strongest visual
- * (the cover) and `Shot media={1..3}` are the screenshots, so the cover leads the gallery.
+ * (the cover) and `Shot media={1..5}` are the screenshots, so the cover leads the gallery.
  */
-const gallery = (slug: string, cover: Media, shots: [file: string, alt: string][]): Media[] => [
-  cover,
-  ...shots.map(([file, alt]) => image(slug, file, alt)),
-];
+const gallery = (
+  slug: string,
+  cover: Media,
+  shots: [file: string, alt: string, size?: [width: number, height: number]][],
+): Media[] => [cover, ...shots.map(([file, alt, size]) => image(slug, file, alt, size))];
 
+const herisagaCover = image(
+  "herisaga-history-as-playable-stories",
+  "herisaga-cover.png",
+  "HERISAGA app's Road screen, with the chapters of Albanian history laid out as a path to play",
+);
+const authoringCover = image(
+  "herisaga-authoring",
+  "herisaga-authoring-cover.png",
+  "Episode Studio showing a lesson draft beside its source evidence and review status",
+);
 const worktrezzCover = image(
   "worktrezz",
   "worknest-cover.png",
@@ -96,8 +98,14 @@ export const projects: Project[] = [
       { value: "4", label: "Interactive question formats" },
       { value: "2", label: "Languages: English and Albanian" },
     ],
-    cover: missingCover("herisaga-history-as-playable-stories"), // TODO(content): no cover image supplied
-    gallery: [], // TODO(content): no screenshots supplied
+    cover: herisagaCover,
+    gallery: gallery("herisaga-history-as-playable-stories", herisagaCover, [
+      ["herisaga-1.png", "Lesson screen telling one moment of Albanian history as a short narrative"],
+      ["herisaga-2.png", "Interactive question with instant feedback on the learner's answer"],
+      ["herisaga-3.png", "Review session bringing back questions from earlier lessons"],
+      ["herisaga-4.png", "Progress screen with XP, the current streak and completed chapters"],
+      ["herisaga-5.png", "The same lesson in Albanian in the dark theme"],
+    ]),
     links: [],
     featured: true,
     order: 1,
@@ -131,8 +139,23 @@ export const projects: Project[] = [
       { value: "4", label: "Authoring stages: retrieve evidence, draft, review, publish" },
       { value: "0", label: "Drafts that can reach learners without human review" },
     ],
-    cover: missingCover("herisaga-authoring"), // TODO(content): no cover image supplied
-    gallery: [], // TODO(content): no screenshots supplied
+    cover: authoringCover,
+    gallery: gallery("herisaga-authoring", authoringCover, [
+      [
+        "herisaga-authoring-1.png",
+        "Source passages retrieved and reranked for an episode, with relevance scores",
+      ],
+      [
+        "herisaga-authoring-2.png",
+        "LLM-drafted lesson with each claim linked to the source passage behind it",
+      ],
+      ["herisaga-authoring-3.png", "Review queue in the Episode Studio with drafts waiting for approval"],
+      ["herisaga-authoring-4.png", "Episode in Directus with English and Albanian fields side by side"],
+      [
+        "herisaga-authoring-5.png",
+        "Publication compiler report confirming schema validation and the pinned revision",
+      ],
+    ]),
     links: [],
     featured: true,
     order: 2,
@@ -160,6 +183,8 @@ export const projects: Project[] = [
       ["beloyal-1.png", "Customer home screen with points balance and rewards"],
       ["beloyal-2.png", "QR code redemption screen at the point of sale"],
       ["beloyal-3.png", "Business view for managing rewards and coupons"],
+      ["beloyal-4.png", "Customer coupons screen with active and used coupons"],
+      ["beloyal-5.png", "Business view of a customer's points history"],
     ]),
     links: [
       { label: "API repository", href: "https://github.com/Shpetim10/BeLoyal-API" },
@@ -201,6 +226,8 @@ export const projects: Project[] = [
       ["worknest-1.png", "Manager web dashboard with attendance overview and pending leave requests"],
       ["worknest-2.png", "Employee mobile app clock-in screen with location confirmation"],
       ["worknest-3.png", "Real-time notification arriving in the web app after an employee clocks in"],
+      ["worknest-4.png", "Leave request review in the manager web app with approve and reject actions"],
+      ["worknest-5.png", "Announcements feed in the employee mobile app"],
     ]),
     links: [
       { label: "API repository", href: "https://github.com/Shpetim10/WorkNest-Api" },
@@ -230,8 +257,21 @@ export const projects: Project[] = [
     cover: garbageCover,
     gallery: gallery("garbage-classifier", garbageCover, [
       ["garbage-classifier-1.png", "Sample images from the dataset across waste categories"],
-      ["garbage-classifier-2.png", "Training and validation accuracy curves for the final model"],
-      ["garbage-classifier-3.png", "Confusion matrix of the final model on the test set"],
+      [
+        "garbage-classifier-2.png",
+        "Training and validation accuracy curves for the final model",
+        [1448, 1086],
+      ],
+      [
+        "garbage-classifier-3.png",
+        "Test metrics, per-class precision and recall, and confusion matrix of the final model",
+        [2800, 2800],
+      ],
+      [
+        "garbage-classifier-4.png",
+        "Streamlit web app classifying an uploaded photo, with confidence per category",
+      ],
+      ["garbage-classifier-5.png", "Accuracy of the team's candidate models compared on held-out data"],
     ]),
     links: [
       {
@@ -266,6 +306,8 @@ export const projects: Project[] = [
       ["pyramidos-1.png", "Event request form and venue matching results"],
       ["pyramidos-2.png", "Equipment booking calendar with a scheduling conflict flagged"],
       ["pyramidos-3.png", "3D mockup of the Pyramid venue used for planning"],
+      ["pyramidos-4.png", "Proposal for an organizer with the matched venue, equipment and price"],
+      ["pyramidos-5.png", "Task board coordinating venue staff and suppliers for an event"],
     ]),
     links: [{ label: "Demo video", href: "https://youtu.be/705brgOoMLU" }],
     featured: true,
@@ -293,6 +335,8 @@ export const projects: Project[] = [
       ["library-management-system-1.png", "Book marketplace page with search and availability"],
       ["library-management-system-2.png", "Stock management table for librarians"],
       ["library-management-system-3.png", "Order summary and checkout page"],
+      ["library-management-system-4.png", "Book detail page with stock availability and add to cart"],
+      ["library-management-system-5.png", "Staff view of incoming orders and their status"],
     ]),
     links: [{ label: "Repository", href: "https://github.com/Shpetim10/Library-Management-System" }],
     featured: false,

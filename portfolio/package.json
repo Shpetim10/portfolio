@@ -7,6 +7,7 @@
     "build": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/fetch-github.mjs && next build",
     "sculpture": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/sculpture/sample.mjs",
     "drawing": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/drawing/trace.mjs",
+    "drawing:glyphs": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/drawing/glyphs.mjs",
     "brand": "node scripts/brand/build.mjs",
     "brand:options": "node scripts/brand/options.mjs",
     "brand:icons": "node scripts/brand/icons.mjs",

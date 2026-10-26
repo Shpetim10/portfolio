@@ -23,19 +23,32 @@ export type Stroke = (typeof Stroke)[keyof typeof Stroke];
 export const CROSSING = 8;
 
 /**
- * Glyphs per stroke family. Each glyph belongs to exactly one family, so the
- * idle swap can trade a glyph for a sibling without reading the stroke data.
- * The task also lists ─ and │, but Martian Mono's Latin subset has no box
- * drawing, so they would render in a fallback face — off the monospace grid.
- * TODO(fonts): add "─" / "│" back once Berkeley Mono (which covers them) is licensed.
+ * Glyphs per family. Each glyph belongs to exactly one family, so the idle
+ * swap can trade a glyph for a sibling without reading the stroke data. The
+ * tracer (scripts/drawing/trace.mjs) matches every cell against the first
+ * glyph of each line family and every glyph of the head's; the siblings are
+ * near-identical stand-ins (¦ for |, ⁄ for /, – for -) the swap alone uses.
+ * The atlas the tracer matches against (assets-src/vitruvian/glyphs.png) is
+ * rendered from this list: run `pnpm drawing:glyphs` after changing it.
+ * Martian Mono's Latin subset has no box drawing (─ │), which would render
+ * in a fallback face, off the monospace grid.
+ * TODO(fonts): add "─" / "│" once Berkeley Mono (which covers them) is licensed.
  */
 export const FAMILIES = {
-  horizontal: "-_~",
-  vertical: "|¦!",
+  vertical: "|¦",
   slash: "/⁄",
   backslash: "\\",
-  dense: "+x*#",
-  faint: ".·:",
+  dash: "-–",
+  low: "_",
+  high: "¯",
+  left: "(",
+  right: ")",
+  tick: "'`",
+  point: ",.",
+  wave: "~",
+  dots: ":·",
+  cross: "+x*",
+  dense: "#%&@",
 } as const;
 export type Family = keyof typeof FAMILIES;
 

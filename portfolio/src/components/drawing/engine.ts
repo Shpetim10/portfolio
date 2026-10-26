@@ -108,6 +108,8 @@ export class DrawingEngine {
   private running = false;
   private last = 0;
   private swapClock = 0;
+  /** The one cell the idle swap has off its traced glyph, or −1. */
+  private swapped = -1;
 
   private resizeObserver: ResizeObserver | null = null;
   private intersectionObserver: IntersectionObserver | null = null;
@@ -385,11 +387,21 @@ export class DrawingEngine {
     this.animating.length = write;
   }
 
-  /** Idle life: about every SWAP_MS, one settled glyph trades places with a sibling of its family. */
+  /**
+   * Idle life: about every SWAP_MS, one settled glyph trades places with a
+   * sibling of its family, and the previous one returns to its traced glyph,
+   * so the figure never drifts from the drawing.
+   */
   private swap(dt: number) {
     this.swapClock += dt;
     if (this.swapClock < SWAP_MS) return;
     this.swapClock %= SWAP_MS;
+    const back = this.swapped;
+    this.swapped = -1;
+    if (back >= 0 && this.cellGlyph[back] !== this.finalGlyph[back]) {
+      this.cellGlyph[back] = this.finalGlyph[back];
+      this.drawCell(back);
+    }
     // A few tries to land on a settled cell whose family has more than one glyph.
     for (let attempt = 0; attempt < 8; attempt++) {
       const f = (Math.random() * this.count) | 0;
@@ -397,6 +409,7 @@ export class DrawingEngine {
       if (this.mode[f] !== Mode.Settled || family.length < 2) continue;
       const at = family.indexOf(this.cellGlyph[f]);
       this.cellGlyph[f] = family[(at + 1 + ((Math.random() * (family.length - 1)) | 0)) % family.length];
+      this.swapped = f;
       this.drawCell(f);
       return;
     }
