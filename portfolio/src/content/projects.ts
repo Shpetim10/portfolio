@@ -44,7 +44,8 @@ const ritemaCover = image(
 const garbageCover = image(
   "garbage-classifier",
   "garbage-classifier-cover.png",
-  "Grid of waste photos labeled by the model's predicted category",
+  "Project overview poster: the twelve waste categories, the final model's confusion matrix and the recycling guidance",
+  [1672, 941],
 );
 const pyramidosCover = image(
   "pyramidos",
@@ -53,8 +54,9 @@ const pyramidosCover = image(
 );
 const libraryCover = image(
   "library-management-system",
-  "library-cover.png",
-  "Library marketplace page listing books with prices and availability",
+  "library-management-system-cover.png",
+  "Dim, sepia-toned library corridor lined with old leather-bound books",
+  [1672, 941],
 );
 
 // Featured projects: 3–5 (the build fails otherwise).
@@ -256,7 +258,7 @@ export const projects: Project[] = [
     ],
     cover: garbageCover,
     gallery: gallery("garbage-classifier", garbageCover, [
-      ["garbage-classifier-1.png", "Sample images from the dataset across waste categories"],
+      ["garbage-classifier-1.png", "Sample images from the dataset across waste categories", [1672, 941]],
       [
         "garbage-classifier-2.png",
         "Training and validation accuracy curves for the final model",
@@ -270,8 +272,13 @@ export const projects: Project[] = [
       [
         "garbage-classifier-4.png",
         "Streamlit web app classifying an uploaded photo, with confidence per category",
+        [1586, 992],
       ],
-      ["garbage-classifier-5.png", "Accuracy of the team's candidate models compared on held-out data"],
+      [
+        "garbage-classifier-5.png",
+        "Accuracy of the team's candidate models compared on held-out data",
+        [3200, 2000],
+      ],
     ]),
     links: [
       {
@@ -332,11 +339,31 @@ export const projects: Project[] = [
     ],
     cover: libraryCover,
     gallery: gallery("library-management-system", libraryCover, [
-      ["library-management-system-1.png", "Book marketplace page with search and availability"],
-      ["library-management-system-2.png", "Stock management table for librarians"],
-      ["library-management-system-3.png", "Order summary and checkout page"],
-      ["library-management-system-4.png", "Book detail page with stock availability and add to cart"],
-      ["library-management-system-5.png", "Staff view of incoming orders and their status"],
+      [
+        "library-management-system-1.png",
+        "Eternal Library marketplace with a category list and book cards showing price, rating and Add To Cart",
+        [1918, 871],
+      ],
+      [
+        "library-management-system-2.png",
+        "Staff stock management table with ISBN, genres, format, inventory and a Restock action, low-stock rows highlighted",
+        [1918, 868],
+      ],
+      [
+        "library-management-system-3.png",
+        "Cart page with the selected book, quantity controls, cart total and Proceed To Checkout",
+        [1913, 867],
+      ],
+      [
+        "library-management-system-4.png",
+        "Book detail page showing Stock Available, price, quantity, Add To Cart and the book's description",
+        [1918, 868],
+      ],
+      [
+        "library-management-system-5.png",
+        "Staff order management list with customer, books, total, a status selector and date for each order",
+        [1918, 870],
+      ],
     ]),
     links: [{ label: "Repository", href: "https://github.com/Shpetim10/Library-Management-System" }],
     featured: false,

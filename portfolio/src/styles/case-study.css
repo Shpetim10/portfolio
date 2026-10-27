@@ -668,6 +668,11 @@
       grid-column: 1 / -1;
     }
 
+    /* Four shots sit as a 2 x 2 grid; the lead shot only spans when the rest pair up. */
+    .gallery:has(> :nth-child(4):last-child) > :first-child {
+      grid-column: auto;
+    }
+
     .figure-notes {
       display: block;
     }
@@ -873,6 +878,12 @@
     .next-project__meta {
       grid-column: 1 / span 5;
       grid-row: 1;
+    }
+
+    /* The title shares the row with the cover: sized so its longest word ("Management")
+       stays inside its five columns instead of running under the cover. */
+    .next-project__title {
+      font-size: min(var(--text-display-l), 6.5vw);
     }
 
     .next-project__cover {
