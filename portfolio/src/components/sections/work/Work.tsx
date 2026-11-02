@@ -1,11 +1,12 @@
 import { LAYER_NAMES } from "@/components/chrome/nav";
 import { DimensionLine, LeaderLine } from "@/components/ui/Annotation";
+import { Button } from "@/components/ui/Button";
 import { Content } from "@/components/ui/Content";
 import { OpenProject } from "@/components/ui/OpenProject";
 import { ProjectCover } from "@/components/ui/ProjectCover";
 import { SectionShell } from "@/components/ui/SectionShell";
 import { Tag } from "@/components/ui/Tag";
-import { getFeaturedProjects, type Project } from "@/content";
+import { getFeaturedProjects, getProjects, type Project } from "@/content";
 import { todo } from "@/content/todo";
 import { LayerStrip } from "./LayerStrip";
 import { WorkStage } from "./WorkStage";
@@ -33,9 +34,16 @@ type WorkProps = {
   projects?: Project[];
   id?: string;
   index?: number;
+  /** Projects in the full register (/work/). Shown as the way to all work; 0 hides the link (specimens). */
+  total?: number;
 };
 
-export function Work({ projects = getFeaturedProjects(), id = "work", index = 4 }: WorkProps) {
+export function Work({
+  projects = getFeaturedProjects(),
+  id = "work",
+  index = 4,
+  total = getProjects().length,
+}: WorkProps) {
   const [lead] = projects;
   return (
     <SectionShell id={id} index={index} title="Work" contentClassName="work-shell">
@@ -47,14 +55,27 @@ export function Work({ projects = getFeaturedProjects(), id = "work", index = 4 
               <Panel key={project.slug} project={project} idPrefix={id} />
             ))}
           </ol>
-          <div className="work__assembly" aria-hidden="true">
-            <p className="work__readout">
-              <span data-work="readout-part">{lead.partNumber}</span>
-              <span className="work__readout-count">
-                <span data-work="readout-index">01</span> / {String(projects.length).padStart(2, "0")}
-              </span>
-            </p>
-            <LayerStrip lit={lead.layers} variant="full" className="work__strip" />
+          <div className="work__foot" data-work="foot">
+            <div className="work__assembly" aria-hidden="true">
+              <p className="work__readout">
+                <span data-work="readout-part">{lead.partNumber}</span>
+                <span className="work__readout-count">
+                  <span data-work="readout-index">01</span> / {String(projects.length).padStart(2, "0")}
+                </span>
+              </p>
+              <LayerStrip lit={lead.layers} variant="full" className="work__strip" />
+            </div>
+            {/* In the pinned stage on desktop: the way to every project stays in view across the track. */}
+            {total > 0 && (
+              <p className="work__all">
+                <span className="work__all-note">
+                  {String(projects.length).padStart(2, "0")} of {String(total).padStart(2, "0")} shown here
+                </span>
+                <Button href="/work/" className="work__all-button">
+                  View all {total} projects
+                </Button>
+              </p>
+            )}
           </div>
         </div>
       </WorkStage>

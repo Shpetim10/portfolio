@@ -27,12 +27,20 @@ import { motionTokens } from "@/motion/tokens";
  * (Lenis-smoothed) and vertical: no wheel handlers, no horizontal scroller, so
  * a trackpad is never captured; the user scrolls through and past at will.
  *
+ * Fit: on every refresh the panels are narrowed, if need be, so a panel plus the
+ * foot (readout, layer strip, "View all projects") always fits the viewport.
+ * The foot is part of the pinned stage, so the way to every project stays in
+ * view for the whole track.
+ *
  * Keyboard: focusing a panel's link scrolls the page to the point where that
  * panel is centred. The stage clips with overflow: clip (not a scroll
  * container), so the browser can't scroll it sideways behind our back.
  */
 
 const DESKTOP = "(width >= 64rem)";
+/** Fit never narrows a panel below this share of the stage width. */
+const MIN_PANEL = 0.32;
+const FIT_PASSES = 8;
 const COMPACT = "(width < 64rem)";
 
 /** Runs before first paint: full motion gets the live layout at once, so nothing shifts on hydration. */
@@ -99,9 +107,42 @@ export function WorkStage({ children }: { children: ReactNode }) {
         const readIndex = root.querySelector<HTMLElement>('[data-work="readout-index"]')!;
         const last = Math.max(panels.length - 1, 1);
 
+        const foot = root.querySelector<HTMLElement>('[data-work="foot"]')!;
+
+        // Fit: --work-panel sizes a panel from a fixed height budget (--work-chrome), but a
+        // long title or a wrapped title block can still make a panel taller than the stage,
+        // clipping the cover's top and pushing the foot off screen. Measure, and if it
+        // overflows, binary-search the widest panel (down to MIN_PANEL of the stage) whose
+        // cover, meta, foot and the stage's padding all fit the viewport.
+        const fit = () => {
+          root.style.removeProperty("--work-panel");
+          const box = getComputedStyle(stage);
+          const room =
+            stage.clientHeight -
+            parseFloat(box.paddingTop) -
+            parseFloat(box.paddingBottom) -
+            parseFloat(box.rowGap) -
+            foot.offsetHeight;
+          const fits = () => rail.offsetHeight <= room;
+          if (fits()) return;
+          const setWidth = (px: number) => root.style.setProperty("--work-panel", `${px}px`);
+          let lo = stage.clientWidth * MIN_PANEL;
+          let hi = panels[0]?.offsetWidth ?? lo;
+          for (let i = 0; i < FIT_PASSES; i++) {
+            const mid = (lo + hi) / 2;
+            setWidth(mid);
+            if (fits()) lo = mid;
+            else hi = mid;
+          }
+          setWidth(Math.floor(lo));
+        };
+
         // Rail width − stage width. The rail's side padding centres the first and last panels.
         const travel = () => Math.max(rail.scrollWidth - stage.clientWidth, 0);
-        const setTravel = () => root.style.setProperty("--work-travel", `${travel()}px`);
+        const setTravel = () => {
+          fit();
+          root.style.setProperty("--work-travel", `${travel()}px`);
+        };
         ScrollTrigger.addEventListener("refreshInit", setTravel);
         setTravel();
 
@@ -130,6 +171,7 @@ export function WorkStage({ children }: { children: ReactNode }) {
             scrub: true,
             invalidateOnRefresh: true,
             onUpdate: (self) => light(Math.round(self.progress * last)),
+            onToggle: (self) => root.toggleAttribute("data-pinned", self.isActive),
             onRefresh: (self) => light(Math.round(self.progress * last)),
           },
         });
@@ -173,6 +215,8 @@ export function WorkStage({ children }: { children: ReactNode }) {
           root.removeEventListener("focusin", onFocus);
           ScrollTrigger.removeEventListener("refreshInit", setTravel);
           root.style.removeProperty("--work-travel");
+          root.style.removeProperty("--work-panel");
+          root.removeAttribute("data-pinned");
           panels.forEach((panel) => panel.removeAttribute("data-active"));
           strip.forEach((part, i) => part.toggleAttribute("data-lit", initial.lit[i]));
           readPart.textContent = initial.part;

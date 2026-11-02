@@ -79,6 +79,34 @@
     display: none;
   }
 
+  /* The way to the full register (/work/). Static: a row under the cards. */
+  .work__all {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: --spacing(4);
+    margin: --spacing(16) 0 0;
+    padding-top: --spacing(16);
+    border-top: var(--line) solid var(--color-hairline);
+  }
+
+  .work__all-note {
+    color: var(--color-dust);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  /* Phones: a full-width target. */
+  @media (width < 48rem) {
+    .work__all-button {
+      width: 100%;
+    }
+  }
+
   /* Panel -------------------------------------------------------------- */
   .work-panel__body {
     display: flex;
@@ -405,40 +433,81 @@
       gap: --spacing(4);
     }
 
-    /* Title + tags on the left, the title block on the right. */
+    /*
+     * Compact meta on the track: title, then the title block as one strip of four
+     * cells, then the tags. Keeps a panel short enough for the stage to fit a
+     * laptop viewport with the cover at a useful size (WorkStage fits the rest).
+     */
     .work[data-mode="live"] .work-panel__meta {
       display: grid;
-      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-      grid-template-rows: auto 1fr;
-      gap: --spacing(3) var(--grid-gutter);
+      grid-template-columns: minmax(0, 1fr);
+      gap: --spacing(3);
     }
 
     .work[data-mode="live"] .work-panel__title {
-      grid-column: 1;
-      grid-row: 1;
-    }
-
-    .work[data-mode="live"] .work-panel__layers {
-      grid-column: 1;
-      grid-row: 2;
-      align-self: start;
+      font-size: var(--work-title-live);
     }
 
     .work[data-mode="live"] .work-panel__block {
-      grid-column: 2;
-      grid-row: 1 / 3;
-      align-self: start;
+      grid-template-columns:
+        minmax(0, 0.8fr)
+        minmax(0, 0.7fr)
+        minmax(0, 1.5fr)
+        minmax(0, 2.4fr);
+    }
+
+    .work[data-mode="live"] .work-panel__cell--outcome {
+      grid-column: auto;
+    }
+
+    /*
+     * The foot's layer strip lights the centred project's layers, so on the track the
+     * tags only repeat it: kept for assistive tech (the strip is aria-hidden), not drawn.
+     */
+    .work[data-mode="live"] .work-panel__layers {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    .work[data-mode="live"] .work-panel__outcome-value {
+      font-size: var(--text-body-l);
+      line-height: var(--text-body-l--line-height);
     }
 
     .work[data-mode="live"] .work-panel__strip {
       display: none;
     }
 
+    /* The stage's foot: assembly diagram, then the way to every project, pinned with the track. */
+    .work[data-mode="live"] .work__foot {
+      display: flex;
+      align-items: center;
+      gap: calc(var(--grid-gutter) * 2);
+      padding-inline: var(--grid-margin);
+    }
+
     .work[data-mode="live"] .work__assembly {
       display: flex;
+      flex: 1 1 0;
       align-items: flex-start;
       gap: var(--grid-gutter);
-      padding-inline: var(--grid-margin);
+      min-width: 0;
+    }
+
+    .work[data-mode="live"] .work__all {
+      flex: none;
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+
+    /* The readout already counts the track. */
+    .work[data-mode="live"] .work__all-note {
+      display: none;
     }
 
     .work__readout {

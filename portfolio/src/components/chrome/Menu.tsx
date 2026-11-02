@@ -262,9 +262,14 @@ export function Menu({ open, onClose, returnFocus, mark, status }: MenuProps) {
 
         <div className="menu__footer layout-grid" data-part="content">
           <div className="menu__footer-inner" data-part="chrome">
-            <Link href="/resume/" onClick={() => close("navigate")} className="menu__resume">
-              Résumé
-            </Link>
+            <span className="menu__pages">
+              <Link href="/work/" onClick={() => close("navigate")} className="menu__page">
+                All work
+              </Link>
+              <Link href="/resume/" onClick={() => close("navigate")} className="menu__page">
+                Résumé
+              </Link>
+            </span>
             {status}
           </div>
         </div>

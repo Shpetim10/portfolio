@@ -1,0 +1,546 @@
+/*
+ * Work index, /work/ (src/components/work-index). Static geometry only; GSAP
+ * moves rules, the cover shutter, the masthead and the register progress with
+ * transform / opacity, and the register lights its current part with a
+ * colour transition. Tokens only.
+ *
+ * Modes
+ *   static  default — reduced motion and no JS: everything drawn, in place.
+ *   live    .work-index[data-mode="live"] (set before first paint, full motion):
+ *           what the entry timelines bring in starts hidden here, so nothing
+ *           flashes before hydration (IndexStage.tsx).
+ * Layout
+ *   < 64rem  entries stack full width, cover above meta; no register.
+ *   ≥ 64rem  sticky register in columns 1–3; entries in 4–12, cover beside meta.
+ */
+
+@layer components {
+  /* Header ------------------------------------------------------------- */
+  .work-index__header {
+    row-gap: --spacing(8);
+    padding-top: calc(var(--header-height) + --spacing(8));
+  }
+
+  .work-index__header > * {
+    grid-column: 1 / -1;
+  }
+
+  .work-index__number .section-index__rule {
+    transform-origin: left center;
+  }
+
+  .work-index__masthead {
+    will-change: transform;
+  }
+
+  .work-index__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-display-xl);
+    font-weight: var(--font-weight-black);
+    line-height: var(--text-display-xl--line-height);
+    letter-spacing: var(--text-display-xl--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  .work-index__intro {
+    max-width: var(--container-measure);
+    margin: 0;
+    color: var(--color-dust);
+    font-size: var(--text-body-l);
+    line-height: var(--text-body-l--line-height);
+  }
+
+  /* Sheet totals: drawing-sheet cells, like a title block. */
+  .work-index__totals {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 0;
+    border-top: var(--line) solid var(--color-hairline);
+    border-left: var(--line) solid var(--color-hairline);
+  }
+
+  .work-index__total {
+    display: flex;
+    flex-direction: column;
+    gap: --spacing(2);
+    min-width: 0;
+    padding: --spacing(3);
+    border-right: var(--line) solid var(--color-hairline);
+    border-bottom: var(--line) solid var(--color-hairline);
+  }
+
+  .work-index__total dt,
+  .index-entry__cell dt {
+    color: var(--color-dust);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    line-height: var(--text-micro--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  .work-index__total dd {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-heading);
+    font-weight: var(--font-weight-black);
+    line-height: var(--text-heading--line-height);
+    font-variant-numeric: tabular-nums;
+    text-transform: uppercase;
+  }
+
+  /* Body --------------------------------------------------------------- */
+  .work-index__body {
+    padding-block: --spacing(24) var(--section-pad-y);
+  }
+
+  .work-index__register {
+    display: none;
+  }
+
+  .work-index__list {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--index-entry-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Entry -------------------------------------------------------------- */
+  .index-entry {
+    scroll-margin-top: var(--index-sticky-top);
+  }
+
+  .index-entry__body {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: --spacing(6);
+    padding-top: --spacing(4);
+  }
+
+  .index-entry__rule {
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: var(--line);
+    background-color: var(--color-hairline);
+    transform-origin: left center;
+  }
+
+  .index-entry__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: --spacing(2) --spacing(4);
+    margin: 0;
+    color: var(--color-dust);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  .index-entry__part {
+    color: var(--color-bone);
+  }
+
+  .index-entry__client {
+    flex: 1 1 12rem;
+    min-width: 0;
+  }
+
+  .index-entry__year {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .index-entry__cover {
+    position: relative;
+  }
+
+  /* Marks sit just outside the cover's corners. */
+  .index-entry__cover .registration-mark {
+    --registration-inset: calc(var(--registration-mark) * -1);
+  }
+
+  .index-entry__cover-link {
+    display: block;
+  }
+
+  /* A carbon plate over the cover: collapsed (static); lifts away upward when an entry plays (live). */
+  .index-entry__shutter {
+    position: absolute;
+    inset: 0;
+    background-color: var(--color-carbon);
+    transform: scaleY(0);
+    transform-origin: top center;
+    pointer-events: none;
+  }
+
+  /* Notes on the cover: what the image can't say. Labels sit on carbon so they read over any image. */
+  .index-entry__notes {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .index-entry__notes .part-label {
+    padding-inline: calc(var(--spacing) * 2);
+    background-color: var(--color-carbon);
+  }
+
+  .index-entry__notes mark {
+    font-size: inherit;
+    line-height: inherit;
+    vertical-align: top;
+  }
+
+  .index-entry__stack {
+    position: absolute;
+    bottom: 30%;
+    left: 8%;
+    max-width: 88%;
+  }
+
+  .index-entry__stack .leader__label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .index-entry__notes {
+      opacity: 0;
+      transform: translateY(--spacing(2));
+      transition:
+        opacity var(--duration-small) var(--ease-settle),
+        transform var(--duration-small) var(--ease-settle);
+    }
+
+    .index-entry:hover .index-entry__notes,
+    .index-entry:focus-within .index-entry__notes {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: reduce) {
+    .index-entry__notes {
+      transform: none;
+      transition: opacity var(--duration-reduced) linear;
+    }
+  }
+
+  .index-entry__meta {
+    display: flex;
+    flex-direction: column;
+    gap: --spacing(6);
+    min-width: 0;
+  }
+
+  .index-entry__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-display-m);
+    font-weight: var(--font-weight-black);
+    line-height: var(--text-display-m--line-height);
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+
+  .index-entry__link {
+    color: var(--color-bone);
+    text-decoration: none;
+  }
+
+  .index-entry__arrow {
+    display: inline-block;
+    color: var(--color-dust);
+    transition:
+      transform var(--duration-small) var(--ease-settle),
+      color var(--duration-small) var(--ease-settle);
+  }
+
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .index-entry:hover .index-entry__arrow {
+      color: var(--color-bone);
+      transform: translateX(var(--nudge));
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .index-entry__link:focus-visible .index-entry__arrow {
+      color: var(--color-bone);
+      transform: translateX(var(--nudge));
+    }
+  }
+
+  .index-entry__summary {
+    max-width: var(--container-measure);
+    margin: 0;
+    color: var(--color-dust);
+  }
+
+  /* Title block: role · team · duration, the lead outcome across. */
+  .index-entry__block {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: 0;
+    border-top: var(--line) solid var(--color-hairline);
+    border-left: var(--line) solid var(--color-hairline);
+  }
+
+  .index-entry__cell {
+    display: flex;
+    flex-direction: column;
+    gap: --spacing(2);
+    min-width: 0;
+    padding: --spacing(3);
+    border-right: var(--line) solid var(--color-hairline);
+    border-bottom: var(--line) solid var(--color-hairline);
+  }
+
+  .index-entry__cell--outcome {
+    grid-column: 1 / -1;
+  }
+
+  .index-entry__cell dd {
+    margin: 0;
+    font-size: var(--text-small);
+    line-height: var(--text-small--line-height);
+    overflow-wrap: anywhere;
+  }
+
+  .index-entry__outcome {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: --spacing(2) --spacing(3);
+  }
+
+  .index-entry__outcome-value {
+    font-family: var(--font-display);
+    font-size: var(--text-heading);
+    font-weight: var(--font-weight-black);
+    line-height: var(--text-heading--line-height);
+    font-variant-numeric: tabular-nums;
+    text-transform: uppercase;
+  }
+
+  .index-entry__outcome-label {
+    color: var(--color-dust);
+  }
+
+  .index-entry__layers {
+    display: flex;
+    flex-direction: column;
+    gap: --spacing(4);
+  }
+
+  .index-entry__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: --spacing(2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Live: initial states the entry timelines play from ----------------- */
+  .work-index[data-mode="live"] .work-index__number .section-index__rule,
+  .work-index[data-mode="live"] .index-entry__rule {
+    transform: scaleX(0);
+  }
+
+  .work-index[data-mode="live"] .index-entry__shutter {
+    transform: scaleY(1);
+  }
+
+  .work-index[data-mode="live"]
+    :is(
+      .index-entry__head > *,
+      .index-entry__summary,
+      .index-entry__cell,
+      .index-entry__layers,
+      .index-entry__title-text,
+      .index-entry__arrow
+    ) {
+    opacity: 0;
+  }
+
+  /* Tablet: totals in one row; the title block in four cells ------------ */
+  @media (width >= 48rem) {
+    .work-index__totals {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  /* Desktop: register + entries ------------------------------------------ */
+  @media (width >= 64rem) {
+    .work-index__intro {
+      grid-column: 1 / span 6;
+      align-self: end;
+    }
+
+    .work-index__totals {
+      grid-column: 8 / -1;
+    }
+
+    .work-index__register {
+      grid-column: 1 / span 3;
+      position: sticky;
+      top: var(--index-sticky-top);
+      display: flex;
+      flex-direction: column;
+      gap: --spacing(6);
+      align-self: start;
+      padding-inline-end: var(--grid-gutter);
+    }
+
+    .work-index__register-head {
+      display: flex;
+      justify-content: space-between;
+      gap: --spacing(4);
+      margin: 0;
+      color: var(--color-dust);
+      font-family: var(--font-mono);
+      font-size: var(--text-label);
+      line-height: var(--text-label--line-height);
+      letter-spacing: var(--text-label--letter-spacing);
+      text-transform: uppercase;
+    }
+
+    .work-index__register-head [data-index="readout"] {
+      color: var(--color-bone);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .work-index__register-track {
+      position: relative;
+      padding-inline-start: --spacing(4);
+    }
+
+    /* The register's spine: a hairline, filled in bone as the list is read. */
+    .work-index__progress {
+      position: absolute;
+      inset-block: 0;
+      left: 0;
+      width: var(--line);
+      background-color: var(--color-hairline);
+    }
+
+    .work-index__progress-fill {
+      position: absolute;
+      inset: 0;
+      background-color: var(--color-bone);
+      transform: scaleY(0);
+      transform-origin: top center;
+    }
+
+    .work-index__register-list {
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .work-index__register-link {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: baseline;
+      gap: --spacing(3);
+      padding-block: --spacing(2);
+      color: var(--color-dust);
+      text-decoration: none;
+      transition: color var(--duration-small) var(--ease-settle);
+    }
+
+    .work-index__register-part {
+      position: relative;
+      font-family: var(--font-mono);
+      font-size: var(--text-micro);
+      line-height: var(--text-micro--line-height);
+      letter-spacing: var(--text-micro--letter-spacing);
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    /* The current part's dot sits on the spine. */
+    .work-index__register-part::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: calc(var(--spacing) * -4 - var(--leader-dot) / 2 + var(--line) / 2);
+      width: var(--leader-dot);
+      height: var(--leader-dot);
+      border-radius: 50%;
+      background-color: var(--color-signal);
+      transform: translateY(-50%) scale(0);
+      transition: transform var(--duration-small) var(--ease-settle);
+    }
+
+    .work-index__register-title {
+      overflow: hidden;
+      font-size: var(--text-small);
+      line-height: var(--text-small--line-height);
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .work-index__register-link[aria-current] {
+      color: var(--color-bone);
+    }
+
+    .work-index__register-link[aria-current] .work-index__register-part::before {
+      transform: translateY(-50%) scale(1);
+    }
+
+    @media (hover: hover) {
+      .work-index__register-link:hover {
+        color: var(--color-bone);
+      }
+    }
+
+    .work-index__list {
+      grid-column: 4 / -1;
+    }
+
+    .index-entry__body {
+      display: grid;
+      grid-template-columns: minmax(0, 5fr) minmax(0, 4fr);
+      grid-template-areas:
+        "head head"
+        "cover meta";
+      gap: --spacing(6) var(--grid-gutter);
+      align-items: start;
+    }
+
+    .index-entry__head {
+      grid-area: head;
+    }
+
+    /* The cover holds beside the meta while it is read, level with the register. */
+    .index-entry__cover {
+      grid-area: cover;
+      position: sticky;
+      top: var(--index-sticky-top);
+    }
+
+    .index-entry__meta {
+      grid-area: meta;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .work-index__register-link,
+    .work-index__register-part::before,
+    .index-entry__arrow {
+      transition: none;
+    }
+  }
+}

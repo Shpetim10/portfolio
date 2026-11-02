@@ -97,7 +97,7 @@ export function NextProject({ project, position, total }: NextProjectProps) {
         </NextStage>
 
         <p className="next-project__index-link">
-          <Link href="/#work">← All work</Link>
+          <Link href="/work/">← All work</Link>
         </p>
       </div>
     </nav>

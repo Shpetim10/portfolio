@@ -702,7 +702,7 @@ export default function LabPage() {
         </Replay>
       </SectionShell>
 
-      <Work projects={SPECIMEN_PROJECTS} index={15} />
+      <Work projects={SPECIMEN_PROJECTS} index={15} total={0} />
 
       <SectionShell id="outcomes" index={16} title="Outcomes" rev="REV.26" contentClassName="gap-y-6">
         <SpecimenHeading>Outcomes</SpecimenHeading>

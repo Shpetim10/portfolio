@@ -359,7 +359,13 @@
     gap: --spacing(4);
   }
 
-  .menu__resume {
+  .menu__pages {
+    display: flex;
+    flex-wrap: wrap;
+    gap: --spacing(6);
+  }
+
+  .menu__page {
     font-family: var(--font-mono);
     font-size: var(--text-label);
     line-height: var(--text-label--line-height);
@@ -479,6 +485,11 @@ html[data-menu="open"] {
 
   .section-indicator[data-shown] {
     opacity: 1;
+  }
+
+  /* The pinned work track carries its own readout (P/N · 01 / 05) in the same corner. */
+  :root:has(.work[data-pinned]) .section-indicator[data-shown] {
+    opacity: 0;
   }
 
   .section-indicator__number {

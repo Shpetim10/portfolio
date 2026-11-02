@@ -204,9 +204,14 @@
   --work-chrome: 22rem; /* stage height kept free of the cover: header, title block, title, assembly */
   --work-panel: min(56vw, calc((100svh - var(--work-chrome)) * var(--cover-ratio)));
   --work-gap: clamp(48px, 6vw, 128px); /* between panels on the track */
+  --work-title-live: clamp(1.75rem, 2.6vw, 3rem); /* panel title on the pinned track: one or two lines */
   --work-cover-scale: 1.08; /* covers settle from this scale to 1 as they enter */
   --layer-glyph: 28px; /* plate height in a card's inline layer strip */
   --layer-glyph-full: 40px; /* …and in the track's assembly diagram */
+
+  /* Work index (/work/) */
+  --index-sticky-top: calc(var(--header-height) + 32px); /* where the register holds beside the entries */
+  --index-entry-gap: clamp(96px, 10vw, 160px); /* between entries in the register */
 
   /* Case study (T07) */
   --chapter-sticky-top: calc(
