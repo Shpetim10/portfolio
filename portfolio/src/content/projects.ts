@@ -33,8 +33,9 @@ const authoringCover = image(
 );
 const worktrezzCover = image(
   "worktrezz",
-  "worknest-cover.png",
-  "WorkTrezz manager dashboard showing attendance, leave requests and announcements",
+  "worktrezz-cover.png",
+  "WorkTrezz manager dashboard on a laptop beside the employee app's clock-in screen on a phone",
+  [1672, 941],
 );
 const ritemaCover = image(
   "ritema",
@@ -225,11 +226,51 @@ export const projects: Project[] = [
     ],
     cover: worktrezzCover,
     gallery: gallery("worktrezz", worktrezzCover, [
-      ["worknest-1.png", "Manager web dashboard with attendance overview and pending leave requests"],
-      ["worknest-2.png", "Employee mobile app clock-in screen with location confirmation"],
-      ["worknest-3.png", "Real-time notification arriving in the web app after an employee clocks in"],
-      ["worknest-4.png", "Leave request review in the manager web app with approve and reject actions"],
-      ["worknest-5.png", "Announcements feed in the employee mobile app"],
+      [
+        "worktrezz-2.png",
+        "Attendance screen with today's present, absent, late, on-leave and warning counts, and each employee's site, check-in, check-out and hours worked",
+        [3024, 1718],
+      ],
+      [
+        "worktrezz-10.png",
+        "Attendance QR terminal for the Tirana HQ site, showing a live QR code that rotates every 60 seconds",
+        [3024, 1718],
+      ],
+      [
+        "worktrezz-3.png",
+        "Leave request list with each employee's site, department, leave type, dates and status, and approve or reject actions on pending requests",
+        [3024, 1718],
+      ],
+      [
+        "worktrezz-5.png",
+        "Monthly payroll table with each employee's type, payment method, base pay, overtime, bonuses, deductions and net pay",
+        [3024, 1718],
+      ],
+      [
+        "worktrezz-7.png",
+        "Assign Employees dialog moving employees from an available list into a supervisor's team",
+        [3024, 1718],
+      ],
+      [
+        "worktrezz-6.png",
+        "Announcements list with notices for specific people, a department or all employees, important ones flagged",
+        [3024, 1718],
+      ],
+      [
+        "worktrezz-mobile-1.png",
+        "Employee app home screen with today's attendance status, leave balance, latest payroll and announcements",
+        [740, 1600],
+      ],
+      [
+        "worktrezz-mobile-2.png",
+        "Employee app attendance screen after a successful check-in, with the Clock Out button, the site's QR and GPS requirements and today's records",
+        [740, 1600],
+      ],
+      [
+        "worktrezz-mobile-4.png",
+        "Employee app leave screen with vacation, sick and parental leave balances and the history of past requests",
+        [740, 1600],
+      ],
     ]),
     links: [
       { label: "API repository", href: "https://github.com/Shpetim10/WorkNest-Api" },
