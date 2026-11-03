@@ -4,6 +4,7 @@ import { LeaderLine, RegistrationMark, type Corner } from "@/components/ui/Annot
 import { Content } from "@/components/ui/Content";
 import { OpenProject } from "@/components/ui/OpenProject";
 import { ProjectCover } from "@/components/ui/ProjectCover";
+import { StackLabel } from "@/components/ui/StackLabel";
 import { Tag } from "@/components/ui/Tag";
 import type { Project } from "@/content";
 import { todo } from "@/content/todo";
@@ -29,7 +30,6 @@ import { IndexStage } from "./IndexStage";
  */
 
 const CORNERS: Corner[] = ["top-left", "top-right", "bottom-left", "bottom-right"];
-const STACK_SHOWN = 3;
 const pad = (n: number) => String(n).padStart(2, "0");
 
 type WorkIndexProps = { projects: Project[] };
@@ -133,7 +133,6 @@ function Entry({ project, position, total }: { project: Project; position: numbe
   const href = `/work/${project.slug}/`;
   const titleId = `index-${project.slug}`;
   const [outcome] = project.outcomes;
-  const stack = project.stack.slice(0, STACK_SHOWN).join(" · ");
   const cells: [term: string, value: string][] = [
     ["Role", project.role],
     ["Team", project.team ?? todo("Team")],
@@ -184,9 +183,7 @@ function Entry({ project, position, total }: { project: Project; position: numbe
           {/* Raised on hover / focus (fine pointers); always shown on touch. */}
           <div className="index-entry__notes" aria-hidden="true">
             <LeaderLine direction="up-right" className="index-entry__stack">
-              <span className="part-label">
-                <span className="part-label__number">Stack</span> — <Content value={stack || todo("Stack")} />
-              </span>
+              <StackLabel stack={project.stack} />
             </LeaderLine>
           </div>
         </div>

@@ -15,6 +15,7 @@
   .button,
   .tag,
   .part-label,
+  .stack-label,
   .dimension,
   .section-index,
   .counter__suffix,
@@ -35,6 +36,7 @@
 
   .tag,
   .part-label,
+  .stack-label,
   .dimension,
   .leader {
     font-size: var(--text-micro);
@@ -333,6 +335,39 @@
 
   .part-label__number {
     color: var(--color-dust);
+  }
+
+  /* Annotation · stack label ------------------------------------------ */
+  /*
+   * A project cover's "STACK — A · B · C" on one line. Each tag is its own box,
+   * and a tag that does not fit wraps onto a second line the height clips away,
+   * so the label drops whole tags instead of cutting one mid-word. Each box
+   * paints the carbon backing and reaches under the next one (negative end
+   * margin), so the backing ends exactly at the last tag shown.
+   */
+  .stack-label {
+    --stack-label-pad: calc(var(--spacing) * 2);
+    display: flex;
+    flex-wrap: wrap;
+    height: 1lh;
+    overflow: hidden;
+    padding-inline-end: var(--stack-label-pad);
+    color: var(--color-bone);
+  }
+
+  .stack-label__item {
+    padding-inline: 1ch var(--stack-label-pad);
+    margin-inline-end: calc(var(--stack-label-pad) * -1);
+    background-color: var(--color-carbon);
+    white-space: nowrap;
+  }
+
+  /* "Stack — first tag" never drops: on a screen too narrow for it, it shrinks and ends in an ellipsis. */
+  .stack-label__item:first-child {
+    min-width: 0;
+    padding-inline-start: var(--stack-label-pad);
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   /* Annotation · leader line ------------------------------------------ */

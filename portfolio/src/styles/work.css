@@ -151,7 +151,7 @@
     max-width: 88%;
   }
 
-  /* A real stack is long: the label stays on one line (the leader keeps its 45° geometry) and is cut at the panel edge. */
+  /* One line keeps the leader at 45°; the stack label drops whole tags to fit (primitives.css), and this clip is the backstop. */
   .work-panel__stack .leader__label {
     min-width: 0;
     overflow: hidden;

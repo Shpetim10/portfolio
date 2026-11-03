@@ -5,6 +5,7 @@ import { Content } from "@/components/ui/Content";
 import { OpenProject } from "@/components/ui/OpenProject";
 import { ProjectCover } from "@/components/ui/ProjectCover";
 import { SectionShell } from "@/components/ui/SectionShell";
+import { StackLabel } from "@/components/ui/StackLabel";
 import { Tag } from "@/components/ui/Tag";
 import { getFeaturedProjects, getProjects, type Project } from "@/content";
 import { todo } from "@/content/todo";
@@ -27,8 +28,6 @@ import { WorkStage } from "./WorkStage";
  * pointer only. Focusing a project scrolls the page to centre its panel, so
  * the keyboard never needs the horizontal track.
  */
-
-const STACK_SHOWN = 3;
 
 type WorkProps = {
   projects?: Project[];
@@ -87,7 +86,6 @@ function Panel({ project, idPrefix }: { project: Project; idPrefix: string }) {
   const href = `/work/${project.slug}/`;
   const titleId = `${idPrefix}-${project.slug}`;
   const [outcome] = project.outcomes;
-  const stack = project.stack.slice(0, STACK_SHOWN).join(" · ");
 
   return (
     <li className="work-panel" data-work="panel" data-layers={project.layers.join(" ")}>
@@ -106,9 +104,7 @@ function Panel({ project, idPrefix }: { project: Project; idPrefix: string }) {
           {/* Raised on hover / focus (fine pointers); always shown on touch. */}
           <div className="work-panel__notes" data-work="notes">
             <LeaderLine direction="up-right" className="work-panel__stack">
-              <span className="part-label">
-                <span className="part-label__number">Stack</span> — <Content value={stack || todo("Stack")} />
-              </span>
+              <StackLabel stack={project.stack} />
             </LeaderLine>
             <div className="work-panel__duration">
               <DimensionLine value={project.duration} />
