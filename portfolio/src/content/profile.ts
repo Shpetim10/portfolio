@@ -16,6 +16,7 @@ export const profile: Profile = {
     { label: "GitHub", href: "https://github.com/Shpetim10" },
   ],
   // The static PDF served from /public (the owner's real Europass CV); /resume displays it as written.
+  // Withheld for now: the file waits in assets-src/ (see src/content/resume.ts).
   resumeUrl: "/resume.pdf",
   portrait: {
     src: "/assets/shpetim-professional-profile.png",

@@ -41,13 +41,12 @@ test.describe("contact · homepage", () => {
     // No endpoint yet: the form can't post anywhere, and says why.
     await expect(submit(page)).toBeDisabled();
     await expect(section(page).getByText("TODO: Form endpoint")).toBeVisible();
-    await expect(section(page).getByText(/TODO: Resume PDF/)).toBeVisible();
   });
 });
 
 test.describe("contact · title block", () => {
   test("is the footer on every page: drawn by, project, rev, scale, sheet, local time", async ({ page }) => {
-    for (const route of ["/", "/resume/"]) {
+    for (const route of ["/", "/work/"]) {
       await page.goto(route);
       const block = page.getByRole("contentinfo");
       await expect(block).toHaveAccessibleName("Title block");

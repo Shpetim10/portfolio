@@ -7,7 +7,7 @@ import { expect, test } from "./fixtures";
 /*
  * BRAND-01 · Sh² logo system.
  *  - the brand files: size budget, no font dependency, the wordmark spelling;
- *  - the mark in place: favicon links, header, menu, footer title block, resume;
+ *  - the mark in place: favicon links, header, menu, footer title block;
  *  - the header's first-load draw, and its absence on repeat visits and under
  *    reduced motion (`firstVisit` is @playwright/test itself, so the preloader runs);
  *  - /lab/logo: every option at every size on both surfaces and in both tones,
@@ -64,13 +64,11 @@ test.describe("Sh² in place", () => {
     await expect(page.locator('#site-menu .home-mark svg.logo[data-logo="mark"]')).toBeVisible();
   });
 
-  test("footer title block and resume carry the mark", async ({ page }) => {
+  test("footer title block carries the mark", async ({ page }) => {
     await page.goto("/");
     await expect(page.locator('.title-block [data-field="drawn-by"] svg.logo[data-logo="mark"]')).toHaveCount(
       1,
     );
-    await page.goto("/resume/");
-    await expect(page.locator('.resume__bar svg.logo[data-logo="lockup"]')).toBeVisible();
   });
 
   test("the color tone lights the square in signal; mono takes the ink", async ({ page }) => {

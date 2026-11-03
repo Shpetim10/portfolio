@@ -11,6 +11,7 @@ import {
   type RefObject,
 } from "react";
 import { Link } from "@/components/ui/Link";
+import { RESUME_PUBLIC } from "@/content/resume";
 import type { Layer } from "@/content/types";
 import { gsap, useGSAP } from "@/motion/gsap";
 import { useReducedMotion } from "@/motion/hooks/useReducedMotion";
@@ -266,9 +267,11 @@ export function Menu({ open, onClose, returnFocus, mark, status }: MenuProps) {
               <Link href="/work/" onClick={() => close("navigate")} className="menu__page">
                 All work
               </Link>
-              <Link href="/resume/" onClick={() => close("navigate")} className="menu__page">
-                Résumé
-              </Link>
+              {RESUME_PUBLIC && (
+                <Link href="/resume/" onClick={() => close("navigate")} className="menu__page">
+                  Résumé
+                </Link>
+              )}
             </span>
             {status}
           </div>

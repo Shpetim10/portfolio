@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "./fixtures";
 
-const ROUTES = ["/", "/work/example-project-01/", "/resume/"];
+const ROUTES = ["/", "/work/example-project-01/"];
 
 test.describe("static routes", () => {
   for (const route of ROUTES) {

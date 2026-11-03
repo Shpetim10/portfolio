@@ -5,6 +5,7 @@ import { Link } from "@/components/ui/Link";
 import { SectionShell } from "@/components/ui/SectionShell";
 import { getProfile, isTodo, type Profile } from "@/content";
 import { isPublished } from "@/content/files";
+import { RESUME_PUBLIC } from "@/content/resume";
 import { todo } from "@/content/todo";
 import { Reveal } from "@/motion/signatures/reveal";
 import { ContactForm } from "./ContactForm";
@@ -122,30 +123,32 @@ export function Contact({
           )}
         </section>
 
-        <section className="contact__group" aria-labelledby={`${id}-resume`}>
-          <h3 id={`${id}-resume`} className="contact__label">
-            Resume
-          </h3>
-          <ul className="contact__links">
-            <li>
-              {resume ? (
-                <Link href={profile.resumeUrl} download className="contact__link" data-contact="resume">
-                  Download PDF
-                  <span className="contact__link-glyph" aria-hidden="true">
-                    ↓
-                  </span>
+        {RESUME_PUBLIC && (
+          <section className="contact__group" aria-labelledby={`${id}-resume`}>
+            <h3 id={`${id}-resume`} className="contact__label">
+              Resume
+            </h3>
+            <ul className="contact__links">
+              <li>
+                {resume ? (
+                  <Link href={profile.resumeUrl} download className="contact__link" data-contact="resume">
+                    Download PDF
+                    <span className="contact__link-glyph" aria-hidden="true">
+                      ↓
+                    </span>
+                  </Link>
+                ) : (
+                  <Content value={todo(`Resume PDF at public${profile.resumeUrl}`)} />
+                )}
+              </li>
+              <li>
+                <Link href="/resume/" className="contact__link">
+                  Read it here
                 </Link>
-              ) : (
-                <Content value={todo(`Resume PDF at public${profile.resumeUrl}`)} />
-              )}
-            </li>
-            <li>
-              <Link href="/resume/" className="contact__link">
-                Read it here
-              </Link>
-            </li>
-          </ul>
-        </section>
+              </li>
+            </ul>
+          </section>
+        )}
       </div>
 
       <ContactForm endpoint={endpoint} email={email} formId={`${id}-form`} />

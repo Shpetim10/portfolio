@@ -2,6 +2,7 @@ import NextLink from "next/link";
 import { LAYER_NAMES, LAYERS } from "@/components/chrome/nav";
 import { InstrumentDrawing } from "@/components/three/InstrumentDrawing";
 import { SectionIndex } from "@/components/ui/Annotation";
+import { RESUME_PUBLIC } from "@/content/resume";
 import { NotFoundStage } from "./NotFoundStage";
 import { RequestedPath } from "./RequestedPath";
 import { SlotAnnotation } from "./SlotAnnotation";
@@ -62,9 +63,11 @@ export function PartNotFound() {
               →
             </span>
           </NextLink>
-          <NextLink className="link" href="/resume/" prefetch={false}>
-            Read the resume
-          </NextLink>
+          {RESUME_PUBLIC && (
+            <NextLink className="link" href="/resume/" prefetch={false}>
+              Read the resume
+            </NextLink>
+          )}
         </nav>
 
         <dl className="title-block__grid pnf__block">

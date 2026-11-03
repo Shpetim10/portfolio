@@ -420,7 +420,7 @@ export default function LabPage() {
         <div className="col-span-full grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <RowLabel>Content extremes</RowLabel>
           <Specimen label="As link · internal">
-            <Button href="/resume/">Resume</Button>
+            <Button href="/work/">All work</Button>
           </Specimen>
           <Specimen label="Long label · wraps, keeps 48px minimum">
             <Button variant="secondary" href="#annotation">

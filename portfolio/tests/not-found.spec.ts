@@ -56,7 +56,8 @@ test.describe("404 · content", () => {
 
     const home = page.getByRole("link", { name: "Return to assembly" });
     await expect(home).toHaveAttribute("href", "/");
-    await expect(page.getByRole("link", { name: "Read the resume" })).toHaveAttribute("href", "/resume/");
+    // The resume is withheld for now (src/content/resume.ts): no way to it from here.
+    await expect(page.getByRole("link", { name: "Read the resume" })).toHaveCount(0);
   });
 
   test("no site layout: no header, preloader, cursor or smooth scroll", async ({ page }) => {
