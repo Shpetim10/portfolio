@@ -57,8 +57,8 @@ const pyramidosCover = image(
 const libraryCover = image(
   "library-management-system",
   "library-management-system-cover.png",
-  "Dim, sepia-toned library corridor lined with old leather-bound books",
-  [1672, 941],
+  "Eternal Library marketplace on a laptop, with book categories and book cards, in front of dim library shelves",
+  [1920, 1080],
 );
 
 // Featured projects: 3–5 (the build fails otherwise).
