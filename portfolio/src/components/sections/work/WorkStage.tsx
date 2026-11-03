@@ -3,6 +3,7 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { gsap, ScrollTrigger, useGSAP } from "@/motion/gsap";
 import { useReducedMotion } from "@/motion/hooks/useReducedMotion";
+import { LIVE_MODE_SCRIPT, markReady } from "@/motion/liveMode";
 import { useLenis } from "@/motion/MotionProvider";
 import { motionTokens } from "@/motion/tokens";
 
@@ -43,9 +44,6 @@ const MIN_PANEL = 0.32;
 const FIT_PASSES = 8;
 const COMPACT = "(width < 64rem)";
 
-/** Runs before first paint: full motion gets the live layout at once, so nothing shifts on hydration. */
-const MODE_SCRIPT = `try{if(!matchMedia("(prefers-reduced-motion: reduce)").matches)document.currentScript.parentElement.dataset.mode="live"}catch(e){}`;
-
 type WorkProbe = {
   read?: () => { active: number; progress: number; travel: number };
 };
@@ -70,6 +68,7 @@ export function WorkStage({ children }: { children: ReactNode }) {
     () => {
       const root = ref.current;
       if (!root) return;
+      markReady(root);
       const { duration } = motionTokens();
       const panels = [...root.querySelectorAll<HTMLElement>('[data-work="panel"]')];
       const media = panels.map((panel) => panel.querySelector<HTMLElement>('[data-cover="media"]')!);
@@ -245,7 +244,7 @@ export function WorkStage({ children }: { children: ReactNode }) {
       <script
         type={typeof window === "undefined" ? "text/javascript" : "text/plain"}
         suppressHydrationWarning
-        dangerouslySetInnerHTML={{ __html: MODE_SCRIPT }}
+        dangerouslySetInnerHTML={{ __html: LIVE_MODE_SCRIPT }}
       />
       {children}
     </div>

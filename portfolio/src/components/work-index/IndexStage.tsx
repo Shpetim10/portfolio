@@ -4,6 +4,7 @@ import { useRef, type ReactNode } from "react";
 import { createDecoder } from "@/motion/decode";
 import { gsap, ScrollTrigger, SplitText, useGSAP } from "@/motion/gsap";
 import { useReducedMotion } from "@/motion/hooks/useReducedMotion";
+import { LIVE_MODE_SCRIPT, markReady } from "@/motion/liveMode";
 import { EASE, motionTokens } from "@/motion/tokens";
 
 /*
@@ -28,12 +29,11 @@ import { EASE, motionTokens } from "@/motion/tokens";
  * Initial states: a pre-paint script marks the page live (full motion only),
  * and src/styles/work-index.css hides what the timelines bring in, so nothing
  * flashes before hydration. No JS / reduced motion: everything is in place.
+ * If the script runs but the app's JS doesn't (a failed chunk, a refused dev
+ * origin on a phone), its failsafe restores the static page (src/motion/liveMode.ts).
  * An entry's timeline is built when it enters (contextSafe), so its title is
  * split with the final font, and reverted with everything else on unmount.
  */
-
-/** Runs before first paint: full motion gets the live initial states at once, so nothing flashes on hydration. */
-const MODE_SCRIPT = `try{if(!matchMedia("(prefers-reduced-motion: reduce)").matches)document.currentScript.parentElement.dataset.mode="live"}catch(e){}`;
 
 // Start offset of each title line: 100% of its height + the mask overhang (see reveal.tsx).
 const LINE_START = 120;
@@ -59,6 +59,7 @@ export function IndexStage({ children }: { children: ReactNode }) {
     (_, contextSafe) => {
       const root = ref.current;
       if (!root) return;
+      markReady(root);
       const tokens = motionTokens();
       const { duration, stagger } = tokens;
       const q = <T extends HTMLElement = HTMLElement>(name: string, scope: ParentNode = root) => [
@@ -273,7 +274,7 @@ export function IndexStage({ children }: { children: ReactNode }) {
       <script
         type={typeof window === "undefined" ? "text/javascript" : "text/plain"}
         suppressHydrationWarning
-        dangerouslySetInnerHTML={{ __html: MODE_SCRIPT }}
+        dangerouslySetInnerHTML={{ __html: LIVE_MODE_SCRIPT }}
       />
       {children}
     </div>

@@ -184,3 +184,29 @@ test.describe("home work track · fit and the way to all work", () => {
     await expect(page.locator(".section-indicator")).toHaveCSS("opacity", "0");
   });
 });
+
+test.describe("pre-paint failsafe · the app's JavaScript never runs", () => {
+  test("the work index falls back to the complete static page", async ({ page }) => {
+    await page.route(/\/_next\/static\/chunks\/.*\.js/, (route) => route.abort());
+    await page.goto("/work/");
+    // The inline script still ran: live, entries hidden for their entrance.
+    await expect(page.locator(".work-index")).toHaveAttribute("data-mode", "live");
+    // …until the failsafe gives up on the motion code.
+    await expect(page.locator(".work-index")).not.toHaveAttribute("data-mode", "live", { timeout: 5000 });
+    const entries = page.locator(".index-entry");
+    for (let i = 0; i < (await entries.count()); i++) {
+      await expect(entries.nth(i).locator(".index-entry__title-text")).toHaveCSS("opacity", "1");
+      await expect(entries.nth(i).locator(".index-entry__shutter")).toHaveCSS(
+        "transform",
+        /matrix\(1, 0, 0, 0,/,
+      );
+    }
+  });
+
+  test("the homepage track falls back to the stacked cards", async ({ page }) => {
+    await page.route(/\/_next\/static\/chunks\/.*\.js/, (route) => route.abort());
+    await page.goto("/");
+    await expect(page.locator("#work .work")).not.toHaveAttribute("data-mode", "live", { timeout: 5000 });
+    await expect(page.locator("#work .work-panel__link").last()).toBeVisible();
+  });
+});
