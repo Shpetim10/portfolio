@@ -558,6 +558,11 @@
     gap: --spacing(12) var(--grid-gutter);
   }
 
+  /* Phone screens sit side by side, never full width: a full-width portrait shot runs taller than the view. */
+  .gallery:has(> [data-orientation="tall"]) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .shot__frame,
   .spread__frame {
     position: relative;
@@ -668,8 +673,16 @@
       grid-column: 1 / -1;
     }
 
-    /* Four shots sit as a 2 x 2 grid; the lead shot only spans when the rest pair up. */
-    .gallery:has(> :nth-child(4):last-child) > :first-child {
+    /* An even run of shots sits in pairs; the lead shot only spans when the rest pair up. */
+    .gallery:has(> :nth-child(even):last-child) > :first-child {
+      grid-column: auto;
+    }
+
+    .gallery:has(> [data-orientation="tall"]) {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .gallery:has(> [data-orientation="tall"]) > :first-child {
       grid-column: auto;
     }
 

@@ -12,7 +12,8 @@ import { Invert } from "@/motion/signatures/invert";
  * gallery (content/projects.ts), where the alt text lives.
  *
  *   <Gallery>  a run of <Shot>s: the first full width, the rest in pairs (desktop);
- *              one column on mobile.
+ *              one column on mobile. Phone screens (taller than wide) go in a
+ *              <Gallery> of their own: three to a row (desktop), two on mobile.
  *   <Shot>     one screenshot + up to 3 notes, each pinned at (x, y), 0–1 of the image.
  *   <Spread>   the strongest visual, edge to edge on a paper section that
  *              INVERTs in. Exactly one per story.
@@ -165,10 +166,12 @@ export type FigureProps = { media: number; caption: string; notes?: Note[] };
 
 export function Shot({ gallery, media, caption, notes = [] }: FigureProps & { gallery: Media[] }) {
   checkNotes(notes);
+  const picked = pickMedia(gallery, media);
+  const tall = picked && picked.height > picked.width;
   return (
-    <figure className="shot case-figure">
+    <figure className="shot case-figure" data-orientation={tall ? "tall" : undefined}>
       <div className="shot__frame">
-        <Plate media={pickMedia(gallery, media)} />
+        <Plate media={picked} />
         <Marks notes={notes} />
       </div>
       <Caption caption={caption} notes={notes} />
