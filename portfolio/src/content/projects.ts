@@ -51,7 +51,8 @@ const garbageCover = image(
 const pyramidosCover = image(
   "pyramidos",
   "pyramidos-cover.png",
-  "PyramidOs planning screen next to a 3D mockup of the Pyramid venue",
+  "Pyramid OS Create Event screen on a laptop, asking what you want to host, in front of the Pyramid of Tirana",
+  [1672, 941],
 );
 const libraryCover = image(
   "library-management-system",
@@ -343,7 +344,7 @@ export const projects: Project[] = [
     summary:
       "A digital event-planning system built in 48 hours at the Junction Hackathon. It replaces scattered emails, calls and spreadsheets with one flow for requests, venue matching, proposals, equipment booking and task coordination. Top 3 in the Pyramid Backstage challenge and progressed to the final.",
     layers: ["interface", "api", "services", "data", "infrastructure"],
-    stack: ["Next.js", "Node.js", "AI", "3D venue mockup"],
+    stack: ["LLM parsing", "Next.js", "Node.js", "AI room recommendations", "3D venue mockup"],
     outcomes: [
       { value: "48h", label: "From idea to working demo" },
       { value: "Top 3", label: "Pyramid Backstage challenge" },
@@ -351,11 +352,41 @@ export const projects: Project[] = [
     ],
     cover: pyramidosCover,
     gallery: gallery("pyramidos", pyramidosCover, [
-      ["pyramidos-1.png", "Event request form and venue matching results"],
-      ["pyramidos-2.png", "Equipment booking calendar with a scheduling conflict flagged"],
-      ["pyramidos-3.png", "3D mockup of the Pyramid venue used for planning"],
-      ["pyramidos-4.png", "Proposal for an organizer with the matched venue, equipment and price"],
-      ["pyramidos-5.png", "Task board coordinating venue staff and suppliers for an event"],
+      [
+        "pyramidos-0.png",
+        "Pyramid OS public site with an interactive 3D model of the Pyramid of Tirana and a prompt to enter it",
+        [3024, 1728],
+      ],
+      [
+        "pyramidos-8.png",
+        "Explore Pyramid: an orbitable 3D model of the Pyramid and its surroundings with floor controls, a list of spaces, and the Mane Foundation room selected, showing its capacity, facilities and what it hosts",
+        [2000, 1136],
+      ],
+      [
+        "pyramidos-2.png",
+        "Pyramid AI analyzing an event request: parsing it, extracting requirements, sizing spaces, checking venue availability and building plan options",
+        [1655, 950],
+      ],
+      [
+        "pyramidos-3.png",
+        "Two plans for a 60-guest workshop: Value in the Blue Room from €1,632 and Premium in the Orange Room from €2,076, each with its rooms and reasons",
+        [1657, 949],
+      ],
+      [
+        "pyramidos-4.png",
+        "Admin Event Requests screen with the request list and a workshop's schedule, configuration, estimated total and approve or reject actions",
+        [1655, 950],
+      ],
+      [
+        "pyramidos-5.png",
+        "Manager pipeline at the Understand step: event summary, the organizer's request and an Event DNA radar scoring eight operational dimensions",
+        [3024, 1738],
+      ],
+      [
+        "pyramidos-6.png",
+        "Inventory overview with overall health, total, reserved and available assets, and the health of each equipment category",
+        [1658, 949],
+      ],
     ]),
     links: [{ label: "Demo video", href: "https://youtu.be/705brgOoMLU" }],
     featured: true,
