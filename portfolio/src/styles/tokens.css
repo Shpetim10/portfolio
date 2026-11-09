@@ -219,6 +219,11 @@
   ); /* where a chapter heading holds while its story scrolls */
   --chapter-title-fit: 14cqi; /* caps display-m so ARCHITECTURE (12 condensed caps) fits its 4-column rail */
   --figure-marker: 24px; /* numbered note marker on a phone-width screenshot */
+  --reader-height: min(72svh, 46rem); /* the window a full-page screenshot scrolls in, inline */
+  --reader-rail: 5rem; /* the minimap rail beside it */
+  --reader-min: 40rem; /* narrowest a full page is drawn inline: phones pan sideways rather than shrink it to nothing */
+  --reader-min-full: 72rem; /* the same, full screen: wide enough to read */
+  --reader-max-full: 96rem; /* and the widest it is drawn there */
 
   /* Stack (T08) */
   --stack-figure: 18rem; /* width of the sticky Instrument drawing beside the bill of materials */

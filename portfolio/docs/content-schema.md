@@ -124,6 +124,11 @@ One MDX file per project at `/src/content/work/<slug>.mdx`, rendered at `/work/<
 - figures index the project's `gallery` (alt text lives there, not in MDX):
   `<Gallery>` + `<Shot media={1} caption="…" notes={[{ x: 0.3, y: 0.4, label: "…" }]} />`
   — up to 3 notes per figure, `x` / `y` 0–1 of the image; keep labels short (one line).
+- a full-page screenshot (many screens tall) is a `<Scroll>`, not a `<Shot>`: it renders as a scrolling
+  reader with a minimap, jump chips and a full-screen mode:
+  `<Scroll media={2} label="Retrieval console" caption="…" stops={[{ at: 0, label: "Query" }, { at: 0.5, label: "Results" }]} />`
+  — `label` names the page in the reader's title bar; `stops` (up to 6, in order) are jump points,
+  `at` 0 (top) to 1 (bottom). Prefer WebP for these (the PNG of a long page runs to megabytes).
 - exactly one `<Spread media={0} caption="…" />`: the strongest visual, full-bleed on paper.
 - unwritten prose: `<Todo what="…" />` renders a marked placeholder.
 

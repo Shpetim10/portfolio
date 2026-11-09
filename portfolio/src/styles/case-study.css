@@ -728,6 +728,343 @@
     }
   }
 
+  /* Page reader (Scroll) ----------------------------------------------- */
+  /* A full-page screenshot in a window of its own: title bar with a progress meter, the page
+   * scrolling beneath, a minimap rail beside it (from 48rem) and jump chips below. */
+  .reader {
+    position: relative;
+    display: grid;
+    /* A screenshot wider than the screen pans inside its window; it never widens the page. */
+    grid-template-columns: minmax(0, 1fr);
+    border: var(--line) solid var(--color-hairline);
+    background-color: var(--color-graphite);
+  }
+
+  .reader__bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: --spacing(4);
+    min-height: calc(--spacing(11) + var(--line));
+    padding-left: --spacing(4);
+    border-bottom: var(--line) solid var(--color-hairline);
+  }
+
+  .reader__title,
+  .reader__readout,
+  .reader__action,
+  .reader__stop,
+  .reader__hint,
+  .reader__keys {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    line-height: var(--text-micro--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  .reader__title {
+    flex: 1;
+    min-width: 0;
+    padding-block: --spacing(2);
+    color: var(--color-bone);
+    overflow-wrap: anywhere;
+  }
+
+  .reader__kind {
+    display: none;
+    color: var(--color-dust);
+  }
+
+  .reader__readout {
+    display: none;
+    color: var(--color-dust);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .reader__action {
+    align-self: stretch;
+    display: inline-flex;
+    align-items: center;
+    gap: --spacing(2);
+    min-width: 44px;
+    padding-inline: --spacing(4);
+    border: 0;
+    border-left: var(--line) solid var(--color-hairline);
+    background: transparent;
+    color: var(--color-bone);
+    cursor: pointer;
+    transition: background-color var(--duration-micro) var(--ease-snap);
+  }
+
+  .reader__action:hover {
+    background-color: var(--color-gunmetal);
+  }
+
+  /* How far in: a signal hairline along the foot of the bar. */
+  .reader__meter {
+    position: absolute;
+    inset: auto 0 calc(var(--line) * -1) 0;
+    height: var(--line);
+    background-color: var(--color-signal);
+    transform: scaleX(0);
+    transform-origin: left;
+    pointer-events: none;
+  }
+
+  .reader__body {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    min-height: 0;
+  }
+
+  .reader__scroller {
+    min-width: 0;
+    min-height: 0;
+    max-height: var(--reader-height);
+    overflow: auto;
+    background-color: var(--color-carbon);
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-dust) transparent;
+  }
+
+  .reader__page {
+    display: block;
+    width: 100%;
+    min-width: var(--reader-min);
+    height: auto;
+    user-select: none;
+  }
+
+  /* The minimap: the whole page as a thumbnail, the window marked on it. */
+  .reader__rail {
+    display: none;
+    overflow: hidden;
+    padding: --spacing(2);
+    border-left: var(--line) solid var(--color-hairline);
+    background-color: var(--color-graphite);
+    cursor: ns-resize;
+    touch-action: none;
+  }
+
+  .reader__map {
+    position: relative;
+    width: 100%;
+    aspect-ratio: var(--page-ratio);
+    max-height: 100%;
+  }
+
+  .reader__map img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  .reader__thumb {
+    position: absolute;
+    inset: 0 0 auto 0;
+    min-height: --spacing(2);
+    border: var(--line) solid var(--color-signal);
+    background-color: color-mix(in srgb, var(--color-signal) 12%, transparent);
+    pointer-events: none;
+    will-change: transform;
+  }
+
+  .reader__tick {
+    position: absolute;
+    left: 0;
+    width: --spacing(2);
+    height: var(--line);
+    background-color: var(--color-dust);
+    pointer-events: none;
+  }
+
+  .reader__tick[data-active] {
+    background-color: var(--color-signal);
+  }
+
+  /* Tells a first-time reader that this window scrolls; gone with the first move. */
+  .reader__hint {
+    position: absolute;
+    bottom: --spacing(4);
+    left: 50%;
+    translate: -50% 0;
+    padding: --spacing(1.5) --spacing(3);
+    border: var(--line) solid var(--color-hairline);
+    background-color: var(--color-carbon);
+    color: var(--color-bone);
+    white-space: nowrap;
+    pointer-events: none;
+    transition: opacity var(--duration-small) var(--ease-settle);
+  }
+
+  .reader__hint-wide {
+    display: none;
+  }
+
+  .reader[data-scrolled] .reader__hint {
+    opacity: 0;
+  }
+
+  /* A page that fits its window has nothing to track. */
+  .reader[data-static] :is(.reader__hint, .reader__readout, .reader__meter, .reader__rail) {
+    display: none;
+  }
+
+  /* Jump chips: one press goes there; the one for where you are is marked. */
+  .reader__stops {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    overflow-x: auto;
+    border-top: var(--line) solid var(--color-hairline);
+    list-style: none;
+  }
+
+  .reader__stops > li {
+    flex: none;
+  }
+
+  .reader__stop {
+    display: flex;
+    align-items: center;
+    gap: --spacing(2);
+    min-height: --spacing(11);
+    padding-inline: --spacing(4);
+    border: 0;
+    border-right: var(--line) solid var(--color-hairline);
+    background: transparent;
+    color: var(--color-dust);
+    cursor: pointer;
+    box-shadow: inset 0 calc(var(--line) * -1) 0 var(--color-transparent);
+    transition:
+      color var(--duration-micro) var(--ease-snap),
+      background-color var(--duration-micro) var(--ease-snap),
+      box-shadow var(--duration-micro) var(--ease-snap);
+  }
+
+  .reader__stop:hover {
+    background-color: var(--color-gunmetal);
+    color: var(--color-bone);
+  }
+
+  .reader__stop[aria-current="true"] {
+    color: var(--color-bone);
+    box-shadow: inset 0 calc(var(--line) * -1) 0 var(--color-signal);
+  }
+
+  .reader__stop-number {
+    color: var(--color-dust);
+  }
+
+  .reader__keys {
+    display: none;
+    padding: --spacing(2) --spacing(4);
+    border-top: var(--line) solid var(--color-hairline);
+    color: var(--color-dust);
+  }
+
+  /* Full screen: a modal, always carbon, the reader filling it. */
+  .reader-dialog {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background-color: var(--color-carbon);
+    color: var(--color-bone);
+    overscroll-behavior: contain;
+    transition: opacity var(--duration-small) var(--ease-settle);
+  }
+
+  .reader-dialog[open] {
+    display: block;
+    padding: var(--grid-margin);
+  }
+
+  @starting-style {
+    .reader-dialog[open] {
+      opacity: 0;
+    }
+  }
+
+  .reader-dialog::backdrop {
+    background-color: var(--color-carbon);
+  }
+
+  .reader[data-mode="full"] {
+    height: 100%;
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+  }
+
+  .reader[data-mode="full"] .reader__scroller {
+    max-height: none;
+  }
+
+  .reader[data-mode="full"] .reader__page {
+    width: min(100%, var(--reader-max-full));
+    min-width: var(--reader-min-full);
+    margin-inline: auto;
+  }
+
+  .reader[data-mode="full"] .reader__rail {
+    max-width: calc(var(--reader-rail) * 1.2);
+  }
+
+  @media (width >= 48rem) {
+    .reader__body {
+      grid-template-columns: minmax(0, 1fr) var(--reader-rail);
+    }
+
+    .reader__rail {
+      display: block;
+    }
+
+    .reader__stops {
+      flex-wrap: wrap;
+      overflow: visible;
+    }
+
+    .reader__kind {
+      display: inline;
+    }
+
+    .reader__readout {
+      display: inline;
+    }
+
+    .reader__hint-wide {
+      display: inline;
+    }
+
+    .reader__hint-narrow {
+      display: none;
+    }
+  }
+
+  /* A keyboard hint only where there is a keyboard. */
+  @media (pointer: fine) {
+    .reader[data-mode="full"] .reader__keys {
+      display: block;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reader__hint,
+    .reader-dialog {
+      transition-duration: var(--duration-reduced);
+    }
+  }
+
   /* Next project ------------------------------------------------------- */
   .next-project {
     border-top: var(--line) solid var(--color-hairline);

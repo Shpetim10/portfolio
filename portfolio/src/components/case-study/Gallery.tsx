@@ -15,6 +15,8 @@ import { Invert } from "@/motion/signatures/invert";
  *              one column on mobile. Phone screens (taller than wide) go in a
  *              <Gallery> of their own: three to a row (desktop), two on mobile.
  *   <Shot>     one screenshot + up to 3 notes, each pinned at (x, y), 0–1 of the image.
+ *   <Scroll>   a full-page screenshot too long for a figure: a scrolling reader with a
+ *              minimap and jump points, plus a full-screen mode (see Scroll.tsx).
  *   <Spread>   the strongest visual, edge to edge on a paper section that
  *              INVERTs in. Exactly one per story.
  *
@@ -139,7 +141,7 @@ function Marks({ notes }: { notes: Note[] }) {
   );
 }
 
-function Caption({ caption, notes }: { caption: string; notes: Note[] }) {
+export function Caption({ caption, notes }: { caption: string; notes: Note[] }) {
   return (
     <figcaption className="case-figure__caption">
       <span className="case-figure__number" aria-hidden="true" />
