@@ -12,53 +12,91 @@ Every lesson must stay traceable to historical evidence. Machine-generated draft
 
 <Chapter id="architecture">
 
-A Python and FastAPI pipeline indexes historical sources as vector embeddings in PostgreSQL with pgvector. For each episode it retrieves relevant passages, reranks them with Voyage, and passes the strongest evidence to an LLM through the OpenAI SDK to draft narratives, questions and explanations, each with evidence references attached. Editors work through the Episode Studio, a FastAPI, Jinja2 and HTMX web app, and in Directus. A publication compiler then turns approved episodes into immutable, schema-validated content for the CDN.
+The foundation is a source-to-facts pipeline, written in Python and FastAPI. It takes each historical source, splits it into chunks that stay tied to their source, and indexes them as vector embeddings in PostgreSQL with pgvector. For a topic it retrieves chunks with dense and lexical search, reranks them with Voyage, and checks that the evidence clears a threshold before anything is extracted. An LLM, called through the OpenAI SDK, then extracts structured facts from the strongest chunks, each citing the section and pages it came from. People review those facts in the Episode Studio, a FastAPI, Jinja2 and HTMX web app, and the passages, exercises and translations are drafted from the approved ones, each carrying the grounding facts behind it. Editors refine the bilingual episode in Directus and approve it there, and publishing records the exact revision that goes out as immutable, schema-validated content for the CDN.
 
 <SystemDiagram
   nodes={[
-    { id: "sources", label: "Sources in pgvector", part: "N01", col: 0, row: 1 },
+    { id: "ingest", label: "Chunk, index", part: "N01", col: 0, row: 1 },
     { id: "retrieve", label: "Retrieve and rerank", part: "N02", col: 1, row: 1 },
-    { id: "draft", label: "LLM draft", part: "N03", col: 2, row: 1 },
-    { id: "studio", label: "Episode Studio", part: "N04", col: 3, row: 0 },
-    { id: "directus", label: "Directus", part: "N05", col: 3, row: 2 },
-    { id: "compiler", label: "Publication compiler", part: "N06", col: 4, row: 1 },
+    { id: "extract", label: "Fact extraction", part: "N03", col: 2, row: 1 },
+    { id: "review", label: "Fact review", part: "N04", col: 3, row: 0 },
+    { id: "draft", label: "Draft to publish", part: "N05", col: 4, row: 1 },
   ]}
   links={[
-    { from: "sources", to: "retrieve" },
-    { from: "retrieve", to: "draft", label: "evidence" },
-    { from: "draft", to: "studio" },
-    { from: "draft", to: "directus" },
-    { from: "studio", to: "compiler" },
-    { from: "directus", to: "compiler" },
+    { from: "ingest", to: "retrieve" },
+    { from: "retrieve", to: "extract" },
+    { from: "extract", to: "review", label: "facts" },
+    { from: "review", to: "draft", label: "approved" },
   ]}
-  caption="Sources indexed in pgvector, retrieved and reranked, drafted by an LLM with evidence attached, reviewed by humans in the Episode Studio and Directus, then compiled into immutable episodes for the app."
+  caption="The source-to-facts pipeline on the lower lane, human review on the upper: sources are chunked and indexed, retrieved and reranked, and an LLM extracts cited facts. People review them, then drafts and translations follow from the approved facts, and the episode is approved in Directus and published."
 />
 
 </Chapter>
 
 <Chapter id="decisions">
 
-Retrieve before generating. Instead of trusting unrestricted model output, the model drafts only from retrieved, reranked source passages, which sharply reduces invented facts.
+Do the reading in a pipeline, and start every episode from facts. The source-to-facts pipeline turns long historical sources into something an editor can work with straight away: structured facts, each saying who did what to whom and when, tagged with a reliability tier, citing the section and pages it came from, and held in English and Albanian from the start. Editors begin with a cited, bilingual list of claims instead of a blank page, which makes an episode both faster to build and better grounded.
 
-Evidence travels with the content. Every draft carries references to its source passages, so reviewers check claims against the evidence instead of researching from scratch.
+Retrieve before generating. The model never writes from memory. The Retrieval console shows what it would be working from: the chunks found, how each one scored, whether the evidence clears a threshold, and what the extraction will cost. Nothing runs until that cost is confirmed.
 
-Humans approve, compilers publish. Nothing goes live without review, and the compiler produces immutable, revision-pinned content validated against shared JSON Schema contracts, so the app never sees unreviewed or mutable text.
+<Scroll
+  media={2}
+  label="Retrieval console"
+  stops={[
+    { at: 0, label: "Query and abstention check" },
+    { at: 0.06, label: "Ranked chunks" },
+    { at: 0.975, label: "Cost gate" },
+  ]}
+  caption="The Retrieval console from top to bottom: the topic, the abstention check, every retrieved chunk with its dense, lexical, fused and rerank scores, and the cost to confirm before extraction."
+/>
 
-<Spread media={0} caption="The Episode Studio: from historical source to reviewed, publish-ready lesson." />
+Review facts, not only finished text. A reviewer reads each extracted claim in English and Albanian beside the highlighted passage it came from, and approves, rejects, edits or skips it from the keyboard, one at a time or all at once. Checking a claim against its cited source is quicker than researching it from scratch. An automated evidence check, JEV, scores how well a passage supports a claim, but it never approves anything on its own. Exercises then list the grounding facts behind them, so evidence travels with the content.
+
+<Scroll
+  media={3}
+  label="Fact review"
+  caption="Fact review, one claim at a time: the claim in both languages, its structure, its source and the highlighted passage, with shortcuts to approve, reject, edit, skip or undo."
+/>
+
+<Scroll
+  media={4}
+  label="Fact review, all at once"
+  stops={[
+    { at: 0, label: "Claims to review" },
+    { at: 0.978, label: "Approve all" },
+  ]}
+  caption="The same claims as one list, each with its own Reject button and a single Approve all at the end."
+/>
+
+Humans approve, the pipeline publishes. Episodes are edited in Directus with English and Albanian side by side, approved there, and only then published. Each publish records its run, the revision and a content hash, so the app only ever receives a pinned, validated revision.
+
+<Scroll
+  media={5}
+  label="Episode in Directus"
+  stops={[
+    { at: 0, label: "English and Albanian" },
+    { at: 0.59, label: "Status and revision" },
+    { at: 0.9, label: "Timestamps" },
+  ]}
+  caption="An episode record in Directus: English and Albanian fields side by side, then its status and published revision further down."
+/>
 
 </Chapter>
 
 <Chapter id="results">
 
-The retrieval, drafting, review and publication workflow is implemented and feeding content into the HERISAGA app as the product moves toward launch.
+The retrieval, extraction, review and publication workflow is implemented and feeding content into the HERISAGA app as the product moves toward launch. A real episode, "Rome Won. Or Did It?", has run through all eleven steps, from topic and retrieval to a recorded publish.
 
-<Gallery>
-  <Shot media={1} caption="Every episode starts from retrieved, reranked source passages." />
-  <Shot media={2} caption="Each drafted claim links to the passage behind it." />
-  <Shot media={3} caption="No draft moves on without a reviewer's approval." />
-  <Shot media={4} caption="English and Albanian are edited side by side in Directus." />
-  <Shot media={5} caption="The compiler validates and pins each published revision." />
-</Gallery>
+<Scroll
+  media={6}
+  label="Publish"
+  caption="The last step: all eleven steps checked off, and the publish recorded with its run, pinned revision, content hash and author."
+/>
+
+<Spread
+  media={1}
+  caption="What a reviewer sees for each generated exercise: the passage, the question and the grounding facts behind it, in English and Albanian."
+/>
 
 </Chapter>
 

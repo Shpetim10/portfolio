@@ -29,7 +29,8 @@ const herisagaCover = image(
 const authoringCover = image(
   "herisaga-authoring",
   "herisaga-authoring-cover.png",
-  "Episode Studio showing a lesson draft beside its source evidence and review status",
+  "Episode Studio on a laptop, reviewing a drafted passage and multiple-choice question beside the grounding facts behind them, over old maps and a magnifying glass",
+  [1672, 941],
 );
 const worktrezzCover = image(
   "worktrezz",
@@ -124,7 +125,7 @@ export const projects: Project[] = [
     team: "Co-Founding Team (2)",
     duration: "4 Months",
     summary:
-      "The AI authoring system behind HERISAGA. It retrieves passages from historical sources, drafts lessons and questions with an LLM grounded in that evidence, and routes every draft through human review before publication. It is built so that AI speeds up writing history without inventing it.",
+      "The AI authoring system behind HERISAGA. A source-to-facts pipeline chunks and indexes historical sources and extracts cited, structured facts from them, so every episode starts from evidence instead of a blank page. People review each fact before lessons and questions are drafted from the approved ones in English and Albanian, and editors approve every episode in Directus before it is published as a pinned revision. It is built so that AI makes writing history faster without inventing it.",
     layers: ["interface", "services", "data", "infrastructure"],
     stack: [
       "Python",
@@ -140,24 +141,40 @@ export const projects: Project[] = [
       "Docker",
     ],
     outcomes: [
-      { value: "4", label: "Authoring stages: retrieve evidence, draft, review, publish" },
+      { value: "11", label: "Tracked steps from topic and retrieval to a recorded publish" },
       { value: "0", label: "Drafts that can reach learners without human review" },
     ],
     cover: authoringCover,
     gallery: gallery("herisaga-authoring", authoringCover, [
       [
         "herisaga-authoring-1.png",
-        "Source passages retrieved and reranked for an episode, with relevance scores",
+        "Episode Studio's passages and exercises step: a drafted passage and a multiple-choice question in English, with the four grounding facts behind it listed in English and Albanian",
+        [2906, 1602],
       ],
       [
-        "herisaga-authoring-2.png",
-        "LLM-drafted lesson with each claim linked to the source passage behind it",
+        "herisaga-authoring-2.webp",
+        "The whole Retrieval console page: a topic and collection, an abstention check showing the top rerank score above its threshold, a table of retrieved source chunks with dense, lexical, fused and rerank scores, and a token and cost estimate to confirm before extracting facts",
+        [2934, 15948],
       ],
-      ["herisaga-authoring-3.png", "Review queue in the Episode Studio with drafts waiting for approval"],
-      ["herisaga-authoring-4.png", "Episode in Directus with English and Albanian fields side by side"],
       [
-        "herisaga-authoring-5.png",
-        "Publication compiler report confirming schema validation and the pinned revision",
+        "herisaga-authoring-3.png",
+        "Fact review in the Episode Studio: one claim in English and Albanian with its subject, relation, object and date, the source it came from, the highlighted passage, and buttons to approve, reject, edit, skip or undo",
+        [2934, 2590],
+      ],
+      [
+        "herisaga-authoring-4.webp",
+        "The whole Fact review all-at-once page: eleven extracted claims listed with their structured fields, sources and a Reject button each, ending in a single Approve all 11 button",
+        [2934, 8766],
+      ],
+      [
+        "herisaga-authoring-5.webp",
+        "The whole Directus page for an episode: its English and Albanian translations side by side, then its slug, status, published revision and timestamps",
+        [2934, 5194],
+      ],
+      [
+        "herisaga-authoring-6.png",
+        "Publish, step 11 of 11 in the Episode Studio: every step checked off, and the publish run recorded with its outcome, run ID, revision, content hash and who published it",
+        [2934, 1603],
       ],
     ]),
     links: [],
