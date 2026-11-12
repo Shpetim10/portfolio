@@ -49,13 +49,73 @@ Idempotent events and atomic transactions for progress. A repeated or interrupte
 
 The app and API are implemented and in integration and release validation, ahead of a production launch. In the latest recorded local verification, 2,438 mobile tests and 501 API checks passed across integration, security, end-to-end and smoke suites.
 
-<Gallery>
-  <Shot media={1} caption="Each lesson tells one moment of history as a short story." />
-  <Shot media={2} caption="Answers are checked on the phone, so feedback is instant." />
-  <Shot media={3} caption="Review sessions bring earlier questions back before they fade." />
-  <Shot media={4} caption="XP, streaks and chapters, recorded only by the server." />
-  <Shot media={5} caption="Longer Albanian text, in both themes." />
-</Gallery>
+The screens below are the real app, every flow in light and dark and in English and Albanian. Swipe a strip, or use its arrows.
+
+<Screens
+  title="The Road"
+  caption="The Road: every chapter of Albanian history as a path to play, in both themes and both languages."
+  items={[
+    { media: 1, label: "Light · English" },
+    { media: 2, label: "Light · Albanian" },
+    { media: 3, label: "Dark · English" },
+    { media: 4, label: "Dark · Albanian" },
+    { media: 5, label: "Continue a lesson · light" },
+    { media: 6, label: "Continue a lesson · dark" },
+  ]}
+/>
+
+<Screens
+  title="Episode: Who counts as Illyrian?"
+  caption="One episode played through: read a short passage, answer, learn why, finish with XP."
+  items={[
+    { media: 7, label: "Read the passage" },
+    { media: 8, label: "A question" },
+    { media: 9, label: "An answer chosen" },
+    { media: 10, label: "Correct, and why" },
+    { media: 11, label: "True or false, missed" },
+    { media: 12, label: "The next passage" },
+    { media: 13, label: "Lesson completed" },
+  ]}
+/>
+
+<Screens
+  title="Episode: Silver under the mountains"
+  caption="A second episode, in the dark theme: evidence from coins, then questions that grade the reasoning."
+  items={[
+    { media: 14, label: "Read the passage" },
+    { media: 15, label: "A question" },
+    { media: 16, label: "An answer chosen" },
+    { media: 17, label: "Not quite, and why" },
+    { media: 18, label: "True or false, correct" },
+    { media: 19, label: "Lesson completed" },
+  ]}
+/>
+
+<Screens
+  title="Review"
+  caption="Review sessions bring earlier questions back, grouped by lesson and marked by how well they are known."
+  items={[
+    { media: 20, label: "Dark · a lesson ready" },
+    { media: 21, label: "Dark · by lesson" },
+    { media: 22, label: "Light · a lesson ready" },
+    { media: 23, label: "Light · by lesson" },
+  ]}
+/>
+
+<Screens
+  title="Profile and settings"
+  caption="Progress, preferences and the learner's own account, in both themes."
+  items={[
+    { media: 24, label: "Profile · dark" },
+    { media: 25, label: "Profile · light" },
+    { media: 26, label: "Settings · light" },
+    { media: 27, label: "Settings · dark" },
+    { media: 28, label: "Edit profile · light" },
+    { media: 29, label: "Edit profile · dark" },
+  ]}
+/>
+
+<Visit />
 
 </Chapter>
 

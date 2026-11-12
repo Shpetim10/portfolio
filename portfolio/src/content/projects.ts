@@ -13,7 +13,7 @@ const image = (slug: string, file: string, alt: string, size?: [width: number, h
 
 /**
  * The story's figures index the gallery: `Spread media={0}` is the strongest visual
- * (the cover) and `Shot media={1..5}` are the screenshots, so the cover leads the gallery.
+ * (the cover) and `Shot` / `Screens` media={1…} are the screenshots, so the cover leads the gallery.
  */
 const gallery = (
   slug: string,
@@ -23,41 +23,301 @@ const gallery = (
 
 const herisagaCover = image(
   "herisaga-history-as-playable-stories",
-  "herisaga-cover.png",
-  "HERISAGA app's Road screen, with the chapters of Albanian history laid out as a path to play",
+  "herisaga-cover.webp",
+  "Three HERISAGA app screens on phones, a multiple-choice question, the Road and a completed lesson, in front of an old Albanian hillside town",
+  [1672, 941],
 );
+
+// Phone screenshots, 750 × 1623 (the 1284 × 2778 originals, as WebP).
+const PHONE: [number, number] = [750, 1623];
+const herisagaShots: [string, string, [number, number]][] = [
+  // The Road
+  [
+    "herisaga-01.webp",
+    "The Road in the light theme: History of Albanians, chapter 2 Illyrians, with a start flag on a path of locked lessons",
+    PHONE,
+  ],
+  [
+    "herisaga-02.webp",
+    "The Road in the light theme, in Albanian: Historia e shqiptarëve, kapitulli 2 Iliret, with the flag labelled Fillo",
+    PHONE,
+  ],
+  [
+    "herisaga-03.webp",
+    "The Road in the dark theme, in English, with the start flag on a path of locked lessons",
+    PHONE,
+  ],
+  ["herisaga-04.webp", "The Road in the dark theme, in Albanian", PHONE],
+  [
+    "herisaga-05.webp",
+    "The Road in the light theme with a sheet offering to continue the lesson The Queen, the Sea, and the Roman Envoys, worth up to 128 XP",
+    PHONE,
+  ],
+  ["herisaga-06.webp", "The same continue-lesson sheet on the Road in the dark theme", PHONE],
+  // Episode: Who counts as Illyrian?
+  [
+    "herisaga-07.webp",
+    "A lesson passage titled A regional name is not the whole story, with the key place name highlighted and a Continue button",
+    PHONE,
+  ],
+  [
+    "herisaga-08.webp",
+    "A multiple-choice question about what Appian's statement establishes, with four options and the Check answer button still disabled",
+    PHONE,
+  ],
+  ["herisaga-09.webp", "The same question with one option chosen and Check answer enabled", PHONE],
+  [
+    "herisaga-10.webp",
+    "The same question answered correctly, with a green Correct banner and a short explanation of why",
+    PHONE,
+  ],
+  [
+    "herisaga-11.webp",
+    "A true-or-false question answered wrongly, with a Not quite banner and an explanation",
+    PHONE,
+  ],
+  [
+    "herisaga-12.webp",
+    "The next lesson passage, One region, several named groups, with the dates of the events in blue",
+    PHONE,
+  ],
+  [
+    "herisaga-13.webp",
+    "Lesson completed: a 7 of 8 ring marked Perfect lesson, 102 XP earned and a one-day streak",
+    PHONE,
+  ],
+  // Episode: Silver under the mountains
+  [
+    "herisaga-14.webp",
+    "A dark-theme lesson passage, Damastion: What Can Coins Tell Us?, about silver coins and the location of a city",
+    PHONE,
+  ],
+  [
+    "herisaga-15.webp",
+    "A dark-theme multiple-choice question about why scholars compare Damastion's coins with Paionian coins",
+    PHONE,
+  ],
+  ["herisaga-16.webp", "The same question with one option chosen", PHONE],
+  [
+    "herisaga-17.webp",
+    "The same question answered wrongly: the wrong option in red, the right one in green and a Not quite banner",
+    PHONE,
+  ],
+  [
+    "herisaga-18.webp",
+    "A dark-theme true-or-false question answered correctly, with a Correct banner",
+    PHONE,
+  ],
+  [
+    "herisaga-19.webp",
+    "Lesson completed in the dark theme: a 5 of 8 ring marked Great job and 74 XP earned",
+    PHONE,
+  ],
+  // Review
+  [
+    "herisaga-20.webp",
+    "The Review tab in the dark theme: one lesson ready, topic filters and a Start review session button",
+    PHONE,
+  ],
+  [
+    "herisaga-21.webp",
+    "The Review list scrolled, with lessons grouped by chapter and each question marked Needs practice or Scheduled",
+    PHONE,
+  ],
+  [
+    "herisaga-22.webp",
+    "The Review tab in the light theme with its topic filters and the Start review session button",
+    PHONE,
+  ],
+  [
+    "herisaga-23.webp",
+    "The Review list in the light theme, scrolled to the questions that need practice",
+    PHONE,
+  ],
+  // Profile and settings
+  [
+    "herisaga-24.webp",
+    "The Profile screen in the dark theme: avatar, name, streak, XP, lessons completed and the Chronicle of artifacts and achievements",
+    PHONE,
+  ],
+  ["herisaga-25.webp", "The Profile screen in the light theme", PHONE],
+  [
+    "herisaga-26.webp",
+    "Settings in the light theme: daily goal, reminders, sound effects, haptic feedback and the appearance switch",
+    PHONE,
+  ],
+  ["herisaga-27.webp", "Settings in the dark theme", PHONE],
+  [
+    "herisaga-28.webp",
+    "Edit profile in the light theme: name, handle, English or Albanian, what brings you to HERISAGA and the daily goal",
+    PHONE,
+  ],
+  ["herisaga-29.webp", "Edit profile in the dark theme", PHONE],
+];
 const authoringCover = image(
   "herisaga-authoring",
-  "herisaga-authoring-cover.png",
+  "herisaga-authoring-cover.webp",
   "Episode Studio on a laptop, reviewing a drafted passage and multiple-choice question beside the grounding facts behind them, over old maps and a magnifying glass",
   [1672, 941],
 );
 const worktrezzCover = image(
   "worktrezz",
-  "worktrezz-cover.png",
+  "worktrezz-cover.webp",
   "WorkTrezz manager dashboard on a laptop beside the employee app's clock-in screen on a phone",
   [1672, 941],
 );
 const ritemaCover = image(
   "ritema",
-  "beloyal-cover.png",
-  "Ritema mobile app showing a customer's points balance and available rewards",
+  "ritema-cover.webp",
+  "Three Ritema app screens on phones, Home with a Beats balance and a live Drop, the membership card with its QR code, and a place's standing, on a café counter beside an espresso machine and cups",
+  [1672, 941],
 );
+
+// Phone screenshots of the customer app, in the order of the story's strips (originals in /assets-src/ritema).
+const ritemaShots: [string, string, [number, number]][] = [
+  // Welcome
+  [
+    "ritema-01.webp",
+    "Ritema sign-in: the line Return in rhythm. Become known., fields for email or username and password, a Forgot your password link and a Sign in button",
+    PHONE,
+  ],
+  [
+    "ritema-02.webp",
+    "A welcome screen reading You're in rhythm: your profile is set, and every visit from here builds your Glow, with an Enter Ritema button",
+    PHONE,
+  ],
+  [
+    "ritema-03.webp",
+    "The Home tab: a greeting, a card with 2,480 Beats and the Ritema Select access status, and a live Source Drop with a countdown",
+    PHONE,
+  ],
+  [
+    "ritema-04.webp",
+    "Home scrolled: cards showing how close the customer is to the next recognition level at two places, then a list of recent Beats earned and redeemed",
+    PHONE,
+  ],
+  // Discover
+  [
+    "ritema-05.webp",
+    "Discover with the Places tab open: a search field, category filters, and recommended places with their opening hours, rating and the customer's recognition level",
+    PHONE,
+  ],
+  [
+    "ritema-06.webp",
+    "Discover with the Map tab open: a dark map of Tirana with a pin for each place, zoom controls and the label 55 places on Ritema",
+    PHONE,
+  ],
+  // A place
+  [
+    "ritema-07.webp",
+    "A place's Status tab: the customer's standing, Regular, with 3,180 lifetime Beats, 620 available Beats and a five-step path from First Beat to Known by Name",
+    PHONE,
+  ],
+  [
+    "ritema-08.webp",
+    "A place's Coupons section: a limited Drop for free churros with a Tap to redeem prompt, beside tabs for the customer's own coupons and the ones released",
+    PHONE,
+  ],
+  [
+    "ritema-09.webp",
+    "A place's menu: category filters and dishes with their prices and the Beats each one earns",
+    PHONE,
+  ],
+  [
+    "ritema-10.webp",
+    "A place's House Rules: one Beat earned per ten euros spent, a cap of 500 Beats per visit and Beats that expire after 12 months without a visit, above the customer's own timeline there",
+    PHONE,
+  ],
+  [
+    "ritema-11.webp",
+    "A place's community and hours: friends who returned this week, the trending and most redeemed items, a count of regulars and the opening hours by day",
+    PHONE,
+  ],
+  [
+    "ritema-12.webp",
+    "A place's contact options and amenities, with a Call button, a Website button, Wi-Fi, Pet friendly, Parking and Accessible tags, and a map of its location in Tirana",
+    PHONE,
+  ],
+  // At a place
+  [
+    "ritema-13.webp",
+    "The Reserve your table sheet: the name it is reserved under, a choice of date and time, party size, a notes field and a note that the reservation earns Beats on arrival",
+    PHONE,
+  ],
+  [
+    "ritema-14.webp",
+    "The Rate a place sheet: five empty stars, tags such as Great service and Good value, a field for more detail and a Post review button, with a note on how lower ratings are handled",
+    PHONE,
+  ],
+  [
+    "ritema-15.webp",
+    "A menu item, Mango Lemonade, with its description, a choice of two sizes with prices, a quantity stepper and an Add to order button",
+    PHONE,
+  ],
+  // Drops and coupons
+  [
+    "ritema-16.webp",
+    "A Drop for free churros: what the customer gets, a short instruction to show the code at the counter and a Use button",
+    PHONE,
+  ],
+  [
+    "ritema-17.webp",
+    "A live Drop, a limited 20% off with a countdown, in a sheet over Discover, with a note that it is first come, first served and a Claim button",
+    PHONE,
+  ],
+  [
+    "ritema-18.webp",
+    "The same live Drop with its sheet fully open, showing the limited-time notice and the Claim button",
+    PHONE,
+  ],
+  [
+    "ritema-19.webp",
+    "Redeeming a free protein shake coupon: its code and expiry, a prompt that it is ready to redeem at the counter and a Use button",
+    PHONE,
+  ],
+  // Wallet and membership
+  [
+    "ritema-20.webp",
+    "The Wallet tab: a ring showing 2,480 available Beats, lifetime, status and expired Beats, counts of coupons ready, redeemed and expired, and the customer's recognition and access levels",
+    PHONE,
+  ],
+  [
+    "ritema-21.webp",
+    "The Wallet scrolled to Places in rhythm: a paged list of places with the customer's level and Beats at each, and the number of coupons ready",
+    PHONE,
+  ],
+  [
+    "ritema-22.webp",
+    "The Wallet's ledger: every Beats earn and redemption grouped by day, each with its place, amount and time",
+    PHONE,
+  ],
+  [
+    "ritema-23.webp",
+    "The membership card: the customer's name, a QR code and member code, and a five-step access path from Active to Crown",
+    PHONE,
+  ],
+  // Profile
+  [
+    "ritema-24.webp",
+    "The Profile tab: the customer's name, member since date, recognition and access levels, an Edit profile button and a line chart called Your signature",
+    PHONE,
+  ],
+];
 const garbageCover = image(
   "garbage-classifier",
-  "garbage-classifier-cover.png",
+  "garbage-classifier-cover.webp",
   "Project overview poster: the twelve waste categories, the final model's confusion matrix and the recycling guidance",
   [1672, 941],
 );
 const pyramidosCover = image(
   "pyramidos",
-  "pyramidos-cover.png",
+  "pyramidos-cover.webp",
   "Pyramid OS Create Event screen on a laptop, asking what you want to host, in front of the Pyramid of Tirana",
   [1672, 941],
 );
 const libraryCover = image(
   "library-management-system",
-  "library-management-system-cover.png",
+  "library-management-system-cover.webp",
   "Eternal Library marketplace on a laptop, with book categories and book cards, in front of dim library shelves",
   [1920, 1080],
 );
@@ -104,14 +364,9 @@ export const projects: Project[] = [
       { value: "2", label: "Languages: English and Albanian" },
     ],
     cover: herisagaCover,
-    gallery: gallery("herisaga-history-as-playable-stories", herisagaCover, [
-      ["herisaga-1.png", "Lesson screen telling one moment of Albanian history as a short narrative"],
-      ["herisaga-2.png", "Interactive question with instant feedback on the learner's answer"],
-      ["herisaga-3.png", "Review session bringing back questions from earlier lessons"],
-      ["herisaga-4.png", "Progress screen with XP, the current streak and completed chapters"],
-      ["herisaga-5.png", "The same lesson in Albanian in the dark theme"],
-    ]),
+    gallery: gallery("herisaga-history-as-playable-stories", herisagaCover, herisagaShots),
     links: [],
+    site: { label: "herisaga.com", href: "https://herisaga.com" },
     featured: true,
     order: 1,
   },
@@ -147,7 +402,7 @@ export const projects: Project[] = [
     cover: authoringCover,
     gallery: gallery("herisaga-authoring", authoringCover, [
       [
-        "herisaga-authoring-1.png",
+        "herisaga-authoring-1.webp",
         "Episode Studio's passages and exercises step: a drafted passage and a multiple-choice question in English, with the four grounding facts behind it listed in English and Albanian",
         [2906, 1602],
       ],
@@ -157,7 +412,7 @@ export const projects: Project[] = [
         [2934, 15948],
       ],
       [
-        "herisaga-authoring-3.png",
+        "herisaga-authoring-3.webp",
         "Fact review in the Episode Studio: one claim in English and Albanian with its subject, relation, object and date, the source it came from, the highlighted passage, and buttons to approve, reject, edit, skip or undo",
         [2934, 2590],
       ],
@@ -172,7 +427,7 @@ export const projects: Project[] = [
         [2934, 5194],
       ],
       [
-        "herisaga-authoring-6.png",
+        "herisaga-authoring-6.webp",
         "Publish, step 11 of 11 in the Episode Studio: every step checked off, and the publish run recorded with its outcome, run ID, revision, content hash and who published it",
         [2934, 1603],
       ],
@@ -200,13 +455,7 @@ export const projects: Project[] = [
       { value: "QR", label: "Instant point collection and reward redemption" },
     ],
     cover: ritemaCover,
-    gallery: gallery("ritema", ritemaCover, [
-      ["beloyal-1.png", "Customer home screen with points balance and rewards"],
-      ["beloyal-2.png", "QR code redemption screen at the point of sale"],
-      ["beloyal-3.png", "Business view for managing rewards and coupons"],
-      ["beloyal-4.png", "Customer coupons screen with active and used coupons"],
-      ["beloyal-5.png", "Business view of a customer's points history"],
-    ]),
+    gallery: gallery("ritema", ritemaCover, ritemaShots),
     links: [
       { label: "API repository", href: "https://github.com/Shpetim10/BeLoyal-API" },
       { label: "Mobile repository", href: "https://github.com/Shpetim10/Ritema-Mobile" },
@@ -245,47 +494,47 @@ export const projects: Project[] = [
     cover: worktrezzCover,
     gallery: gallery("worktrezz", worktrezzCover, [
       [
-        "worktrezz-2.png",
+        "worktrezz-2.webp",
         "Attendance screen with today's present, absent, late, on-leave and warning counts, and each employee's site, check-in, check-out and hours worked",
         [3024, 1718],
       ],
       [
-        "worktrezz-10.png",
+        "worktrezz-10.webp",
         "Attendance QR terminal for the Tirana HQ site, showing a live QR code that rotates every 60 seconds",
         [3024, 1718],
       ],
       [
-        "worktrezz-3.png",
+        "worktrezz-3.webp",
         "Leave request list with each employee's site, department, leave type, dates and status, and approve or reject actions on pending requests",
         [3024, 1718],
       ],
       [
-        "worktrezz-5.png",
+        "worktrezz-5.webp",
         "Monthly payroll table with each employee's type, payment method, base pay, overtime, bonuses, deductions and net pay",
         [3024, 1718],
       ],
       [
-        "worktrezz-7.png",
+        "worktrezz-7.webp",
         "Assign Employees dialog moving employees from an available list into a supervisor's team",
         [3024, 1718],
       ],
       [
-        "worktrezz-6.png",
+        "worktrezz-6.webp",
         "Announcements list with notices for specific people, a department or all employees, important ones flagged",
         [3024, 1718],
       ],
       [
-        "worktrezz-mobile-1.png",
+        "worktrezz-mobile-1.webp",
         "Employee app home screen with today's attendance status, leave balance, latest payroll and announcements",
         [740, 1600],
       ],
       [
-        "worktrezz-mobile-2.png",
+        "worktrezz-mobile-2.webp",
         "Employee app attendance screen after a successful check-in, with the Clock Out button, the site's QR and GPS requirements and today's records",
         [740, 1600],
       ],
       [
-        "worktrezz-mobile-4.png",
+        "worktrezz-mobile-4.webp",
         "Employee app leave screen with vacation, sick and parental leave balances and the history of past requests",
         [740, 1600],
       ],
@@ -317,24 +566,24 @@ export const projects: Project[] = [
     ],
     cover: garbageCover,
     gallery: gallery("garbage-classifier", garbageCover, [
-      ["garbage-classifier-1.png", "Sample images from the dataset across waste categories", [1672, 941]],
+      ["garbage-classifier-1.webp", "Sample images from the dataset across waste categories", [1672, 941]],
       [
-        "garbage-classifier-2.png",
+        "garbage-classifier-2.webp",
         "Training and validation accuracy curves for the final model",
         [1448, 1086],
       ],
       [
-        "garbage-classifier-3.png",
+        "garbage-classifier-3.webp",
         "Test metrics, per-class precision and recall, and confusion matrix of the final model",
         [2800, 2800],
       ],
       [
-        "garbage-classifier-4.png",
+        "garbage-classifier-4.webp",
         "Streamlit web app classifying an uploaded photo, with confidence per category",
         [1586, 992],
       ],
       [
-        "garbage-classifier-5.png",
+        "garbage-classifier-5.webp",
         "Accuracy of the team's candidate models compared on held-out data",
         [3200, 2000],
       ],
@@ -370,37 +619,37 @@ export const projects: Project[] = [
     cover: pyramidosCover,
     gallery: gallery("pyramidos", pyramidosCover, [
       [
-        "pyramidos-0.png",
+        "pyramidos-0.webp",
         "Pyramid OS public site with an interactive 3D model of the Pyramid of Tirana and a prompt to enter it",
         [3024, 1728],
       ],
       [
-        "pyramidos-8.png",
+        "pyramidos-8.webp",
         "Explore Pyramid: an orbitable 3D model of the Pyramid and its surroundings with floor controls, a list of spaces, and the Mane Foundation room selected, showing its capacity, facilities and what it hosts",
         [2000, 1136],
       ],
       [
-        "pyramidos-2.png",
+        "pyramidos-2.webp",
         "Pyramid AI analyzing an event request: parsing it, extracting requirements, sizing spaces, checking venue availability and building plan options",
         [1655, 950],
       ],
       [
-        "pyramidos-3.png",
+        "pyramidos-3.webp",
         "Two plans for a 60-guest workshop: Value in the Blue Room from €1,632 and Premium in the Orange Room from €2,076, each with its rooms and reasons",
         [1657, 949],
       ],
       [
-        "pyramidos-4.png",
+        "pyramidos-4.webp",
         "Admin Event Requests screen with the request list and a workshop's schedule, configuration, estimated total and approve or reject actions",
         [1655, 950],
       ],
       [
-        "pyramidos-5.png",
+        "pyramidos-5.webp",
         "Manager pipeline at the Understand step: event summary, the organizer's request and an Event DNA radar scoring eight operational dimensions",
         [3024, 1738],
       ],
       [
-        "pyramidos-6.png",
+        "pyramidos-6.webp",
         "Inventory overview with overall health, total, reserved and available assets, and the health of each equipment category",
         [1658, 949],
       ],
@@ -429,27 +678,27 @@ export const projects: Project[] = [
     cover: libraryCover,
     gallery: gallery("library-management-system", libraryCover, [
       [
-        "library-management-system-1.png",
+        "library-management-system-1.webp",
         "Eternal Library marketplace with a category list and book cards showing price, rating and Add To Cart",
         [1918, 871],
       ],
       [
-        "library-management-system-2.png",
+        "library-management-system-2.webp",
         "Staff stock management table with ISBN, genres, format, inventory and a Restock action, low-stock rows highlighted",
         [1918, 868],
       ],
       [
-        "library-management-system-3.png",
+        "library-management-system-3.webp",
         "Cart page with the selected book, quantity controls, cart total and Proceed To Checkout",
         [1913, 867],
       ],
       [
-        "library-management-system-4.png",
+        "library-management-system-4.webp",
         "Book detail page showing Stock Available, price, quantity, Add To Cart and the book's description",
         [1918, 868],
       ],
       [
-        "library-management-system-5.png",
+        "library-management-system-5.webp",
         "Staff order management list with customer, books, total, a status selector and date for each order",
         [1918, 870],
       ],

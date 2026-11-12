@@ -41,7 +41,7 @@ Redis as a cache in front of MySQL for frequently read data, to keep the app res
 
 Core features first, extras later. With one developer and a fixed deadline, I protected the complete earn-and-redeem flow and scheduled smaller features after it.
 
-<Spread media={0} caption="Collecting points and redeeming a reward by QR code in the Ritema app." />
+<Spread media={0} caption="The Ritema app: Beats, places and rewards for a returning customer." />
 
 </Chapter>
 
@@ -49,13 +49,73 @@ Core features first, extras later. With one developer and a fixed deadline, I pr
 
 Delivered a complete, working product and its full documentation on time for graduation, built entirely by me across backend, mobile app and database.
 
-<Gallery>
-  <Shot media={1} caption="Customers see their points and rewards in one place." />
-  <Shot media={2} caption="Rewards are redeemed by scanning a QR code." />
-  <Shot media={3} caption="Businesses create and manage their own rewards." />
-  <Shot media={4} caption="Coupons, active and used, in the customer's wallet." />
-  <Shot media={5} caption="Every point a customer earns or spends, on record." />
-</Gallery>
+The screens below are the customer app, from sign-in to the wallet and profile. Customers earn Beats at each place and build a standing there, from First Beat to Known by Name. Across every place they build an access status, from Active to Crown, which the membership card shows beside a QR code. Rewards arrive as coupons and limited-time Drops that are claimed in the app and shown at the counter, and every Beat earned or spent stays on record in the wallet's ledger. Swipe a strip, or use its arrows.
+
+<Screens
+  title="Getting started"
+  caption="From sign-in to Home: a welcome, the customer's Beats and access status, and where they stand with the places they return to."
+  items={[
+    { media: 1, label: "Sign in" },
+    { media: 2, label: "Welcome" },
+    { media: 3, label: "Home" },
+    { media: 4, label: "Next level" },
+  ]}
+/>
+
+<Screens
+  title="Discover"
+  caption="Finding places and rewards, as a list with filters or as pins on a map."
+  items={[
+    { media: 5, label: "Places" },
+    { media: 6, label: "Map" },
+  ]}
+/>
+
+<Screens
+  title="A place"
+  caption="One place, from the customer's standing and coupons to its menu, house rules, hours and location."
+  items={[
+    { media: 7, label: "Your standing" },
+    { media: 8, label: "Coupons" },
+    { media: 9, label: "Menu" },
+    { media: 10, label: "House rules" },
+    { media: 11, label: "Community and hours" },
+    { media: 12, label: "Contact and map" },
+  ]}
+/>
+
+<Screens
+  title="At a place"
+  caption="What a customer can do at a place: reserve a table, leave a rating, and choose from the menu."
+  items={[
+    { media: 13, label: "Reserve a table" },
+    { media: 14, label: "Rate a place" },
+    { media: 15, label: "A menu item" },
+  ]}
+/>
+
+<Screens
+  title="Drops and coupons"
+  caption="Limited-time Drops are claimed in the app, and coupons are shown at the counter to redeem."
+  items={[
+    { media: 16, label: "A Drop" },
+    { media: 17, label: "A live Drop" },
+    { media: 18, label: "Claim it" },
+    { media: 19, label: "Redeem a coupon" },
+  ]}
+/>
+
+<Screens
+  title="Wallet, membership and profile"
+  caption="Beats, coupons and the full ledger in one place, the membership card with its QR code, and the customer's profile."
+  items={[
+    { media: 20, label: "Wallet" },
+    { media: 21, label: "Places in rhythm" },
+    { media: 22, label: "Ledger" },
+    { media: 23, label: "Membership card" },
+    { media: 24, label: "Profile" },
+  ]}
+/>
 
 </Chapter>
 
