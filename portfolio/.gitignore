@@ -44,3 +44,6 @@ next-env.d.ts
 /playwright-report/
 /test-results/
 /.lighthouseci/
+
+# original, full-resolution screenshots (converted into /public/assets/work/)
+/assets-src/

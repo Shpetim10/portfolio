@@ -1,12 +1,15 @@
+import { Button } from "@/components/ui/Button";
 import { RegistrationMark, type Corner } from "@/components/ui/Annotation";
 import { Content } from "@/components/ui/Content";
 import { ProjectCover } from "@/components/ui/ProjectCover";
 import type { Project } from "@/content";
 import { todo } from "@/content/todo";
+import { hostOf } from "./Visit";
 
 /*
  * T07 · Case-study header. Reading order = visual order:
- *   drawing number row → cover (the work panel's cover morphs into it, T06)
+ *   drawing number row → the product's website, when it has one (primary button, above the fold)
+ *   → cover (the work panel's cover morphs into it, T06)
  *   → title (display-l, may bleed) → summary → title block (role · team · duration · year · stack).
  *
  * Mobile: everything stacks; the title block is 2 columns with stack across both.
@@ -33,6 +36,15 @@ export function CaseHeader({ project }: { project: Project }) {
         <span className="section-index__rule" aria-hidden="true" />
         {project.client && <span className="section-index__rev">{project.client}</span>}
       </p>
+
+      {project.site && (
+        <div className="case-header__site">
+          <Button href={project.site.href} target="_blank" rel="noopener noreferrer">
+            Visit {hostOf(project.site)}
+            <span className="sr-only"> (opens in a new tab)</span>
+          </Button>
+        </div>
+      )}
 
       <div className="case-header__cover">
         {CORNERS.map((corner) => (

@@ -224,6 +224,11 @@
   --reader-min: 40rem; /* narrowest a full page is drawn inline: phones pan sideways rather than shrink it to nothing */
   --reader-min-full: 72rem; /* the same, full screen: wide enough to read */
   --reader-max-full: 96rem; /* and the widest it is drawn there */
+  --screen-width: clamp(
+    11rem,
+    46vw,
+    14rem
+  ); /* one phone screen in a <Screens> strip: ~2 in view on a phone, ~3 beside the story's column */
 
   /* Stack (T08) */
   --stack-figure: 18rem; /* width of the sticky Instrument drawing beside the bill of materials */

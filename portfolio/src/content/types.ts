@@ -58,6 +58,7 @@ export type Project = {
   cover: Media;
   gallery: Media[];
   links: Link[];
+  site?: Link; // the product's own website: a call to action in the case-study header, closing the story
   featured: boolean;
   order: number;
   // long-form story lives in /src/content/work/<slug>.mdx:

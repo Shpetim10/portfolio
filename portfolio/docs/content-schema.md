@@ -48,6 +48,7 @@ export type Project = {
   outcomes: { value: string; label: string }[];   // 2–4 hard results
   cover: Media; gallery: Media[];
   links: Link[];
+  site?: Link;                                // the product's own website; a call to action, header and story end
   featured: boolean; order: number;
   // long-form story lives in /src/content/work/<slug>.mdx:
   // Problem · Constraints · Architecture · Key decisions · Results · Reflection
@@ -124,6 +125,12 @@ One MDX file per project at `/src/content/work/<slug>.mdx`, rendered at `/work/<
 - figures index the project's `gallery` (alt text lives there, not in MDX):
   `<Gallery>` + `<Shot media={1} caption="…" notes={[{ x: 0.3, y: 0.4, label: "…" }]} />`
   — up to 3 notes per figure, `x` / `y` 0–1 of the image; keep labels short (one line).
+- phone screenshots in bulk are a `<Screens>` strip, not a run of `<Shot>`s: one titled, sliding strip per flow
+  (swipe, arrow buttons, keyboard), every screen lazy-loaded with a short visible label:
+  `<Screens title="The Road" caption="…" items={[{ media: 1, label: "Light · English" }]} />`
+  — `media` indexes the gallery (alt text lives there). Prefer 750 px wide WebP.
+- `<Visit />` closes a story whose product has a website (`Project.site`): the address large, with a primary
+  button. The case-study header shows the same link under the summary.
 - a full-page screenshot (many screens tall) is a `<Scroll>`, not a `<Shot>`: it renders as a scrolling
   reader with a minimap, jump chips and a full-screen mode:
   `<Scroll media={2} label="Retrieval console" caption="…" stops={[{ at: 0, label: "Query" }, { at: 0.5, label: "Results" }]} />`

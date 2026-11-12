@@ -4,8 +4,10 @@ import type { Project } from "@/content";
 import { todo } from "@/content/todo";
 import { Chapter } from "./Chapter";
 import { Gallery, Shot, Spread, type FigureProps } from "./Gallery";
+import { Screens, type ScreensProps } from "./Screens";
 import { Scroll, type ScrollProps } from "./Scroll";
 import { SystemDiagram } from "./SystemDiagram";
+import { Visit } from "./Visit";
 
 /** A paragraph the owner still has to write: `<Todo what="…" />`. */
 function Todo({ what }: { what: string }) {
@@ -21,6 +23,8 @@ export function storyComponents(project: Project): MDXComponents {
     Todo,
     Shot: (props: FigureProps) => <Shot gallery={project.gallery} {...props} />,
     Scroll: (props: ScrollProps) => <Scroll gallery={project.gallery} {...props} />,
+    Screens: (props: ScreensProps) => <Screens gallery={project.gallery} {...props} />,
+    Visit: () => (project.site ? <Visit site={project.site} /> : <Todo what="Project website" />),
     Spread: (props: FigureProps) => <Spread gallery={project.gallery} {...props} />,
   };
 }
