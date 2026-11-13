@@ -1,13 +1,15 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/seo/site";
 import type { SculptureData } from "@/components/sculpture/model";
 import { Link } from "@/components/ui/Link";
 import victory from "@/content/sculpture/victory.json";
 import { SculptureLab } from "./SculptureLab";
 
-export const metadata: Metadata = {
+// Indexable like every page (T15): its own canonical, the site's share card.
+export const metadata = pageMetadata({
+  path: "/lab/sculpture/",
   title: "Lab · Sculpture",
-  robots: { index: false, follow: false },
-};
+  description: "Tuning bench for the Victory sculpture component.",
+});
 
 /*
  * T04b tuning bench for SymbolSculpture. Everything shown is the component and

@@ -27,6 +27,20 @@ export type Profile = {
   tenure: Tenure[]; // the signature plaque's two figures under the portrait, e.g. industry experience
 };
 
+/**
+ * Search and social copy (T15). Each claim repeats a fact already in the
+ * content (profile, education, awards); nothing here is new information.
+ */
+export type Seo = {
+  siteUrl: string; // production origin, no trailing slash; SITE_URL overrides it at build
+  title: string; // the homepage <title>, ≤ 60 characters so results don't truncate it
+  description: string; // the homepage meta description, ~150–180 characters, facts first
+  alternateNames: string[]; // other spellings people type, e.g. the name without diacritics
+  keywords: string[]; // the searches the site should answer, each backed by content
+  freelance?: string; // one line offering freelance work; leave out when not offered
+  cardFacts: [label: string, value: string][]; // the homepage share card's title block, 2–3 short cells
+};
+
 export type Tenure = {
   since: string; // "2025-08": counted in years and months, a month added on each 1st
   label: string; // "Industry experience"

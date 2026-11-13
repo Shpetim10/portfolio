@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/seo/site";
 import type { ReactNode } from "react";
 import { todo } from "@/content/todo";
 import {
@@ -43,10 +43,13 @@ import { Calibrate } from "@/motion/signatures/calibrate";
 import { Invert } from "@/motion/signatures/invert";
 import { Reveal } from "@/motion/signatures/reveal";
 
-export const metadata: Metadata = {
+// Indexable like every page (T15): its own canonical, the site's share card.
+export const metadata = pageMetadata({
+  path: "/lab/",
   title: "Lab",
-  robots: { index: false, follow: false },
-};
+  description:
+    "The design system's specimen sheet: primitives, motion signatures and section components of the Exploded View portfolio.",
+});
 
 /*
  * Primitive + motion specimen sheet. Every value shown is a fact about the

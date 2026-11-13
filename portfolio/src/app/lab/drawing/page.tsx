@@ -1,14 +1,16 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/seo/site";
 import type { DrawingData } from "@/components/drawing/model";
 import { Link } from "@/components/ui/Link";
 import vitruvian from "@/content/drawing/vitruvian.json";
 import config from "../../../../assets-src/vitruvian/config.json";
 import { DrawingLab, type TracerConfig } from "./DrawingLab";
 
-export const metadata: Metadata = {
+// Indexable like every page (T15): its own canonical, the site's share card.
+export const metadata = pageMetadata({
+  path: "/lab/drawing/",
   title: "Lab · Drawing",
-  robots: { index: false, follow: false },
-};
+  description: "Tuning bench for the line-drawing component that traces the Vitruvian study.",
+});
 
 /*
  * T09c tuning bench for GlyphLineDrawing. Everything shown is the component and

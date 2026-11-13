@@ -112,7 +112,8 @@ export function Contact({
             <ul className="contact__links">
               {profile.socials.map((social) => (
                 <li key={social.href}>
-                  <Link href={social.href} target="_blank" className="contact__link">
+                  {/* rel="me": the profile is the owner's own (identity link for search engines). */}
+                  <Link href={social.href} target="_blank" rel="me" className="contact__link">
                     {social.label}
                   </Link>
                 </li>

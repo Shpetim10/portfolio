@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import type { Metadata } from "next";
+import { pageMetadata } from "@/seo/site";
 import { Fragment, type CSSProperties } from "react";
 import { Logo, type LogoProps } from "@/components/brand/Logo";
 import { cx } from "@/components/ui/cx";
@@ -9,10 +9,12 @@ import { getProfile, isTodo } from "@/content";
 import { Replay } from "../Replay";
 import { DrawSpecimen } from "./DrawSpecimen";
 
-export const metadata: Metadata = {
+// Indexable like every page (T15): its own canonical, the site's share card.
+export const metadata = pageMetadata({
+  path: "/lab/logo/",
   title: "Lab · Logo",
-  robots: { index: false, follow: false },
-};
+  description: "The Sh² monogram bench: the mark, wordmark and lockup, and how the mark draws itself.",
+});
 
 /*
  * BRAND-01 · Sh² bench. "Kept" shows the shipped <Logo> (variant C, built

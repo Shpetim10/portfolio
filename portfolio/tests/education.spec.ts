@@ -171,7 +171,10 @@ test.describe("education · homepage", () => {
 
   test("Person JSON-LD lists completed schooling only", async ({ page }) => {
     await page.goto("/");
-    const data = JSON.parse((await page.locator('script[type="application/ld+json"]').textContent())!);
+    const graph = JSON.parse((await page.locator('script[type="application/ld+json"]').textContent())!);
+    const data = graph["@graph"].find(
+      (node: { "@type": string }) => node["@type"] === "ProfilePage",
+    ).mainEntity;
     expect(data["@type"]).toBe("Person");
     expect(data.alumniOf).toEqual([
       {

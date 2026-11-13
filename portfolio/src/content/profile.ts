@@ -9,7 +9,11 @@ export const profile: Profile = {
     "Excellence is not an occasional goal for me; it is the standard I apply to every line of code. The Prime Minister of Albania awarded me a Gold Medal for high school excellence, and I graduated first in Software Engineering at Epoka University with a perfect 4.0 GPA. I believe great AI starts with great software engineering, so I unite the two: rigorous architecture, testing and scalability, combined with systems that learn and adapt. My ambition is to build technology that delivers real impact and helps shape a brighter future.",
   location: "Tiranë, Albania",
   timezone: "Europe/Tirane",
-  availability: { open: false, note: "Working as Junior Technical Consultant at Joint Services IT" },
+  // Owner, Nov 2026: employed at Joint Services and open to freelance projects.
+  availability: {
+    open: true,
+    note: "Open to freelance · Junior Technical Consultant at Joint Services IT",
+  },
   email: "shpetim.shabanaj1@gmail.com",
   socials: [
     { label: "LinkedIn", href: "https://www.linkedin.com/in/shpetimshabanaj" },

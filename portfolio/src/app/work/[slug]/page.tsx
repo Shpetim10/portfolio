@@ -6,6 +6,9 @@ import { Outcomes } from "@/components/case-study/Outcomes";
 import { storyComponents } from "@/components/case-study/story";
 import { getNextProject, getProject, getProjectSlugs, getProjects, isTodo } from "@/content";
 import { loadStory } from "@/content/stories";
+import { caseStudyGraph } from "@/seo/schema";
+import { JsonLd } from "@/seo/JsonLd";
+import { pageMetadata } from "@/seo/site";
 import { OG_ALT, OG_SIZE } from "./og.png/route";
 
 /*
@@ -27,18 +30,13 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps<"/work/[slug]">): Promise<Metadata> {
   const project = getProject((await params).slug);
   if (!project) return {};
-  const title = isTodo(project.title) ? project.partNumber : project.title;
-  const description = isTodo(project.summary) ? undefined : project.summary;
-  return {
-    title,
-    description,
-    openGraph: {
-      type: "article",
-      title,
-      description,
-      images: [{ url: `/work/${project.slug}/og.png`, alt: OG_ALT, type: "image/png", ...OG_SIZE }],
-    },
-  };
+  return pageMetadata({
+    path: `/work/${project.slug}/`,
+    title: isTodo(project.title) ? project.partNumber : project.title,
+    description: isTodo(project.summary) ? undefined : project.summary,
+    image: { url: `/work/${project.slug}/og.png`, alt: OG_ALT, ...OG_SIZE },
+    type: "article",
+  });
 }
 
 export default async function WorkPage({ params }: PageProps<"/work/[slug]">) {
@@ -51,6 +49,7 @@ export default async function WorkPage({ params }: PageProps<"/work/[slug]">) {
 
   return (
     <article className="case-study" aria-labelledby="case-title">
+      <JsonLd data={caseStudyGraph(project)} />
       <CaseHeader project={project} />
       <Outcomes outcomes={project.outcomes} />
       <div className="story">

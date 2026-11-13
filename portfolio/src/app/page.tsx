@@ -11,44 +11,27 @@ import { ProportionBridge } from "@/components/sections/proportion/ProportionBri
 import { Stack } from "@/components/sections/stack/Stack";
 import { Testimonials } from "@/components/sections/testimonials/Testimonials";
 import { Work } from "@/components/sections/work/Work";
-import { getEducation, getProfile, isTodo } from "@/content";
+import { getSeo } from "@/content";
+import { homeGraph } from "@/seo/schema";
+import { JsonLd } from "@/seo/JsonLd";
+import { pageMetadata } from "@/seo/site";
 
-/**
- * The owner as a schema.org Person. Facts come from /src/content only; a value
- * still TODO is left out. alumniOf lists completed schooling: a program still in
- * progress does not make anyone its alumnus. (T15 extends this record.)
- */
-function personJsonLd() {
-  const profile = getProfile();
-  const known = (value: string) => (isTodo(value) ? undefined : value);
-  return {
-    "@context": "https://schema.org",
-    "@type": "Person",
-    name: known(profile.name),
-    jobTitle: known(profile.role),
-    sameAs: profile.socials.map((social) => social.href),
-    alumniOf: getEducation()
-      .filter((entry) => entry.status === "completed" && !isTodo(entry.institution))
-      .map((entry) => {
-        const [locality, country] = entry.location.split(",").map((part) => part.trim());
-        return {
-          "@type": "EducationalOrganization",
-          name: entry.institution,
-          address: { "@type": "PostalAddress", addressLocality: locality, addressCountry: country },
-        };
-      }),
-  };
-}
+const seo = getSeo();
+
+export const metadata = pageMetadata({
+  path: "/",
+  title: seo.title,
+  absoluteTitle: true,
+  description: seo.description,
+  type: "profile",
+});
 
 // Homepage sections, in reading order (/src/components/sections). The title block footer is in the layout.
+// The page is the owner's ProfilePage (src/seo/schema.ts).
 export default function HomePage() {
   return (
     <>
-      <script
-        type="application/ld+json"
-        // Escaped so no content string can close the script element.
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd()).replace(/</g, "\\u003c") }}
-      />
+      <JsonLd data={homeGraph()} />
       <Hero />
       <Manifesto />
       <Metrics />

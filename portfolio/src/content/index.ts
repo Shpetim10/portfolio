@@ -8,6 +8,7 @@ import { education } from "./education";
 import { experience } from "./experience";
 import { metrics, profile } from "./profile";
 import { projects } from "./projects";
+import { seo } from "./seo";
 import { skills } from "./skills";
 import { testimonials } from "./testimonials";
 import type {
@@ -17,6 +18,7 @@ import type {
   Metric,
   Profile,
   Project,
+  Seo,
   Skill,
   Testimonial,
   Writing,
@@ -135,6 +137,14 @@ function validate(): void {
 
   // T12 shows testimonials one at a time; an empty list hides the section.
   checkTestimonials(testimonials);
+
+  // T15 · canonical URLs are built on siteUrl; results truncate titles past 60 characters.
+  if (!/^https:\/\/[^/]+$/.test(seo.siteUrl)) {
+    throw new ContentError(`seo.siteUrl "${seo.siteUrl}" must be an https origin with no trailing slash.`);
+  }
+  if ([...seo.title].length > 60) {
+    throw new ContentError(`seo.title is ${[...seo.title].length} characters: keep it to 60.`);
+  }
 }
 
 /**
@@ -262,6 +272,7 @@ validate();
 const byOrder = (a: Project, b: Project) => a.order - b.order;
 
 export const getProfile = (): Profile => profile;
+export const getSeo = (): Seo => seo;
 export const getMetrics = (): Metric[] => metrics;
 
 export const getProjects = (): Project[] => [...projects].sort(byOrder);
