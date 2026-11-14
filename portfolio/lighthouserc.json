@@ -1,8 +1,13 @@
 {
   "ci": {
     "collect": {
-      "staticDistDir": "./out",
-      "url": ["/", "/work/example-project-01/", "/resume/"],
+      "startServerCommand": "pnpm serve",
+      "startServerReadyPattern": "ready",
+      "url": [
+        "http://localhost:3100/",
+        "http://localhost:3100/work/example-project-01/",
+        "http://localhost:3100/resume/"
+      ],
       "numberOfRuns": 3,
       "settings": {
         "throttlingMethod": "devtools"

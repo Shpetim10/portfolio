@@ -1,4 +1,4 @@
-import { pageMetadata } from "@/seo/site";
+import { absolute, pageMetadata } from "@/seo/site";
 import type { ReactNode } from "react";
 import { todo } from "@/content/todo";
 import {
@@ -158,16 +158,17 @@ const SITE_HISTORY: Role[] = [
   },
 ];
 
-const REPO = "https://github.com/Shpetim10/portfolio/blob/main/portfolio";
-const LIGHTHOUSE = { label: "lighthouserc.json", href: `${REPO}/lighthouserc.json` };
+// Proofs are served by this site (not linked into the Git repository), so they hold if the repo goes private.
+// lighthouserc.json is mirrored by ./lighthouserc.json/route.ts; the licences live in /public/licenses.
+const LIGHTHOUSE = { label: "lighthouserc.json", href: absolute("/lab/lighthouserc.json") };
 const font = (title: string, file: string): Award => ({
   id: `font-${file}`,
   title,
   issuer: "SIL Open Font License 1.1",
   year: 2026,
   category: "open-source",
-  why: "Self-hosted from this repository, with its licence shipped beside it.",
-  proof: { label: `OFL-${file}.txt`, href: `${REPO}/src/styles/fonts/OFL-${file}.txt` },
+  why: "Self-hosted by this site, with its licence published beside it.",
+  proof: { label: `OFL-${file}.txt`, href: absolute(`/licenses/OFL-${file}.txt`) },
   featured: false,
 });
 

@@ -1,25 +1,24 @@
 /**
- * T11 · Build-time GitHub contribution snapshot.
+ * Build-time refresh of the fallback GitHub contribution snapshot.
  *
- * Reads GITHUB_USER and GITHUB_TOKEN from the environment (build machine only),
- * asks the GraphQL API for the last year of contributions and writes
- * src/content/generated/github.json. Only counts and dates are written — the
- * token is never stored, logged or imported by the app, so it cannot ship.
+ * The homepage fetches live contributions on the server and caches them for an
+ * hour (src/content/github.ts, ISR). This script only keeps the fallback it uses
+ * when GitHub is unreachable fresh: it reads CONTRIBUTIONS_TOKEN from the
+ * environment (build machine only), asks the GraphQL API for the token owner's
+ * last year of contributions and writes src/content/generated/github.json. Only
+ * counts and dates are written; the token is never stored or logged.
  *
- * This script never fails the build: with no credentials, or if the API errors,
- * it keeps the last committed snapshot and exits 0.
- *
- * `--strict` (used by the daily refresh workflow, ../.github/workflows/refresh-github.yml)
- * still keeps the snapshot but exits 1, so a broken or expired token shows up as a
- * failed run instead of a silently stale graph.
+ * This script never fails the build: with no token, or if the API errors, it
+ * keeps the last committed snapshot and exits 0.
  */
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const OUT = resolve(dirname(fileURLToPath(import.meta.url)), "../src/content/generated/github.json");
-const QUERY = `query($login: String!) {
-  user(login: $login) {
+const QUERY = `query {
+  viewer {
+    login
     contributionsCollection {
       contributionCalendar {
         totalContributions
@@ -29,28 +28,25 @@ const QUERY = `query($login: String!) {
   }
 }`;
 
-const STRICT = process.argv.includes("--strict");
-
 const keep = (reason) => {
   console.warn(`[github] ${reason} — keeping the last snapshot.`);
-  if (STRICT) process.exitCode = 1;
 };
 
 async function main() {
-  const login = process.env.GITHUB_USER?.trim();
-  const token = process.env.GITHUB_TOKEN?.trim();
-  if (!login || !token) return keep("GITHUB_USER / GITHUB_TOKEN not set");
+  const token = process.env.CONTRIBUTIONS_TOKEN?.trim();
+  if (!token) return keep("CONTRIBUTIONS_TOKEN not set");
 
   const response = await fetch("https://api.github.com/graphql", {
     method: "POST",
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ query: QUERY, variables: { login } }),
+    body: JSON.stringify({ query: QUERY }),
     signal: AbortSignal.timeout(15_000),
   });
   if (!response.ok) return keep(`API answered ${response.status}`);
 
   const body = await response.json();
-  const calendar = body?.data?.user?.contributionsCollection?.contributionCalendar;
+  const viewer = body?.data?.viewer;
+  const calendar = viewer?.contributionsCollection?.contributionCalendar;
   if (body.errors || !calendar) return keep("API returned no calendar");
 
   const days = calendar.weeks
@@ -59,17 +55,12 @@ async function main() {
     .slice(-364);
   if (days.length === 0) return keep("calendar was empty");
 
-  // Leave the file untouched when nothing changed, so the hourly workflow only commits (and
-  // redeploys) on real changes. `fetchedAt` therefore records when the data last changed.
-  const total = calendar.totalContributions;
-  const previous = JSON.parse(await readFile(OUT, "utf8"));
-  const sameData =
-    previous.login === login &&
-    previous.total === total &&
-    JSON.stringify(previous.days) === JSON.stringify(days);
-  if (sameData) return console.log(`[github] no change (${total} contributions).`);
-
-  const snapshot = { login, fetchedAt: new Date().toISOString(), total, days };
+  const snapshot = {
+    login: viewer.login,
+    fetchedAt: new Date().toISOString(),
+    total: calendar.totalContributions,
+    days,
+  };
   await mkdir(dirname(OUT), { recursive: true });
   await writeFile(OUT, `${JSON.stringify(snapshot, null, 2)}\n`);
   console.log(`[github] snapshot written: ${days.length} days, ${snapshot.total} contributions.`);

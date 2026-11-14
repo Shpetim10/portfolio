@@ -1,6 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 
-// Smoke tests run against the static export in /out, exactly as it will be hosted.
+// Smoke tests run against the production build (`next build` then `next start`).
 const PORT = 3100;
 
 export default defineConfig({

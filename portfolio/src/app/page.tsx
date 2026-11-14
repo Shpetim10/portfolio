@@ -18,6 +18,10 @@ import { pageMetadata } from "@/seo/site";
 
 const seo = getSeo();
 
+// ISR: regenerate at most hourly so the field log's GitHub calendar stays fresh
+// (src/content/github.ts caches its fetch for the same window).
+export const revalidate = 3600;
+
 export const metadata = pageMetadata({
   path: "/",
   title: seo.title,

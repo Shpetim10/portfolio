@@ -10,8 +10,9 @@ import { layout } from "./matrix";
 /*
  * T11 · Open source & Writing — "FIELD LOG".
  *
- * A 52×7 dot-matrix of the last year's GitHub contributions from the build-time
- * snapshot (scripts/fetch-github.mjs → src/content/generated/github.json), then
+ * A 52×7 dot-matrix of the last year's GitHub contributions, fetched on the server
+ * and cached for an hour (src/content/github.ts, ISR; falls back to the committed
+ * snapshot in src/content/generated/github.json), then
  * a log of articles, talks and papers (date · venue · title). Dust dots, signal
  * for the busiest tenth of days. The matrix is a picture (role="img" with a
  * one-line summary); the log is real text. No token or fetch reaches the client.
@@ -29,12 +30,13 @@ type FieldLogProps = {
   index?: number;
 };
 
-export function FieldLog({
-  snapshot = getContributions(),
+export async function FieldLog({
+  snapshot: given,
   writing = getWriting(),
   id = "field-log",
   index = 9,
 }: FieldLogProps) {
+  const snapshot = given ?? (await getContributions());
   return (
     <SectionShell id={id} index={index} title="Open source & Writing">
       <FieldLogStage>
@@ -48,12 +50,7 @@ export function FieldLog({
 
 function Matrix({ snapshot }: { snapshot: ContributionSnapshot }) {
   if (layout(snapshot.days).length === 0) {
-    return (
-      <Content
-        as="p"
-        value={todo("GitHub contribution snapshot (set GITHUB_USER and GITHUB_TOKEN at build)")}
-      />
-    );
+    return <Content as="p" value={todo("GitHub contribution data (set CONTRIBUTIONS_TOKEN)")} />;
   }
   return <ContributionMatrix snapshot={snapshot} />;
 }
