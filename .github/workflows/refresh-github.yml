@@ -1,11 +1,12 @@
-# Daily refresh of the FIELD LOG contribution graph.
+# Hourly refresh of the FIELD LOG contribution graph.
 # Re-runs portfolio/scripts/fetch-github.mjs and commits the generated github.json;
-# the push to main triggers the Vercel deploy, so the live graph is at most a day old.
+# the push to main triggers the Vercel deploy, so the live graph is at most ~an hour old.
+# The script leaves the file untouched when the data is unchanged, so most runs commit nothing.
 name: Refresh GitHub contributions
 
 on:
   schedule:
-    - cron: "17 3 * * *" # daily, 03:17 UTC (off the top of the hour, when Actions is busiest)
+    - cron: "17 * * * *" # hourly at :17 (off the top of the hour, when Actions is busiest)
   workflow_dispatch:
 
 permissions:
@@ -47,4 +48,5 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add src/content/generated/github.json
           git commit -m "chore: refresh generated GitHub data"
+          git pull --rebase
           git push

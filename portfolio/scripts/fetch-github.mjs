@@ -59,7 +59,17 @@ async function main() {
     .slice(-364);
   if (days.length === 0) return keep("calendar was empty");
 
-  const snapshot = { login, fetchedAt: new Date().toISOString(), total: calendar.totalContributions, days };
+  // Leave the file untouched when nothing changed, so the hourly workflow only commits (and
+  // redeploys) on real changes. `fetchedAt` therefore records when the data last changed.
+  const total = calendar.totalContributions;
+  const previous = JSON.parse(await readFile(OUT, "utf8"));
+  const sameData =
+    previous.login === login &&
+    previous.total === total &&
+    JSON.stringify(previous.days) === JSON.stringify(days);
+  if (sameData) return console.log(`[github] no change (${total} contributions).`);
+
+  const snapshot = { login, fetchedAt: new Date().toISOString(), total, days };
   await mkdir(dirname(OUT), { recursive: true });
   await writeFile(OUT, `${JSON.stringify(snapshot, null, 2)}\n`);
   console.log(`[github] snapshot written: ${days.length} days, ${snapshot.total} contributions.`);
