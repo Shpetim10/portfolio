@@ -9,7 +9,7 @@
  * This script never fails the build: with no credentials, or if the API errors,
  * it keeps the last committed snapshot and exits 0.
  *
- * `--strict` (used by the daily refresh workflow, .github/workflows/refresh-github.yml)
+ * `--strict` (used by the daily refresh workflow, ../.github/workflows/refresh-github.yml)
  * still keeps the snapshot but exits 1, so a broken or expired token shows up as a
  * failed run instead of a silently stale graph.
  */

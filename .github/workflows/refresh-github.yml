@@ -1,5 +1,5 @@
 # Daily refresh of the FIELD LOG contribution graph.
-# Re-runs scripts/fetch-github.mjs and commits src/content/generated/github.json;
+# Re-runs portfolio/scripts/fetch-github.mjs and commits the generated github.json;
 # the push to main triggers the Vercel deploy, so the live graph is at most a day old.
 name: Refresh GitHub contributions
 
@@ -10,6 +10,10 @@ on:
 
 permissions:
   contents: write
+
+defaults:
+  run:
+    working-directory: portfolio
 
 concurrency:
   group: refresh-github
