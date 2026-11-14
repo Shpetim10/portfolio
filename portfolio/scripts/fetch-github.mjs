@@ -8,6 +8,10 @@
  *
  * This script never fails the build: with no credentials, or if the API errors,
  * it keeps the last committed snapshot and exits 0.
+ *
+ * `--strict` (used by the daily refresh workflow, .github/workflows/refresh-github.yml)
+ * still keeps the snapshot but exits 1, so a broken or expired token shows up as a
+ * failed run instead of a silently stale graph.
  */
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
@@ -25,8 +29,11 @@ const QUERY = `query($login: String!) {
   }
 }`;
 
+const STRICT = process.argv.includes("--strict");
+
 const keep = (reason) => {
   console.warn(`[github] ${reason} — keeping the last snapshot.`);
+  if (STRICT) process.exitCode = 1;
 };
 
 async function main() {
