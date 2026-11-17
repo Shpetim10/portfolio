@@ -23,7 +23,7 @@ export function CaseHeader({ project }: { project: Project }) {
   const meta: [term: string, value: string][] = [
     ["Role", project.role],
     ["Team", project.team ?? todo("Team")],
-    ["Duration", project.duration],
+    ...(project.duration ? [["Duration", project.duration] as [string, string]] : []),
     ["Year", project.year > 0 ? String(project.year) : todo("Year")],
     ["Stack", project.stack.length > 0 ? project.stack.join(" · ") : todo("Stack")],
   ];

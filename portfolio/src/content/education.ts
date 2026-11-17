@@ -14,6 +14,8 @@ export const education: Education[] = [
     status: "in-progress",
     distinctions: [{ label: "AADF & AKPA scholarship", awardId: "holberton-ml-scholarship" }],
     coursework: ["Core machine learning", "Deep learning", "AI agents", "Generative AI"],
+    // Owner, Nov 2026: White Lies was a Holberton team project (four members). Shown as a tag.
+    relatedProjects: ["white-lies"],
     featured: false,
   },
   {

@@ -41,7 +41,7 @@ export type Layer = 'interface' | 'api' | 'services' | 'data' | 'infrastructure'
 export type Project = {
   slug: string; partNumber: string;        // "P/N 01"
   title: string; client?: string; year: number;
-  role: string; team?: string; duration: string;
+  role: string; team?: string; duration?: string;
   summary: string;                          // 1–2 sentences
   layers: Layer[];                          // which Instrument layers it touches
   stack: string[];

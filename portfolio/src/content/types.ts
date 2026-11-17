@@ -64,7 +64,7 @@ export type Project = {
   year: number;
   role: string;
   team?: string;
-  duration: string;
+  duration?: string; // omitted when the owner chooses not to state it: the cell is left out
   summary: string; // 1–2 sentences
   layers: Layer[]; // which Instrument layers it touches
   stack: string[];

@@ -28,7 +28,7 @@ export async function GET(_request: Request, { params }: RouteContext<"/work/[sl
   const facts = (
     [
       ["Role", project.role],
-      ["Duration", project.duration],
+      ["Duration", project.duration ?? ""],
       ["Year", project.year > 0 ? String(project.year) : ""],
     ] as [string, string][]
   ).filter(([, value]) => value && !isTodo(value));

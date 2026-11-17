@@ -165,6 +165,17 @@ function Row({ entry, awards }: { entry: Entry; awards: Award[] }) {
           </ul>
         )}
 
+        {/* Other entries file their projects as tags, each opening its case study. */}
+        {!entry.featured && projects.length > 0 && (
+          <ul className="schooling__tags" aria-label="Projects" data-edu="cell">
+            {projects.map((project) => (
+              <Tag key={project.slug} as="li" href={`/work/${project.slug}/`} linkSuffix="View case study">
+                {shortTitle(project.title)}
+              </Tag>
+            ))}
+          </ul>
+        )}
+
         {photos.length > 0 && (
           <div data-edu="cell">
             <PhotoGallery photos={photos} label={entry.institution} />
@@ -195,6 +206,9 @@ function Row({ entry, awards }: { entry: Entry; awards: Award[] }) {
     </li>
   );
 }
+
+/** A project's name without its subtitle ("White Lies — Is…" → "White Lies"), as in the work register. */
+const shortTitle = (title: string) => title.split(" — ")[0];
 
 /* Dates ------------------------------------------------------------------ */
 

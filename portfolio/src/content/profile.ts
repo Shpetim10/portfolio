@@ -71,9 +71,9 @@ export const metrics: Metric[] = [
     source: "Logistiqo, Junior Java Developer, Aug 2025 to Jun 2026; Joint Services since Oct 2026",
   },
   {
-    value: 13,
+    value: 14,
     label: "Software projects designed and built",
     source:
-      "Herisaga, Herisaga-Authoring, Ritema, WorkNest, Garbage Classifier, PyramidOs, Library Management System, Hospital Management System, Electronics Store, Portfolio, Real Estate Management System, ... (github.com/Shpetim10)",
+      "Herisaga, Herisaga-Authoring, Ritema, WorkNest, White Lies, Garbage Classifier, PyramidOs, Library Management System, Hospital Management System, Electronics Store, Portfolio, Real Estate Management System, ... (github.com/Shpetim10)",
   },
 ];

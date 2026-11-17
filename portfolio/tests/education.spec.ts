@@ -106,9 +106,18 @@ test.describe("education · homepage", () => {
     for (const href of hrefs) expect((await page.request.get(href!)).status()).toBe(200);
   });
 
+  test("other entries file their projects as linked tags", async ({ page }) => {
+    await page.goto("/");
+    const tag = rows(page).nth(0).locator("ul[aria-label='Projects'] a.tag--link");
+    await expect(tag).toHaveCount(1);
+    await expect(tag).toHaveAttribute("href", "/work/white-lies/");
+    await expect(tag).toContainText("White Lies");
+    expect((await page.request.get("/work/white-lies/")).status()).toBe(200);
+  });
+
   test("distinctions link to their award cards", async ({ page }) => {
     await page.goto("/");
-    const linked = section(page).locator("a.tag--link");
+    const linked = section(page).locator("ul[aria-label='Distinctions'] a.tag--link");
     await expect(linked).toHaveCount(4);
     await expect(
       section(page).getByRole("link", { name: /^Rank #1 in program\s*, View award$/ }),
@@ -207,7 +216,7 @@ test.describe("education · mobile", () => {
     const heights = await section(page)
       .locator("a.tag--link, .schooling__project")
       .evaluateAll((all) => all.map((a) => a.getBoundingClientRect().height));
-    expect(heights.length).toBe(8);
+    expect(heights.length).toBe(9);
     for (const height of heights) expect(height).toBeGreaterThanOrEqual(44);
   });
 });

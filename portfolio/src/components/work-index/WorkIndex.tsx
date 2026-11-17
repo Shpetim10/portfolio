@@ -136,7 +136,7 @@ function Entry({ project, position, total }: { project: Project; position: numbe
   const cells: [term: string, value: string][] = [
     ["Role", project.role],
     ["Team", project.team ?? todo("Team")],
-    ["Duration", project.duration],
+    ...(project.duration ? [["Duration", project.duration] as [string, string]] : []),
   ];
 
   return (

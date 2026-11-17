@@ -89,10 +89,12 @@ export function NextProject({ project, position, total }: NextProjectProps) {
               <dt>Year</dt>
               <Content as="dd" value={project.year > 0 ? String(project.year) : todo("Year")} />
             </div>
-            <div className="case-header__cell">
-              <dt>Duration</dt>
-              <Content as="dd" value={project.duration} />
-            </div>
+            {project.duration && (
+              <div className="case-header__cell">
+                <dt>Duration</dt>
+                <Content as="dd" value={project.duration} />
+              </div>
+            )}
           </dl>
         </NextStage>
 

@@ -315,6 +315,13 @@ const pyramidosCover = image(
   "Pyramid OS Create Event screen on a laptop, asking what you want to host, in front of the Pyramid of Tirana",
   [1672, 941],
 );
+const whiteLiesCover = image(
+  "white-lies",
+  "white-lies-cover.webp",
+  "The White Lies research website on a laptop, its knight-and-pawn hero asking Is the First-Move Advantage Real?, set on a chessboard between rows of white and black pieces",
+  [1672, 941],
+);
+
 const libraryCover = image(
   "library-management-system",
   "library-management-system-cover.webp",
@@ -706,5 +713,88 @@ export const projects: Project[] = [
     links: [{ label: "Repository", href: "https://github.com/Shpetim10/Library-Management-System" }],
     featured: false,
     order: 7,
+  },
+  {
+    slug: "white-lies",
+    partNumber: "P/N 08",
+    title: "White Lies — Is the First-Move Advantage Real?",
+    client: "Holberton School Albania, team project",
+    year: 2026,
+    // From the repository history: the owner reworked the game collector and its tests,
+    // ran the March 2025 collection and rewrote the research site's pages.
+    role: "Data pipeline and research website",
+    team: "4 members",
+    summary:
+      "A data study that puts chess's oldest piece of folk wisdom to the test. We streamed all 97.5 million rated Lichess games from March 2025, drew a reproducible 836,070-game sample and measured White's edge with full statistical rigour: White scores 51.78%, a small but real advantage that holds at every rating level, published as an interactive research site anyone can explore and reproduce.",
+    layers: ["data", "services", "interface", "infrastructure"],
+    stack: [
+      "Python",
+      "pandas",
+      "NumPy",
+      "SciPy",
+      "PyArrow and Parquet",
+      "zstandard streaming",
+      "matplotlib",
+      "seaborn",
+      "Jupyter",
+      "pytest",
+      "MkDocs Material",
+      "JavaScript",
+      "GitHub Actions",
+      "GitHub Pages",
+    ],
+    outcomes: [
+      { value: "97,512,351", label: "Rated games scanned from the March 2025 Lichess archive" },
+      { value: "836,070", label: "Games in the validated, reproducible sample" },
+      { value: "51.78%", label: "White's score, 95% CI 51.65–51.90%: above 50% at every rating level" },
+      { value: "10,000", label: "Bootstrap replicates behind every confidence interval" },
+    ],
+    cover: whiteLiesCover,
+    gallery: gallery("white-lies", whiteLiesCover, [
+      [
+        "white-lies-1.webp",
+        "Headline card: Is the first-move advantage real? White's average score is 51.8%, 95% CI 51.65% to 51.90%, across 836,070 Lichess games",
+        [1200, 1200],
+      ],
+      [
+        "white-lies-2.webp",
+        "How the games end: White wins 49.5%, draws 4.5% and Black wins 46.0%, so White's score is 51.78%, 1.78 points above an even 50%",
+        [1200, 1200],
+      ],
+      [
+        "white-lies-3.webp",
+        "White's score by rating band with 95% confidence intervals: above 50% in all nine bands, from under 1000 to 2500 and above, but not rising steadily with rating",
+        [1200, 1200],
+      ],
+      [
+        "white-lies-4.webp",
+        "White's score by rating gap: 33.9% when White is rated 100 or more lower, 51.8% within 25 Elo and 68.9% when White is rated 100 or more higher",
+        [1200, 1200],
+      ],
+      [
+        "white-lies-site-home.webp",
+        "The White Lies research website: the title, the question Is the First-Move Advantage Real?, the 836,070-game headline and an illustrated knight and pawn on a chessboard",
+        [2400, 1371],
+      ],
+      [
+        "white-lies-site-openings.webp",
+        "The opening-reply explorer: a chessboard after 1.e4 beside White's score and 95% interval for each of Black's ten tested replies in 1600–1799 blitz games",
+        [2400, 1371],
+      ],
+      [
+        "white-lies-reply-heatmap.webp",
+        "Heatmaps of the spread between the best and worst Black reply, in percentage points, by rating band and time control, after 1.e4 and after 1.d4",
+        [2400, 1238],
+      ],
+    ]),
+    links: [
+      { label: "Repository", href: "https://github.com/Blevis/White_Lies-Is_the_First-Move_Advantage_Real" },
+    ],
+    site: {
+      label: "White Lies research site",
+      href: "https://blevis.github.io/White_Lies-Is_the_First-Move_Advantage_Real/",
+    },
+    featured: false,
+    order: 8,
   },
 ];

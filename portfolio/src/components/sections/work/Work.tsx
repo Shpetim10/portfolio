@@ -106,9 +106,11 @@ function Panel({ project, idPrefix }: { project: Project; idPrefix: string }) {
             <LeaderLine direction="up-right" className="work-panel__stack">
               <StackLabel stack={project.stack} />
             </LeaderLine>
-            <div className="work-panel__duration">
-              <DimensionLine value={project.duration} />
-            </div>
+            {project.duration && (
+              <div className="work-panel__duration">
+                <DimensionLine value={project.duration} />
+              </div>
+            )}
           </div>
         </div>
 
