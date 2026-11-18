@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import { awardAnchor } from "@/components/sections/awards/categories";
 import { DimensionLine } from "@/components/ui/Annotation";
 import { Content } from "@/components/ui/Content";
+import { OrgMark } from "@/components/ui/OrgMark";
 import { PhotoGallery } from "@/components/ui/PhotoGallery";
 import { Link } from "@/components/ui/Link";
 import { SectionShell } from "@/components/ui/SectionShell";
@@ -121,6 +122,7 @@ function Row({ entry, awards }: { entry: Entry; awards: Award[] }) {
 
       <div className="schooling__body">
         <div data-edu="cell">
+          <OrgMark logo={entry.logo} />
           <h3 className="schooling__credential">
             <Content value={entry.credential} />
             {entry.field && <Content value={`, ${entry.field}`} />}

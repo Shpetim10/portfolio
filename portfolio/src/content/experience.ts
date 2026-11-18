@@ -4,6 +4,7 @@ import type { Experience } from "./types";
 export const experience: Experience[] = [
   {
     company: "Joint Services",
+    logo: { src: "/assets/logos/joint-services.png", width: 181, height: 96 },
     title: "Junior Technical Consultant",
     start: "2026-10",
     end: "present",
@@ -14,6 +15,7 @@ export const experience: Experience[] = [
   },
   {
     company: "Logistiqo",
+    logo: { src: "/assets/logos/logistiqo.svg", width: 531.32, height: 101.48 },
     title: "Junior Java Developer",
     start: "2025-08",
     end: "2026-06",

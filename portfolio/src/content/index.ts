@@ -16,6 +16,7 @@ import type {
   Education,
   Experience,
   Metric,
+  OrgLogo,
   Profile,
   Project,
   Seo,
@@ -39,6 +40,15 @@ const MONTH = /^(\d{4})-(0[1-9]|1[0-2])$/;
 const KEBAB = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const MONOGRAM = /^[A-Z]{2,4}$/;
 const ICON_SLUG = /^[a-z0-9]+$/;
+const LOGO_SRC = /^\/assets\/logos\/[a-z0-9-]+\.(svg|png)$/;
+
+function checkLogo(name: string, logo: OrgLogo | undefined): void {
+  if (!logo) return;
+  if (!LOGO_SRC.test(logo.src))
+    throw new ContentError(`${name}: logo "${logo.src}" must be /assets/logos/<kebab-name>.svg or .png.`);
+  if (!(logo.width > 0) || !(logo.height > 0))
+    throw new ContentError(`${name}: logo needs a positive width and height.`);
+}
 
 /** "2023-04" → { year: 2023, month: 4 }. Undefined for anything else ("present", TODO, typos). */
 export function parseMonth(value: string): { year: number; month: number } | undefined {
@@ -108,6 +118,7 @@ function validate(): void {
     const name = isTodo(role.company) ? "A role" : `Role "${role.company}"`;
     if (!role.company.trim() || !role.title.trim())
       throw new ContentError(`${name} needs a company and a title.`);
+    checkLogo(name, role.logo);
     if (!isTodo(role.start) && !parseMonth(role.start)) {
       throw new ContentError(`${name} starts "${role.start}": write it as YYYY-MM.`);
     }
@@ -237,6 +248,7 @@ export function checkEducation(
     if (!entry.institution.trim() || !entry.credential.trim() || !entry.location.trim()) {
       throw new ContentError(`${name} needs an institution, a location and a credential.`);
     }
+    checkLogo(name, entry.logo);
     if (!isTodo(entry.start) && !parseMonth(entry.start)) {
       throw new ContentError(`${name} starts "${entry.start}": write it as YYYY-MM.`);
     }

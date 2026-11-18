@@ -7,6 +7,7 @@ export const education: Education[] = [
   {
     id: "holberton",
     institution: "Holberton School Albania",
+    logo: { src: "/assets/logos/holberton.png", width: 177, height: 192 },
     location: "Tirana, Albania",
     credential: "Machine Learning Specialization",
     start: "2026-09",
@@ -21,6 +22,7 @@ export const education: Education[] = [
   {
     id: "epoka",
     institution: "Epoka University",
+    logo: { src: "/assets/logos/epoka.svg", width: 336, height: 43.98 },
     location: "Tirana, Albania",
     credential: "B.Sc. Software Engineering",
     start: "2023-10",

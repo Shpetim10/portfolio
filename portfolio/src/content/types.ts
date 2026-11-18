@@ -97,8 +97,20 @@ export type Skill = {
   ai?: boolean; // AI / ML work: marked with a signal dot on the assembly line
 };
 
+/**
+ * An organisation's own logo, as an SVG or PNG with a transparent background in /public/assets/logos.
+ * Decorative: the name beside it is the text. It is drawn as a single-colour mask, so only its
+ * silhouette matters (see OrgMark); leave it out until the official file is in /public.
+ */
+export type OrgLogo = {
+  src: string; // /assets/logos/<slug>.svg
+  width: number; // intrinsic width: only the ratio to height is used
+  height: number;
+};
+
 export type Experience = {
   company: string;
+  logo?: OrgLogo;
   title: string;
   start: string; // "2023-04"
   end: string | "present";
@@ -130,6 +142,7 @@ export type Grade = {
 export type Education = {
   id: string; // kebab-case
   institution: string;
+  logo?: OrgLogo;
   location: string; // "City, Country"
   credential: string; // degree or program name
   field?: string;

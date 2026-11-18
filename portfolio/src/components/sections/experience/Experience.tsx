@@ -1,4 +1,5 @@
 import { Content } from "@/components/ui/Content";
+import { OrgMark } from "@/components/ui/OrgMark";
 import { SectionShell } from "@/components/ui/SectionShell";
 import { getExperience, newestFirst, parseMonth, type Experience as Role } from "@/content";
 import { todo } from "@/content/todo";
@@ -105,6 +106,7 @@ export function Experience({ experience = getExperience(), id = "experience", in
                     </td>
                     <th scope="row" className="rev__company">
                       <div className="rev__cell" data-rev="cell">
+                        <OrgMark logo={revision.logo} />
                         <Content value={revision.company} />
                         {revision.location && (
                           <Content as="span" value={revision.location} className="rev__location" />
@@ -143,6 +145,7 @@ export function Experience({ experience = getExperience(), id = "experience", in
                       </span>
                     </p>
                     <div data-rev="cell">
+                      <OrgMark logo={revision.logo} />
                       <Content as="h3" value={revision.company} className="rev-card__company" />
                       <Content as="p" value={revision.title} className="rev__title rev-card__title" />
                       {revision.location && (

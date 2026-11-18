@@ -14,7 +14,7 @@ export const profile: Profile = {
     open: true,
     note: "Open to freelance · Junior Technical Consultant at Joint Services IT",
   },
-  email: "shpetim.shabanaj1@gmail.com",
+  email: "contact@shpetimshabanaj.com",
   socials: [
     { label: "LinkedIn", href: "https://www.linkedin.com/in/shpetimshabanaj" },
     { label: "GitHub", href: "https://github.com/Shpetim10" },

@@ -63,8 +63,10 @@ export type Skill = {
   ai?: boolean;       // AI / ML work: a signal dot on its mark
 };
 
+export type OrgLogo = { src: string; width: number; height: number };  // /assets/logos/*.svg, transparent; drawn as a one-colour mask
+
 export type Experience = {
-  company: string; title: string;
+  company: string; logo?: OrgLogo; title: string;
   start: string; end: string | 'present';   // "2023-04"
   location?: string;
   highlights: string[];                      // 2–3, achievement-first
@@ -78,7 +80,7 @@ export type AwardCategory =
 export type Grade = { value: number; scaleMin: number; scaleMax: number; label: string };  // label: "GPA", "Average"
 export type Education = {
   id: string;                    // kebab-case
-  institution: string; location: string;   // location: "City, Country"
+  institution: string; logo?: OrgLogo; location: string;   // location: "City, Country"
   credential: string;            // degree or program name
   field?: string;
   start: string; end: string | 'present';   // "YYYY-MM"; 'present' only while in-progress
@@ -125,6 +127,16 @@ export type Testimonial = { quote: string; name: string; title: string; company:
 in `awards.ts` and every `relatedProjects` slug names a project. Distinctions are short
 tags; the stories behind them stay in Awards, and certifications are filed there only.
 Completed entries are listed as `alumniOf` in the homepage's Person JSON-LD.
+
+## Organisation logos (experience and education)
+
+`logo` is optional on an `Experience` or `Education` entry. Use the organisation's official
+SVG (or a PNG) with a transparent background, saved in `/public/assets/logos/`. The site draws it
+as a one-colour mask in Dust, so the original colours never show and only the silhouette matters:
+a logo that is a solid-coloured rectangle will render as a block. The mark is decorative
+(`aria-hidden`); the name beside it carries the meaning. A logo whose file is not in `/public` at build
+is left out, and `next build` fails on a path outside `/assets/logos/`. Use the plain logo or wordmark,
+not a university's official seal, and check the owner's brand guidelines for recolouring.
 
 ## Case-study stories (T07)
 
