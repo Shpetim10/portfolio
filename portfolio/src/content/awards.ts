@@ -109,6 +109,24 @@ export const awards: Award[] = [
     featured: false,
   },
   {
+    id: "cybersecurity-ctf-blue-lightfoil",
+    title: "Cybersecurity CTF Blue Lightfoil Challenge",
+    issuer: "SIMSPACE, AKSK, FIRST and Epoka University",
+    year: 2025,
+    category: "certification",
+    placement: "Participant · 13 May 2025",
+    why: "Took part in the Cybersecurity CTF Blue Lightfoil Challenge on 13 May 2025, organized by SIMSPACE, AKSK, FIRST and Epoka University.",
+    featured: false,
+    gallery: [
+      photo(
+        "simspace-ctf-preview.jpg",
+        "Certificate",
+        "Certificate of participation for Shpëtim Shabanaj in the Cybersecurity CTF Blue Lightfoil Challenge held on 13 May 2025",
+        "Simspace_certificate.pdf",
+      ),
+    ],
+  },
+  {
     id: "nvidia-deep-learning",
     title: "Fundamentals of Deep Learning",
     issuer: "NVIDIA Deep Learning Institute",
@@ -170,6 +188,43 @@ export const awards: Award[] = [
     featured: false,
     gallery: [photo("n8n-102-preview.jpg", "Certificate", "n8n102 Integrations certificate", "n8n-102.pdf")],
     badge: { src: "/assets/awards/n8n-102-badge.png", alt: "n8n102 Integrations digital badge" },
+  },
+  {
+    id: "n8n-103",
+    title: "n8n103 - In Practice: AI, Testing and Best Practices",
+    issuer: "n8n Academy",
+    year: 2026,
+    category: "certification",
+    why: 'Completed "n8n103 - In Practice: AI, Testing and Best Practices" on n8n Academy web app.',
+    proof: {
+      label: "Certificate, Badge",
+      href: "https://badges.n8n.io/aa335e40-7ae9-4708-a758-3733c0a50b8e#acc.GgnrURLD",
+    },
+    featured: false,
+    gallery: [photo("n8n-103-preview.jpg", "Certificate", "n8n103 In Practice certificate", "n8n-103.pdf")],
+    badge: { src: "/assets/awards/n8n-103-badge.png", alt: "n8n103 In Practice digital badge" },
+  },
+  {
+    id: "n8n-foundations-pathway",
+    title: "n8n Foundations Pathway",
+    issuer: "n8n Academy",
+    year: 2026,
+    category: "certification",
+    why: "Completed all three courses of the n8n Foundations pathway on n8n Academy: n8n101 Essentials, n8n102 Integrations and n8n103 In Practice.",
+    proof: {
+      label: "Certificate, Badge",
+      href: "https://badges.n8n.io/cb69b25e-ed19-4582-b8fd-8f4876adaa76#acc.MKm1baI3",
+    },
+    featured: false,
+    gallery: [
+      photo(
+        "n8n-pathway-preview.jpg",
+        "Certificate",
+        "n8n Foundations pathway certificate of completion",
+        "n8n-pathway-certificate.pdf",
+      ),
+    ],
+    badge: { src: "/assets/awards/n8n-pathway-badge.png", alt: "n8n Foundations pathway digital badge" },
   },
   {
     id: "oop-mentor",
