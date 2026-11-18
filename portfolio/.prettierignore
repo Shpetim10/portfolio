@@ -12,5 +12,6 @@ docs
 *.md
 src/content/sculpture/*.json
 src/content/drawing/*.json
+src/components/sections/stack/sprite.json
 assets-src/vitruvian/glyphs.json
 src/components/brand/geometry.ts

@@ -37,6 +37,8 @@ export class ContentError extends Error {
 
 const MONTH = /^(\d{4})-(0[1-9]|1[0-2])$/;
 const KEBAB = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const MONOGRAM = /^[A-Z]{2,4}$/;
+const ICON_SLUG = /^[a-z0-9]+$/;
 
 /** "2023-04" → { year: 2023, month: 4 }. Undefined for anything else ("present", TODO, typos). */
 export function parseMonth(value: string): { year: number; month: number } | undefined {
@@ -88,6 +90,16 @@ function validate(): void {
     for (const slug of skill.projects) {
       if (!slugs.has(slug))
         throw new ContentError(`Skill "${skill.name}" references unknown project "${slug}".`);
+    }
+    // T08b draws each part's mark on the assembly line; the sprite script resolves the slugs.
+    const icon = skill.icon;
+    if (icon?.source === "monogram" && !MONOGRAM.test(icon.text)) {
+      throw new ContentError(
+        `Skill "${skill.name}": a monogram is 2–4 uppercase letters, not "${icon.text}".`,
+      );
+    }
+    if (icon && icon.source !== "monogram" && !ICON_SLUG.test(icon.slug)) {
+      throw new ContentError(`Skill "${skill.name}": "${icon.slug}" is not a ${icon.source} slug.`);
     }
   }
 

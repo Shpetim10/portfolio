@@ -79,7 +79,23 @@ export type Project = {
   // Problem · Constraints · Architecture · Key decisions · Results · Reflection
 };
 
-export type Skill = { name: string; layer: Layer; projects: string[] /* slugs */ };
+/**
+ * T08b · The part's mark on the Stack assembly line. A brand mark comes from the npm package
+ * (monochrome, drawn in currentColor), by its slug there: Simple Icons first, Devicon's "plain"
+ * variant when Simple Icons has none. Concepts, and tools neither set covers, get a monogram:
+ * 2–4 uppercase letters on a hairline tile. Never a look-alike logo.
+ */
+export type SkillIcon =
+  | { source: "simple-icons" | "devicon"; slug: string; text?: never }
+  | { source: "monogram"; text: string; slug?: never };
+
+export type Skill = {
+  name: string;
+  layer: Layer;
+  projects: string[]; // slugs
+  icon?: SkillIcon; // no icon: a monogram from the name's initials
+  ai?: boolean; // AI / ML work: marked with a signal dot on the assembly line
+};
 
 export type Experience = {
   company: string;

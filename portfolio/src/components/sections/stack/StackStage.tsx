@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
-import { EASE } from "@/motion/tokens";
+import { gsap } from "@/motion/gsap";
+import { useLenis } from "@/motion/MotionProvider";
+import { EASE, motionTokens } from "@/motion/tokens";
 import { fadeIn, renderedIn, useScrollMotion, type MotionBuilder } from "@/motion/useScrollMotion";
+import { LOCATE_EVENT, type LocateDetail } from "./AssemblyLine";
 
 /*
  * T08 · Stack — choreography.
@@ -22,6 +25,12 @@ import { fadeIn, renderedIn, useScrollMotion, type MotionBuilder } from "@/motio
  * (pointer and focus) returns the figure to its rest reading; on phones the
  * figure follows whichever accordion is open. Without JS the figure rests and
  * every fact is in the table.
+ *
+ * T08b · Locating a part. A part tapped on the assembly line (LOCATE_EVENT)
+ * scrolls its row to the middle of the viewport (Lenis, settle · cinematic;
+ * a jump under reduced motion), opening its accordion on phones, then marks
+ * it for --assembly-flash: gunmetal ground and a signal tick at its left edge,
+ * with its plate and projects lit in the figure as if pointed at.
  */
 
 const reveal: MotionBuilder = (tl, scope, { duration, stagger }) => {
@@ -48,7 +57,13 @@ const readingOf = (element: HTMLElement): Reading => ({
 
 export function StackStage({ children }: { children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
+  const lenis = useLenis();
+  const lenisRef = useRef(lenis);
   useScrollMotion(ref, { full: reveal, reduced: fadeIn });
+
+  useEffect(() => {
+    lenisRef.current = lenis;
+  }, [lenis]);
 
   useEffect(() => {
     const root = ref.current;
@@ -98,7 +113,8 @@ export function StackStage({ children }: { children: ReactNode }) {
     const onToggle = (event: Event) => {
       const sheet = event.target as HTMLDetailsElement;
       if (!sheets.includes(sheet)) return;
-      if (sheet.open) light(sheet);
+      // A sheet opened to show a located part keeps that part lit (T08b).
+      if (sheet.open && !(flashed && sheet.contains(flashed))) light(sheet);
       else if (current === sheet) light(sheets.find((other) => other.open) ?? null);
     };
 
@@ -110,12 +126,60 @@ export function StackStage({ children }: { children: ReactNode }) {
     // A sheet left open across a reload or a back navigation.
     light(sheets.find((sheet) => sheet.open) ?? null);
 
+    // T08b: a part tapped on the assembly line → its row, marked for a moment.
+    // In ms. The minifier may rewrite the token (1200ms → 1.2s), so read the unit.
+    const flashToken = getComputedStyle(root).getPropertyValue("--assembly-flash").trim();
+    const flashFor = parseFloat(flashToken) * (flashToken.endsWith("ms") ? 1 : 1000) || 0;
+    let flashed: HTMLElement | null = null;
+    let unflash = 0;
+    const clearFlash = () => {
+      window.clearTimeout(unflash);
+      if (!flashed) return;
+      delete flashed.dataset.flash;
+      if (current === flashed) light(sheets.find((sheet) => sheet.open) ?? null);
+      flashed = null;
+    };
+    const flash = (target: HTMLElement) => {
+      clearFlash();
+      flashed = target;
+      target.dataset.flash = "";
+      light(target);
+      unflash = window.setTimeout(clearFlash, flashFor);
+    };
+    const onLocate = (event: Event) => {
+      const { skill } = (event as CustomEvent<LocateDetail>).detail;
+      const onTable = table.getClientRects().length > 0;
+      const selector = `${onTable ? "tr" : ".bom-sheet__part"}[data-skill="${CSS.escape(skill)}"]`;
+      const target = root.querySelector<HTMLElement>(selector);
+      if (!target) return;
+      const sheet = target.closest("details");
+      if (sheet && !sheet.open) sheet.open = true;
+      const box = target.getBoundingClientRect();
+      const offset = -(window.innerHeight - box.height) / 2;
+      const scroller = lenisRef.current;
+      if (scroller) {
+        const { duration } = motionTokens();
+        scroller.scrollTo(target, {
+          offset,
+          duration: duration.cinematic,
+          easing: gsap.parseEase(EASE.settle),
+          onComplete: () => flash(target),
+        });
+      } else {
+        window.scrollTo({ top: window.scrollY + box.top + offset, behavior: "instant" });
+        flash(target);
+      }
+    };
+    root.addEventListener(LOCATE_EVENT, onLocate);
+
     return () => {
       table.removeEventListener("pointerover", onOver);
       table.removeEventListener("pointerleave", onLeave);
       table.removeEventListener("focusin", onFocusIn);
       table.removeEventListener("focusout", onFocusOut);
       root.removeEventListener("toggle", onToggle, true);
+      root.removeEventListener(LOCATE_EVENT, onLocate);
+      clearFlash();
       light(null);
     };
   }, []);

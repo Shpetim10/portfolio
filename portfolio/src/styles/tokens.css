@@ -235,6 +235,22 @@
   --stack-figure-compact: 7.5rem; /* its height in the phone's sticky bar */
   --bom-part-col: 7rem; /* PART NO. column: "P/N 05" / "05.12" in label mono */
 
+  /* Stack assembly line (T08b). Phone values here; 48rem and up below. */
+  --assembly-track: 64px; /* one conveyor, rail to rail */
+  --assembly-icon: 26px; /* a brand mark */
+  --assembly-monogram: 28px; /* a monogram's hairline tile: the mark's size plus its optical margin */
+  --assembly-gap: 32px; /* between parts on the belt */
+  --assembly-tick: 6px; /* the ruler tick on the bottom rail under each part */
+  --assembly-fade: 80px; /* the belt fades out over this much at each end */
+  --assembly-name: 16ch; /* phones: a name wraps under its mark past this, two lines at most */
+  --assembly-speed: 24px; /* base belt speed, per second (×1.0 / 0.85 / 1.15 / 0.9 / 1.05 per track) */
+  --assembly-dim: 0.4; /* the other parts on a track while one is pointed at */
+  --assembly-stop: 400ms; /* a pointed-at track slows to a stop */
+  --assembly-resume: 600ms; /* …and picks up again when the pointer leaves */
+  --assembly-coast: 800ms; /* scroll inertia eases back to base speed */
+  --assembly-release: 1500ms; /* after a drag, the belt rests this long before moving on its own */
+  --assembly-flash: 1200ms; /* a located part's row in the bill of materials stays marked */
+
   /* Glyph line drawing (T09c) */
   --drawing-orbit: 14s; /* one revolution of the compass point around Leonardo's circle */
   --drawing-compass: 3px; /* the compass point */
@@ -303,6 +319,11 @@
   :root {
     --grid-columns: 8;
     --grid-gutter: 20px;
+    --assembly-track: 88px;
+    --assembly-icon: 32px;
+    --assembly-monogram: 36px;
+    --assembly-gap: 48px;
+    --assembly-speed: 36px;
   }
 }
 

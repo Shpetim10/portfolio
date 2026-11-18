@@ -8,11 +8,30 @@
  *             accordion per layer. The table is not rendered.
  *   ≥ 64rem   12 columns: label + table on 1–8, the figure sticky on 9–12.
  *             The accordions are not rendered.
+ *
+ * Assembly line (T08b), above the bill of materials
+ *   < 48rem   each track's label on one line above it ("P/N 01 · INTERFACE · 07"),
+ *             tracks full-bleed, 64px; marks 26px with the name centred under them.
+ *   48–64rem  the same stacking, with the desktop part: 88px tracks, 32px marks,
+ *             the name beside the mark.
+ *   ≥ 64rem   a fixed label column on 1–2 (P/N, layer, count; the AI / ML
+ *             legend under it); tracks on 3–12, bleeding off the right edge.
+ *   reduced   no belt motion: each track is one copy of its parts, a static row
+ *             that scrolls sideways (scroll snap). The pause control is hidden.
  */
 
 @layer components {
   .stack {
     grid-column: 1 / -1;
+  }
+
+  /*
+   * The assembly line's tracks bleed to the viewport edge, and its entrance holds
+   * them off to one side until it plays: clip sideways so neither ever widens the
+   * page. clip, not hidden: no scroll container, so the sticky figure still sticks.
+   */
+  .stack-shell {
+    overflow-x: clip;
   }
 
   .stack__label {
@@ -28,6 +47,323 @@
 
   .stack__total {
     color: var(--color-dust);
+  }
+
+  /* Assembly line (T08b) ----------------------------------------------------- */
+  .assembly-sprite {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+
+  .assembly {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    row-gap: --spacing(4);
+    margin-bottom: --spacing(16);
+  }
+
+  .assembly__toggle,
+  .assembly__legend,
+  .assembly__label,
+  .assembly__item-name,
+  .assembly__monogram {
+    font-family: var(--font-mono);
+    font-weight: var(--font-weight-regular);
+    text-transform: uppercase;
+  }
+
+  .assembly__toggle {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    display: inline-flex;
+    align-items: center;
+    gap: --spacing(2);
+    min-height: var(--touch-target);
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--color-bone);
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    cursor: pointer;
+  }
+
+  /* Pause: two bars. Play: a triangle. Drawn, so no glyph falls outside the mono face. */
+  .assembly__toggle-glyph {
+    width: --spacing(2);
+    height: --spacing(2.5);
+    border-inline: calc(var(--line) * 3) solid currentColor;
+  }
+
+  .assembly__toggle-glyph[data-state="play"] {
+    border: 0;
+    background-color: currentColor;
+    clip-path: polygon(0 0, 100% 50%, 0 100%);
+  }
+
+  .assembly__legend {
+    grid-column: 1;
+    grid-row: 1;
+    display: flex;
+    align-items: center;
+    gap: --spacing(2);
+    margin: 0;
+    color: var(--color-dust);
+    font-size: var(--text-micro);
+    line-height: var(--text-micro--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+  }
+
+  .assembly__dot {
+    width: var(--leader-dot);
+    height: var(--leader-dot);
+    flex: none;
+    border-radius: 50%;
+    background-color: var(--color-signal);
+  }
+
+  .assembly__lines {
+    grid-column: 1 / -1;
+    display: grid;
+    row-gap: --spacing(6);
+  }
+
+  .assembly__line {
+    display: grid;
+    row-gap: --spacing(2);
+    min-width: 0;
+  }
+
+  .assembly__label {
+    margin: 0;
+    color: var(--color-dust);
+    font-size: var(--text-micro);
+    line-height: var(--text-micro--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .assembly__name {
+    color: var(--color-bone);
+  }
+
+  .assembly__count-unit {
+    display: none;
+  }
+
+  /* The window onto the belt: rails above and below, both ends fading out. */
+  .assembly__track {
+    position: relative;
+    height: var(--assembly-track);
+    margin-inline: calc(var(--grid-margin) * -1);
+    overflow: hidden;
+    border-block: var(--line) solid var(--color-hairline);
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      var(--color-carbon) var(--assembly-fade),
+      var(--color-carbon) calc(100% - var(--assembly-fade)),
+      transparent
+    );
+    /* Vertical swipes scroll the page; sideways ones drag the belt. */
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .assembly__belt {
+    display: flex;
+    width: max-content;
+    height: 100%;
+    will-change: transform;
+  }
+
+  /* One copy of the track's parts, a trailing gap included: the loop's period. */
+  .assembly__copy {
+    display: flex;
+    flex: none;
+    gap: var(--assembly-gap);
+    height: 100%;
+    margin: 0;
+    padding: 0 var(--assembly-gap) 0 0;
+    list-style: none;
+  }
+
+  .assembly__item {
+    position: relative;
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: --spacing(0.5);
+    height: 100%;
+    /* Clear of the ruler tick. */
+    padding-bottom: var(--assembly-tick);
+    color: var(--color-dust);
+    cursor: pointer;
+    transition: opacity var(--duration-micro) var(--ease-snap);
+  }
+
+  .assembly__item:focus {
+    outline: none; /* tabindex -1: focused only by a click; keyboard users read the table */
+  }
+
+  /* The ruler: a tick on the bottom rail under each part's centre. */
+  .assembly__item::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: calc(50% - var(--line) / 2);
+    width: var(--line);
+    height: var(--assembly-tick);
+    background-color: var(--color-dust);
+    opacity: var(--registration-opacity);
+  }
+
+  /* Every mark sits in the monogram's box, so names line up whatever the mark. */
+  .assembly__mark {
+    position: relative;
+    display: grid;
+    place-items: center;
+    flex: none;
+    height: var(--assembly-monogram);
+  }
+
+  .assembly__icon {
+    width: var(--assembly-icon);
+    height: var(--assembly-icon);
+    fill: currentColor;
+  }
+
+  .assembly__monogram {
+    display: grid;
+    place-items: center;
+    width: var(--assembly-monogram);
+    height: var(--assembly-monogram);
+    border: var(--line) solid var(--color-hairline);
+    font-size: var(--text-micro);
+    line-height: 1;
+  }
+
+  /* Four letters still fit the tile with room to breathe. */
+  .assembly__monogram[data-letters="4"] {
+    font-size: calc(var(--text-micro) * 0.8);
+  }
+
+  /* AI / ML: a signal dot on the mark's top-right corner. */
+  .assembly__mark > .assembly__dot {
+    position: absolute;
+    top: 0;
+    right: 0;
+    transform: translate(50%, -50%);
+  }
+
+  .assembly__icon + .assembly__dot {
+    top: calc((var(--assembly-monogram) - var(--assembly-icon)) / 2);
+    right: calc((var(--assembly-monogram) - var(--assembly-icon)) / 2);
+  }
+
+  .assembly__monogram + .assembly__dot {
+    right: calc(50% - var(--assembly-monogram) / 2);
+  }
+
+  .assembly__item-name {
+    max-width: var(--assembly-name);
+    font-size: var(--text-micro);
+    line-height: var(--text-micro--line-height);
+    letter-spacing: var(--text-micro--letter-spacing);
+    text-align: center;
+    text-wrap: balance;
+    /* Two lines at most under a 64px track; the bill of materials has the full name. */
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .assembly__empty {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    margin: 0;
+    padding-inline: var(--assembly-fade);
+  }
+
+  /*
+   * Pointing at a part: it lights, the rest of its track steps back. The engine
+   * hit-tests the moving belt (the clones are inert, so :hover can't reach them)
+   * and marks the part on every copy with data-on. Static rows use :hover.
+   */
+  @media (hover: hover) and (pointer: fine) {
+    .assembly__track[data-active]:not([data-dragging]) .assembly__item:not([data-on]) {
+      opacity: var(--assembly-dim);
+    }
+
+    .assembly__track:not([data-dragging]) .assembly__item[data-on] {
+      color: var(--color-bone);
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: reduce) {
+    .assembly__track:has(.assembly__item:hover) .assembly__item:not(:hover) {
+      opacity: var(--assembly-dim);
+    }
+
+    .assembly__item:hover {
+      color: var(--color-bone);
+    }
+  }
+
+  .assembly__track[data-dragging] {
+    cursor: grabbing;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .assembly__toggle {
+      display: none;
+    }
+
+    .assembly__track {
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x proximity;
+      scroll-padding-inline: var(--assembly-fade);
+      scrollbar-width: thin;
+      scrollbar-color: var(--color-dust) transparent;
+    }
+
+    .assembly__copy {
+      padding-inline: var(--assembly-fade);
+    }
+
+    .assembly__copy[aria-hidden] {
+      display: none;
+    }
+
+    .assembly__item {
+      scroll-snap-align: start;
+      transition: opacity var(--duration-reduced) linear;
+    }
+  }
+
+  @media (width >= 48rem) {
+    .assembly__item {
+      flex-direction: row;
+      gap: --spacing(3);
+    }
+
+    .assembly__item-name {
+      display: block;
+      max-width: none;
+      white-space: nowrap;
+      text-align: start;
+    }
   }
 
   /* Figure ---------------------------------------------------------------- */
@@ -259,6 +595,38 @@
     color: var(--color-bone);
   }
 
+  /* T08b: a part located from the assembly line, marked for --assembly-flash. */
+  .bom__row > :first-child,
+  .bom-sheet__part {
+    position: relative;
+  }
+
+  .bom__row > :first-child::before,
+  .bom-sheet__part::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    left: calc(--spacing(3) * -1);
+    width: var(--focus-width);
+    background-color: var(--color-signal);
+    opacity: 0;
+    transition: opacity var(--duration-small) var(--ease-snap);
+  }
+
+  .bom__row[data-flash] > *,
+  .bom-sheet__part[data-flash] {
+    background-color: var(--color-gunmetal);
+  }
+
+  .bom__row[data-flash] > :first-child::before,
+  .bom-sheet__part[data-flash]::before {
+    opacity: 1;
+  }
+
+  .bom__row[data-flash] .bom__part {
+    color: var(--color-bone);
+  }
+
   /* Accordions (< 64rem) -------------------------------------------------- */
   .stack__sheets {
     margin-top: --spacing(6);
@@ -354,6 +722,11 @@
       transform: none;
       opacity: 0;
     }
+
+    .bom__row > :first-child::before,
+    .bom-sheet__part::before {
+      transition: opacity var(--duration-reduced) linear;
+    }
   }
 
   /* Desktop ----------------------------------------------------------------- */
@@ -361,18 +734,72 @@
     .stack {
       display: grid;
       grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
-      grid-template-rows: auto 1fr;
+      grid-template-rows: auto auto 1fr;
       column-gap: var(--grid-gutter);
+    }
+
+    .assembly {
+      grid-column: 1 / -1;
+      grid-row: 1;
+      grid-template-columns: subgrid;
+      margin-bottom: --spacing(24);
+    }
+
+    .assembly__toggle {
+      grid-column: 3 / -1;
+    }
+
+    .assembly__lines {
+      grid-template-columns: subgrid;
+      row-gap: --spacing(3);
+    }
+
+    .assembly__line {
+      grid-column: 1 / -1;
+      grid-template-columns: subgrid;
+      align-items: center;
+    }
+
+    /* The fixed label column: P/N · layer · count, one row per track. */
+    .assembly__label {
+      grid-column: 1 / span 2;
+      display: grid;
+      row-gap: --spacing(1);
+    }
+
+    .assembly__sep {
+      display: none;
+    }
+
+    .assembly__name {
+      font-size: var(--text-label);
+      line-height: var(--text-label--line-height);
+      letter-spacing: var(--text-label--letter-spacing);
+    }
+
+    .assembly__count-unit {
+      display: inline;
+    }
+
+    .assembly__track {
+      grid-column: 3 / -1;
+      margin-inline: 0 calc(var(--grid-margin) * -1);
+    }
+
+    .assembly__legend {
+      grid-column: 1 / span 2;
+      grid-row: 3;
     }
 
     .stack__label {
       grid-column: 1 / span 8;
+      grid-row: 2;
     }
 
     .bom {
       display: table;
       grid-column: 1 / span 8;
-      grid-row: 2;
+      grid-row: 3;
     }
 
     .stack__sheets {
@@ -381,7 +808,7 @@
 
     .stack__figure {
       grid-column: 10 / -1;
-      grid-row: 1 / span 2;
+      grid-row: 2 / span 2;
       align-self: start;
       top: calc(var(--header-height) + --spacing(8));
       grid-template-columns: minmax(0, 1fr);

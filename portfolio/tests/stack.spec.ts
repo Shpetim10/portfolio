@@ -18,17 +18,16 @@ const litPlates = (page: Page) => lit(page, ".instrument-drawing__plate", "data-
 const litProjects = (page: Page) => lit(page, ".stack__index-item", "data-slug");
 
 test.describe("stack · homepage", () => {
-  test("section [05] files every layer, missing technologies marked", async ({ page, isMobile }) => {
+  test("section [05] files every layer from the skills content", async ({ page, isMobile }) => {
     await page.goto("/");
     const section = page.locator("section#stack");
     await expect(section).toHaveAttribute("aria-labelledby", "stack-index");
     await expect(section.locator(".section-index")).toContainText("[05]");
     await expect(section.locator(".section-index")).toContainText("Stack");
-    await expect(section.locator("h2")).toHaveText("Bill of materials");
+    await expect(section.locator("h2")).toHaveText(/^Bill of materials · \d{2} parts$/);
     const groups = isMobile ? section.locator("details") : section.locator("tbody");
     await expect(groups).toHaveCount(5);
-    await expect(section.locator(isMobile ? "details [data-todo]" : "tbody [data-todo]")).toHaveCount(5);
-    // No logos, no bars: nothing in the section is an image or a meter.
+    // No bars, no raster logos: nothing in the section is an image or a meter.
     await expect(section.locator("img, progress, meter")).toHaveCount(0);
   });
 });
@@ -141,5 +140,303 @@ test.describe("stack · reduced motion", () => {
       .evaluateAll((nodes) => nodes.map((node) => getComputedStyle(node).transform));
     for (const transform of transforms) expect(["none", "matrix(1, 0, 0, 1, 0, 0)"]).toContain(transform);
     await expect(page.locator("#stack .stack")).toHaveCSS("opacity", "1");
+  });
+});
+
+/*
+ * T08b · Assembly line. Five conveyor tracks over the bill of materials, built
+ * from the same Skill[] — the table rows are the reference for every check.
+ */
+const assembly = "#stack .assembly";
+
+/** The belt's current x (px) on track `i`. */
+const beltX = (page: Page, i = 0) =>
+  page
+    .locator(`${assembly} [data-assembly='belt']`)
+    .nth(i)
+    .evaluate((belt) => new DOMMatrix(getComputedStyle(belt).transform).m41);
+
+/** A part on track `line` that sits wholly inside the window, clear of the fades: its key and centre. */
+const partInView = (page: Page, line: number) =>
+  page
+    .locator(`${assembly} [data-assembly='line']`)
+    .nth(line)
+    .evaluate((line) => {
+      const track = line.querySelector<HTMLElement>("[data-assembly='track']")!.getBoundingClientRect();
+      const fade = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--assembly-fade"));
+      const item = [...line.querySelectorAll<HTMLElement>(".assembly__item")].find((item) => {
+        const box = item.getBoundingClientRect();
+        return box.left >= track.left + fade && box.right <= track.right - fade;
+      })!;
+      const box = item.getBoundingClientRect();
+      return { key: item.dataset.skill!, x: box.left + box.width / 2, y: box.top + box.height / 2 };
+    });
+
+const enter = async (page: Page) => {
+  await page.locator(assembly).scrollIntoViewIfNeeded();
+  // Entrance: 1000ms + 4 × 80ms stagger, then the speed gate opens.
+  await page.waitForTimeout(2000);
+};
+
+test.describe("stack · assembly line", () => {
+  test("every skill rides its layer's track once per copy; counts match", async ({ page }) => {
+    await page.goto("/");
+    await enter(page); // the labels decode during the entrance
+    const expected = await page
+      .locator("#stack tr[data-skill]")
+      .evaluateAll((rows) =>
+        rows.map((row) => [(row as HTMLElement).dataset.layer, (row as HTMLElement).dataset.skill]),
+      );
+    const lines = await page.locator(`${assembly} [data-assembly='line']`).evaluateAll((lines) =>
+      lines.map((line) => ({
+        layer: (line as HTMLElement).dataset.layer,
+        label: line.querySelector("[data-assembly='label']")!.textContent,
+        copies: [...line.querySelectorAll(".assembly__copy")].map((copy) =>
+          [...copy.querySelectorAll("[data-skill]")].map((item) => (item as HTMLElement).dataset.skill),
+        ),
+      })),
+    );
+    expect(lines.map((line) => line.layer)).toEqual(LAYERS);
+    for (const line of lines) {
+      const skills = expected.filter(([layer]) => layer === line.layer).map(([, skill]) => skill);
+      expect(line.copies.length).toBeGreaterThanOrEqual(2);
+      for (const copy of line.copies) expect(copy).toEqual(skills);
+      expect(line.label).toContain(` · ${String(skills.length).padStart(2, "0")}`);
+    }
+  });
+
+  test("the first copy is the list; clones are hidden and inert; parts aren't tab stops", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const first = page.locator(`${assembly} [data-assembly='copy']`);
+    await expect(first).toHaveCount(5);
+    await expect(first.first()).toHaveAttribute("aria-label", "Interface stack");
+    const clones = page.locator(`${assembly} .assembly__copy:not([data-assembly])`);
+    expect(await clones.count()).toBeGreaterThanOrEqual(5);
+    for (const clone of await clones.all()) {
+      await expect(clone).toHaveAttribute("aria-hidden", "true");
+      await expect(clone).toHaveAttribute("inert", "");
+    }
+    const tabbable = await page
+      .locator(`${assembly} .assembly__item`)
+      .evaluateAll((items) => items.filter((item) => (item as HTMLElement).tabIndex >= 0).length);
+    expect(tabbable).toBe(0);
+  });
+
+  test("monochrome marks: the only signal orange is the AI dots", async ({ page }) => {
+    await page.goto("/");
+    await enter(page);
+    const report = await page.evaluate(() => {
+      const signal = "rgb(255, 79, 0)";
+      const root = document.querySelector("#stack .assembly")!;
+      const orange = [...root.querySelectorAll("*")].filter((el) => {
+        const style = getComputedStyle(el);
+        return [style.color, style.backgroundColor, style.borderTopColor, style.fill].includes(signal);
+      });
+      const symbols = [...document.querySelectorAll(".assembly-sprite symbol")];
+      return {
+        orangeOutsideDots: orange.filter((el) => !el.classList.contains("assembly__dot")).length,
+        dots: root.querySelectorAll(".assembly__mark .assembly__dot").length,
+        colouredShapes: symbols.filter((symbol) => symbol.querySelector("[fill], [style], [stroke]")).length,
+        symbols: symbols.length,
+        iconColour: getComputedStyle(root.querySelector(".assembly__icon")!).color,
+      };
+    });
+    expect(report.orangeOutsideDots).toBe(0);
+    expect(report.dots).toBeGreaterThan(0);
+    expect(report.symbols).toBeGreaterThan(0);
+    expect(report.colouredShapes).toBe(0);
+    expect(report.iconColour).toBe("rgb(143, 138, 128)"); // dust
+  });
+
+  test("loops seamlessly at every width: copies cover the window, one period apart", async ({ page }) => {
+    for (const width of [320, 768, 1024, 1440, 2560]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("/");
+      // Before the entrance too, while the tracks wait off to the side.
+      expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBe(0);
+      await enter(page);
+      const tracks = await page.locator(`${assembly} [data-assembly='line']`).evaluateAll((lines) =>
+        lines.map((line) => {
+          const copies = [...line.querySelectorAll<HTMLElement>(".assembly__copy")];
+          const [a, b] = copies.map((copy) => copy.getBoundingClientRect());
+          const belt = line.querySelector<HTMLElement>("[data-assembly='belt']")!;
+          return {
+            period: a.width,
+            spacing: b.left - a.left,
+            covered: copies.length * a.width,
+            view: line.querySelector<HTMLElement>("[data-assembly='track']")!.clientWidth,
+            x: new DOMMatrix(getComputedStyle(belt).transform).m41,
+          };
+        }),
+      );
+      for (const track of tracks) {
+        expect(Math.abs(track.spacing - track.period), `width ${width}`).toBeLessThan(0.01);
+        expect(track.covered, `width ${width}`).toBeGreaterThanOrEqual(track.view + track.period);
+        expect(track.x).toBeLessThanOrEqual(0);
+        expect(track.x).toBeGreaterThan(-track.period);
+      }
+      expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBe(0);
+    }
+  });
+
+  test("tracks move in alternating directions and stop off-screen", async ({ page }) => {
+    await page.goto("/");
+    await enter(page);
+    const read = () => Promise.all([0, 1, 2, 3, 4].map((i) => beltX(page, i)));
+    const before = await read();
+    await page.waitForTimeout(600);
+    const after = await read();
+    const moved = after.map((x, i) => x - before[i]);
+    // Left, right, left, right, left (a wrap would flip the sign; at ~36px/s none happens in 600ms).
+    expect(moved.map(Math.sign)).toEqual([-1, 1, -1, 1, -1]);
+
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForTimeout(400);
+    const parked = await beltX(page);
+    await page.waitForTimeout(500);
+    expect(await beltX(page)).toBe(parked);
+  });
+
+  test("the pause control stops every belt and the choice survives a reload", async ({ page }) => {
+    await page.goto("/");
+    await enter(page);
+    const toggle = page.locator(`${assembly} .assembly__toggle`);
+    await expect(toggle).toHaveText("Pause motion");
+    await expect(toggle).toHaveAttribute("aria-pressed", "false");
+    await toggle.focus();
+    await page.keyboard.press("Enter");
+    await expect(toggle).toHaveAttribute("aria-pressed", "true");
+    await expect(toggle).toHaveText("Play motion");
+    await page.waitForTimeout(500);
+    const x = await beltX(page);
+    await page.waitForTimeout(500);
+    expect(await beltX(page)).toBe(x);
+
+    await page.reload();
+    await enter(page);
+    await expect(toggle).toHaveAttribute("aria-pressed", "true");
+    const still = await beltX(page);
+    await page.waitForTimeout(500);
+    expect(await beltX(page)).toBe(still);
+
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-pressed", "false");
+    await page.waitForTimeout(1000);
+    expect(await beltX(page)).not.toBe(still);
+  });
+
+  test("a tapped part scrolls to its row and marks it, with its projects lit", async ({ page, isMobile }) => {
+    await page.goto("/");
+    await enter(page);
+    await page.locator(`${assembly} .assembly__toggle`).click(); // a still belt, so the tap lands where aimed
+    await page.waitForTimeout(500);
+    const part = await partInView(page, 3); // Data
+    if (isMobile) await page.touchscreen.tap(part.x, part.y);
+    else await page.mouse.click(part.x, part.y);
+    const row = page.locator(
+      isMobile ? `.bom-sheet__part[data-skill='${part.key}']` : `tr[data-skill='${part.key}']`,
+    );
+    await expect(row).toHaveAttribute("data-flash", "", { timeout: 4000 });
+    await expect(row).toBeInViewport();
+    if (isMobile) await expect(page.locator("#stack details[data-layer='data']")).toHaveAttribute("open", "");
+    const { name, projects } = await row.evaluate((row) => ({
+      name: (row as HTMLElement).dataset.name!,
+      projects: (row as HTMLElement).dataset.projects!.split(" ").filter(Boolean),
+    }));
+    await expect(page.locator("#stack [data-stack='readout-name']")).toHaveText(name);
+    await expect.poll(() => litProjects(page)).toEqual(expect.arrayContaining(projects));
+    await expect.poll(() => row.getAttribute("data-flash"), { timeout: 3000 }).toBeNull();
+  });
+});
+
+test.describe("stack · assembly line · fine pointer", () => {
+  test.skip(({ isMobile }) => isMobile, "hover and mouse drag are desktop input");
+
+  test("pointing at a track stops it; the part lights and the rest dim", async ({ page }) => {
+    await page.goto("/");
+    await enter(page);
+    const part = await partInView(page, 1);
+    await page.mouse.move(part.x, part.y);
+    await page.waitForTimeout(700);
+    const x = await beltX(page, 1);
+    await page.waitForTimeout(400);
+    expect(Math.abs((await beltX(page, 1)) - x)).toBeLessThan(0.5);
+    await expect(page.locator(`${assembly} .assembly__track`).nth(1)).toHaveAttribute("data-cursor", "view");
+    // The part under the mouse is lit on every copy (clones included), the rest dimmed.
+    const [lit, dimmed] = await page
+      .locator(`${assembly} [data-assembly='line']`)
+      .nth(1)
+      .evaluate((line, key) => {
+        const on = line.querySelector(`[data-skill='${key}'][data-on]`)!;
+        const other = line.querySelector(".assembly__item:not([data-on])")!;
+        return [getComputedStyle(on).color, getComputedStyle(other).opacity];
+      }, part.key);
+    expect(lit).toBe("rgb(237, 232, 223)"); // bone
+    expect(dimmed).toBe("0.4");
+
+    await page.mouse.move(5, 5);
+    await page.waitForTimeout(800);
+    const resumed = await beltX(page, 1);
+    await page.waitForTimeout(400);
+    expect(await beltX(page, 1)).not.toBe(resumed);
+  });
+
+  test("dragging moves the belt directly and doesn't count as a tap", async ({ page }) => {
+    await page.goto("/");
+    await enter(page);
+    await page.locator(`${assembly} .assembly__toggle`).click();
+    await page.waitForTimeout(500);
+    const track = page.locator(`${assembly} .assembly__track`).first();
+    const box = (await track.boundingBox())!;
+    const before = await beltX(page);
+    const scrollBefore = await page.evaluate(() => window.scrollY);
+    await page.mouse.move(box.x + 400, box.y + box.height / 2);
+    await page.mouse.down();
+    for (let step = 1; step <= 10; step++)
+      await page.mouse.move(box.x + 400 - step * 15, box.y + box.height / 2);
+    await page.waitForTimeout(150); // a stale release: no fling
+    await page.mouse.up();
+    await page.waitForTimeout(100);
+    const period = await page
+      .locator(`${assembly} [data-assembly='copy']`)
+      .first()
+      .evaluate((copy) => copy.getBoundingClientRect().width);
+    const moved = ((((await beltX(page)) - before) % period) + period) % period;
+    expect(Math.abs(moved - (period - 150))).toBeLessThan(2);
+    expect(await page.evaluate(() => window.scrollY)).toBe(scrollBefore);
+    await expect(page.locator("#stack [data-flash]")).toHaveCount(0);
+  });
+});
+
+test.describe("stack · assembly line · reduced motion", () => {
+  test.use({ reducedMotion: "reduce" });
+
+  test("static, sideways-scrolling rows of one copy; no pause control", async ({ page }) => {
+    await page.goto("/");
+    await page.locator(assembly).scrollIntoViewIfNeeded();
+    await page.waitForTimeout(600);
+    await expect(page.locator(`${assembly} .assembly__toggle`)).toHaveCount(0);
+    const tracks = await page.locator(`${assembly} [data-assembly='line']`).evaluateAll((lines) =>
+      lines.map((line) => {
+        const track = line.querySelector<HTMLElement>("[data-assembly='track']")!;
+        return {
+          shown: [...line.querySelectorAll(".assembly__copy")].filter((copy) => copy.getClientRects().length)
+            .length,
+          overflow: getComputedStyle(track).overflowX,
+          snap: getComputedStyle(track).scrollSnapType,
+          scrolls: track.scrollWidth > track.clientWidth,
+          transform: getComputedStyle(line.querySelector("[data-assembly='belt']")!).transform,
+        };
+      }),
+    );
+    for (const track of tracks) {
+      expect(track.shown).toBe(1);
+      expect(track.overflow).toBe("auto");
+      expect(track.snap).toContain("x");
+      expect(track.scrolls).toBe(true);
+      expect(["none", "matrix(1, 0, 0, 1, 0, 0)"]).toContain(track.transform);
+    }
   });
 });

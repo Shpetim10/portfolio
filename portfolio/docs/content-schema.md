@@ -54,7 +54,14 @@ export type Project = {
   // Problem · Constraints · Architecture · Key decisions · Results · Reflection
 };
 
-export type Skill = { name: string; layer: Layer; projects: string[] /* slugs */ };
+export type SkillIcon =
+  | { source: 'simple-icons' | 'devicon'; slug: string }   // the package's file name
+  | { source: 'monogram'; text: string };                    // 2–4 uppercase letters
+export type Skill = {
+  name: string; layer: Layer; projects: string[] /* slugs */;
+  icon?: SkillIcon;   // T08b assembly line; none → a monogram of the name's initials
+  ai?: boolean;       // AI / ML work: a signal dot on its mark
+};
 
 export type Experience = {
   company: string; title: string;
@@ -97,6 +104,19 @@ export type Award = {
 
 export type Writing = { title: string; venue: string; date: string; href: string; kind: 'article' | 'talk' | 'paper' };
 export type Testimonial = { quote: string; name: string; title: string; company: string; relation: string; href?: string };
+
+## Stack assembly line (T08b)
+
+`Skill.icon` marks each part on the Stack section's conveyor tracks. Pick, in order:
+1. a Simple Icons slug (`node_modules/simple-icons/icons/<slug>.svg`);
+2. else Devicon's single-colour "plain" variant (`node_modules/devicon/icons/<slug>/<slug>-plain.svg`);
+3. else — or for a concept (REST API design, computer vision, WebSockets…) — a monogram,
+   2–4 uppercase letters (`"REST"`, `"CV"`, `"WS"`). Never a wrong or look-alike logo.
+
+`pnpm stack:icons` (also run by `pnpm build`) writes every brand mark into one inline sprite,
+`src/components/sections/stack/sprite.json`: colours stripped, drawn in currentColor, ≤ 60 KB.
+`next build` fails on a slug that doesn't resolve, or a monogram that isn't 2–4 capitals.
+`Skill.ai` puts a signal dot on the part's mark (legend: AI / ML).
 
 ## Education (T09b)
 
