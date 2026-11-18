@@ -57,7 +57,7 @@ function Matrix({ snapshot }: { snapshot: ContributionSnapshot }) {
 
 function Log({ writing }: { writing: Writing[] }) {
   if (writing.length === 0) {
-    return <Content as="p" value={todo("Articles, talks and papers: date · venue · title")} />;
+    return null;
   }
   return (
     <ol className="fieldlog__log" data-fieldlog="log" aria-label="Writing and talks">

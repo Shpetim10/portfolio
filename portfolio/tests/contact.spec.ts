@@ -1,8 +1,8 @@
 import { expect, test, type Page } from "./fixtures";
 
 /*
- * T13 contact + title block. The owner's email and the form endpoint are still
- * TODO, so the homepage shows them as marked placeholders (form disabled); the
+ * T13 contact + title block. The owner's email is supplied; the form endpoint is
+ * unconfigured, so the homepage marks the form unavailable (submit disabled); the
  * copy, validation and send states run on /lab against a reserved example.com
  * fixture, with the form service stubbed by page.route — nothing leaves the test.
  */
@@ -26,21 +26,24 @@ async function fill(page: Page) {
 }
 
 test.describe("contact · homepage", () => {
-  test("the line, the menu anchor, and TODO markers for what the owner hasn't supplied", async ({ page }) => {
+  test("the line, the menu anchor, the email, and an unavailable form", async ({ page }) => {
     await page.goto("/");
     await expect(section(page).locator(".section-index")).toContainText("Contact");
     await expect(section(page).locator("h2").first()).toHaveText("Let’s build something precise.");
     await expect(page.locator('a[href="/#contact"]').first()).toBeAttached();
 
-    // No email yet: the address is a marked placeholder, the button can't mail anyone.
-    await expect(
-      section(page).locator("[data-todo] mark", { hasText: "email@domain" }).first(),
-    ).toBeVisible();
-    await expect(section(page).locator('[data-contact="primary"]')).toHaveAttribute("aria-disabled", "true");
-    await expect(section(page).locator('[data-contact="copy"]')).toHaveCount(0);
+    // The address is supplied: the button mails it, and a copy control sits beside it.
+    await expect(section(page).getByText("contact@shpetimshabanaj.com").first()).toBeVisible();
+    await expect(section(page).locator('[data-contact="primary"]')).toHaveAttribute(
+      "href",
+      "mailto:contact@shpetimshabanaj.com",
+    );
+    await expect(section(page).locator('[data-contact="primary"]')).not.toHaveAttribute("aria-disabled");
+    await expect(section(page).locator('[data-contact="copy"]')).toHaveCount(1);
     // No endpoint yet: the form can't post anywhere, and says why.
     await expect(submit(page)).toBeDisabled();
-    await expect(section(page).getByText("TODO: Form endpoint")).toBeVisible();
+    await expect(section(page).getByText("Unavailable for the moment", { exact: true })).toBeVisible();
+    await expect(section(page).locator('[data-contact="form"] [data-todo]')).toHaveCount(0);
   });
 });
 

@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { Fragment, type CSSProperties } from "react";
 import { stillOf, type SculptureData } from "@/components/sculpture/model";
 import { LeaderLine, RegistrationMark } from "@/components/ui/Annotation";
@@ -122,12 +121,15 @@ export function Manifesto() {
               >
                 {hasAsset(portrait) ? (
                   <div className="portrait__media" data-manifesto="media">
-                    <Image
+                    {/* The portrait is already optimized at build time. */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
                       src={portrait.src}
                       alt={portrait.alt}
                       width={portrait.width}
                       height={portrait.height}
-                      sizes="(width >= 30rem) 448px, calc(100vw - 72px)"
+                      loading="lazy"
+                      decoding="async"
                     />
                   </div>
                 ) : (

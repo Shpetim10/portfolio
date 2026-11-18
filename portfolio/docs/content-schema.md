@@ -63,7 +63,7 @@ export type Skill = {
   ai?: boolean;       // AI / ML work: a signal dot on its mark
 };
 
-export type OrgLogo = { src: string; width: number; height: number };  // /assets/logos/*.svg, transparent; drawn as a one-colour mask
+export type OrgLogo = { src: string; width: number; height: number };  // /assets/logos/*.svg, transparent; tinted to Dust
 
 export type Experience = {
   company: string; logo?: OrgLogo; title: string;
@@ -132,9 +132,9 @@ Completed entries are listed as `alumniOf` in the homepage's Person JSON-LD.
 
 `logo` is optional on an `Experience` or `Education` entry. Use the organisation's official
 SVG (or a PNG) with a transparent background, saved in `/public/assets/logos/`. The site draws it
-as a one-colour mask in Dust, so the original colours never show and only the silhouette matters:
-a logo that is a solid-coloured rectangle will render as a block. The mark is decorative
-(`aria-hidden`); the name beside it carries the meaning. A logo whose file is not in `/public` at build
+as a one-colour stamp in Dust, so only the silhouette matters:
+a logo that is a solid-coloured rectangle will render as a block. The lazy image is decorative
+(empty alt text), and the name beside it carries the meaning. A logo whose file is not in `/public` at build
 is left out, and `next build` fails on a path outside `/assets/logos/`. Use the plain logo or wordmark,
 not a university's official seal, and check the owner's brand guidelines for recolouring.
 

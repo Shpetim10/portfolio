@@ -34,17 +34,17 @@ const contrast = (a: string, b: string) => {
 };
 
 test.describe("awards · homepage", () => {
-  test("section [08] is a paper surface with one placeholder certificate", async ({ page }) => {
+  test("section [08] is a paper surface with one featured certificate", async ({ page }) => {
     await page.goto("/");
     await expect(section(page)).toHaveAttribute("aria-labelledby", "awards-index");
     await expect(section(page).locator(".section-index")).toContainText("[08]");
     await expect(section(page).locator(".section-index")).toContainText("Awards & Achievements");
-    await expect(section(page).locator("h2")).toHaveText("Qualification record · 01 entry");
+    await expect(section(page).locator("h2")).toHaveText("Qualification record · 18 entries");
     await expect(surface(page)).toHaveAttribute("data-surface", "paper");
     await expect(section(page).locator(".certificate")).toHaveCount(1);
-    // Title, issuer, year, why, proof and the rest of the record are all unsupplied.
-    await expect(section(page).locator("[data-todo]")).toHaveCount(6);
-    await expect(section(page).locator(".record__filter")).toHaveCount(0);
+    // The record is complete: nothing in it is a placeholder, and it can be filtered by category.
+    await expect(section(page).locator("[data-todo]")).toHaveCount(0);
+    await expect(section(page).locator(".record__filters button")).toHaveCount(7);
   });
 });
 

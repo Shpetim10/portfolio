@@ -26,13 +26,13 @@ async function revealList(page: Page, ratio: number, settle: number) {
 }
 
 test.describe("metrics · homepage", () => {
-  test("section [03] marks missing metrics instead of inventing them", async ({ page }) => {
+  test("section [03] lists every sourced metric, none invented", async ({ page }) => {
     await page.goto("/");
     const section = page.locator("section#metrics");
     await expect(section).toHaveAttribute("aria-labelledby", "metrics-index");
     await expect(section.locator(".section-index")).toContainText("[03]");
-    await expect(section.locator(".metrics__todo[data-todo]")).toBeVisible();
-    await expect(section.locator(".metric")).toHaveCount(0);
+    await expect(section.locator("[data-todo]")).toHaveCount(0);
+    await expect(section.locator(".metric")).toHaveCount(5);
   });
 });
 

@@ -76,16 +76,38 @@ test.describe("preloader · first visit", () => {
   });
 
   test("the counter never runs ahead of real loading", async ({ page }) => {
-    // Hold every font back: the readout stalls short of 100 until they land or the deadline forces it.
-    await page.route("**/*.woff2", async (route) => {
-      await new Promise((resolve) => setTimeout(resolve, 4000));
-      await route.continue().catch(() => {});
+    const now = new Date("2026-01-01T12:00:00Z");
+    await page.clock.install({ time: now });
+    await page.clock.pauseAt(new Date(now.getTime() + 1000));
+    // The low tier leaves fonts as the only pending preload work on this page.
+    await page.addInitScript(() => Object.defineProperty(navigator, "hardwareConcurrency", { value: 2 }));
+    let releaseFonts = () => {};
+    const held = new Promise<void>((resolve) => {
+      releaseFonts = resolve;
     });
-    await page.goto("/", { waitUntil: "domcontentloaded" }); // `load` would wait for the held fonts
-    await expect(page.locator("#preloader[data-state='live']")).toBeAttached();
-    await page.waitForTimeout(700);
-    const value = Number(await preloader(page).locator('[data-part="value"]').textContent());
-    expect(value).toBeLessThan(100);
+    await page.route("**/*.woff2", async (route) => {
+      await held;
+      await route.continue();
+    });
+    try {
+      await page.goto("/", { waitUntil: "domcontentloaded" });
+      await expect(preloader(page)).toHaveAttribute("data-state", "live");
+      expect(await page.evaluate(() => document.fonts.status)).toBe("loading");
+
+      // Run frames before the earliest deadline settle (580ms on mobile).
+      // A counter driven only by elapsed time would advance while the fonts are held.
+      await page.clock.runFor(400);
+      await expect(preloader(page).locator('[data-part="value"]')).toHaveText("000");
+
+      releaseFonts();
+      await page.evaluate(async () => {
+        await document.fonts.ready;
+      });
+      await page.clock.runFor(650);
+      await expect(preloader(page).locator('[data-part="value"]')).toHaveText("100");
+    } finally {
+      releaseFonts();
+    }
   });
 
   test("never blocks longer than 2.5s on slow 4G", async ({ page, context }) => {

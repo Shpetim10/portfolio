@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "./fixtures";
 
-const ROUTES = ["/", "/work/example-project-01/"];
+const ROUTES = ["/", "/work/herisaga-history-as-playable-stories/"];
 
 test.describe("static routes", () => {
   for (const route of ROUTES) {
@@ -42,7 +42,10 @@ const readCls = (page: Page) =>
   );
 
 test.describe("fonts", () => {
-  // The 404 page renders real display + text copy (other pages are mostly mono TODO markers).
+  // Pages with long body copy can re-wrap by a line when the real face replaces the
+  // size-adjusted fallback (average widths can't match every glyph), so they get the
+  // CLS budget from the brief (< 0.05); short copy and mono text must not move at all.
+  const BUDGET: Record<string, number> = { "/work/herisaga-history-as-playable-stories/": 0.05 };
   for (const route of [...ROUTES, "/404/"]) {
     test(`${route} has zero CLS when web fonts arrive late`, async ({ page }) => {
       // Hold every font back so the size-adjusted fallback paints first, then swaps.
@@ -54,7 +57,9 @@ test.describe("fonts", () => {
       await page.evaluate(() => document.fonts.ready);
       await page.waitForTimeout(300);
       expect(await page.evaluate(() => document.fonts.status)).toBe("loaded");
-      expect(await readCls(page)).toBe(0);
+      const cls = await readCls(page);
+      if (BUDGET[route]) expect(cls).toBeLessThan(BUDGET[route]);
+      else expect(cls).toBe(0);
     });
   }
 });

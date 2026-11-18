@@ -12,27 +12,42 @@ type OrgMarkProps = {
 };
 
 /**
- * An organisation's logo as a monochrome stamp. The file is used as a CSS mask over a
- * flat Dust fill, so its own colours never show: every logo reads as the same engraved
- * mark, whatever the brand. Decorative (aria-hidden): the organisation's name is always
- * the text beside it. Renders nothing until the file is in /public, so a logo declared
- * before its file arrives leaves no gap. Server / build only (reads /public).
+ * A lazy image tinted to Dust by the shared SVG filter. The adjacent
+ * organisation name provides the label, and the reserved aspect ratio keeps
+ * the section still while the image loads. Unpublished files leave no gap.
  */
 export function OrgMark({ logo, className }: OrgMarkProps) {
   if (!logo || !isPublished(logo.src)) return null;
   const ratio = logo.width / logo.height;
   return (
-    <span
+    // These marks are local and served as supplied by the build.
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={logo.src}
+      width={logo.width}
+      height={logo.height}
+      alt=""
+      loading="lazy"
+      decoding="async"
       className={cx("org-mark", className)}
-      aria-hidden="true"
       // A compact logo (square, stacked, or a symbol with a small wordmark) needs more height than a wide wordmark to stay legible.
       data-shape={ratio < STACKED_BELOW ? "stacked" : undefined}
       style={
         {
-          "--mark-src": `url("${logo.src}")`,
           "--mark-ratio": ratio,
         } as CSSProperties
       }
     />
+  );
+}
+
+export function OrgMarkFilter() {
+  return (
+    <svg className="absolute" width="0" height="0" aria-hidden="true">
+      <filter id="org-mark-ink">
+        <feFlood className="org-mark__ink" />
+        <feComposite in2="SourceAlpha" operator="in" />
+      </filter>
+    </svg>
   );
 }

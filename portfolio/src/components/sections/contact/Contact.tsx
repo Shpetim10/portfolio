@@ -28,7 +28,7 @@ import { CopyEmail } from "./CopyEmail";
  *
  * The form posts to a static form service (Formspree). Its endpoint is site
  * configuration, not a fact about the owner: FORM_ENDPOINT at build time.
- * Without it the form renders disabled and marked TODO; email stays the way in.
+ * Without it the form renders disabled and marked unavailable; email stays the way in.
  */
 
 export const HEADLINE = "Let’s build something precise.";

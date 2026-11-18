@@ -33,26 +33,25 @@ const markers = (page: Page, isMobile: boolean) =>
   list(page, isMobile).locator("[data-rev='marker'] .sr-only");
 
 test.describe("experience · homepage", () => {
-  test("section [06] shows one placeholder revision, present handled", async ({ page, isMobile }) => {
+  test("section [06] shows two revisions, present handled", async ({ page, isMobile }) => {
     await page.goto("/");
     const section = page.locator("section#experience");
     await expect(section).toHaveAttribute("aria-labelledby", "experience-index");
     await expect(section.locator(".section-index")).toContainText("[06]");
     await expect(section.locator(".section-index")).toContainText("Experience");
-    await expect(section.locator(".section-index")).toContainText("REV.A");
-    await expect(section.locator("h2")).toHaveText("Revision history · 01 revision");
+    await expect(section.locator(".section-index")).toContainText("REV.B");
+    await expect(section.locator("h2")).toHaveText("Revision history · 02 revisions");
 
     const rows = list(page, isMobile).locator("[data-rev='row']");
-    await expect(rows).toHaveCount(1);
+    await expect(rows).toHaveCount(2);
     const row = rows.first();
     await expect(row).toHaveAttribute("data-current", "true");
-    await expect(markers(page, isMobile)).toHaveText(["Revision A"]);
+    await expect(rows.nth(1)).not.toHaveAttribute("data-current", "true");
+    await expect(markers(page, isMobile)).toHaveText(["Revision B", "Revision A"]);
     await expect(row.locator(".rev__when--present")).toHaveText("Present");
-    // Company, title, start and the highlight are all unsupplied: each is a marked placeholder.
-    await expect(row.locator("[data-todo]")).toHaveCount(4);
-    // A lone revision has no spine to run past it.
+    // Every revision is supplied: nothing in the history is a placeholder.
+    await expect(list(page, isMobile).locator("[data-todo]")).toHaveCount(0);
     await drawAll(page, isMobile);
-    await expect(row.locator("[data-rev='spine']")).toBeHidden();
     await expect(row.locator("[data-rev='node']")).toBeVisible();
   });
 });

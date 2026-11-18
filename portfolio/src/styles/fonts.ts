@@ -24,10 +24,8 @@ export const displayFont = localFont({
 });
 
 export const textFont = localFont({
-  src: [
-    { path: "./fonts/schibsted-grotesk-latin-400-normal.woff2", weight: "400", style: "normal" },
-    { path: "./fonts/schibsted-grotesk-latin-500-normal.woff2", weight: "500", style: "normal" },
-  ],
+  // Upstream Schibsted Grotesk 1.100, subset to the existing Latin glyphs and weights 400–500.
+  src: [{ path: "./fonts/schibsted-grotesk-latin-variable.woff2", weight: "400 500", style: "normal" }],
   variable: "--font-text-face",
   display: "swap",
   adjustFontFallback: "Arial",

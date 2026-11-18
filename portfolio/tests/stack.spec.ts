@@ -1,10 +1,10 @@
 import { expect, test, type Page } from "./fixtures";
 
 /*
- * T08 stack. The owner's skills aren't supplied yet, so the homepage shows the
- * five layer groups with marked placeholders; the populated bill of materials
- * runs on /lab, where this site's own technologies are filed by layer and
- * "used in" the specimen projects carrying that layer (Services left empty).
+ * T08 stack. The homepage files the owner's skills into the five layer groups;
+ * the "used in" links run on /lab, where this site's own technologies are filed
+ * by layer and "used in" the specimen projects carrying that layer (the five
+ * featured projects with 1 · 3 · 5 · 1 · 3 layers; Services left empty).
  */
 
 const LAYERS = ["interface", "api", "services", "data", "infrastructure"];
@@ -52,8 +52,8 @@ test.describe("stack · desktop table", () => {
 
     const next = table.locator("tr", { has: page.locator("th[scope='row']", { hasText: "Next.js" }) });
     await expect(next.locator("td").first()).toHaveText("02.01");
-    await expect(next.locator("a")).toHaveCount(2);
-    await expect(next.locator("a").first()).toHaveAttribute("href", "/work/example-project-02/");
+    await expect(next.locator("a")).toHaveCount(3);
+    await expect(next.locator("a").first()).toHaveAttribute("href", "/work/herisaga-authoring/");
     // The empty layer says so instead of inventing parts.
     await expect(table.locator("tbody[data-layer='services'] [data-todo]")).toHaveCount(1);
   });
@@ -65,7 +65,7 @@ test.describe("stack · desktop table", () => {
 
     await page.locator("#stack tr[data-name='next/og']").hover();
     await expect.poll(() => litPlates(page)).toEqual(["api"]);
-    await expect.poll(() => litProjects(page)).toEqual(["example-project-02", "example-project-03"]);
+    await expect.poll(() => litProjects(page)).toEqual(["herisaga-authoring", "ritema", "pyramidos"]);
     await expect(figure.locator("[data-stack='readout-part']")).toHaveText("02.02");
     await expect(figure.locator("[data-stack='readout-name']")).toHaveText("next/og");
     await expect(
@@ -75,7 +75,7 @@ test.describe("stack · desktop table", () => {
     // A group header lights the whole layer.
     await page.locator("#stack tr.bom__group-head[data-layer='interface']").hover();
     await expect.poll(() => litPlates(page)).toEqual(["interface"]);
-    await expect.poll(() => litProjects(page)).toHaveLength(3);
+    await expect.poll(() => litProjects(page)).toHaveLength(5);
 
     await page.mouse.move(5, 5);
     await expect.poll(() => litPlates(page)).toEqual([]);
@@ -115,7 +115,7 @@ test.describe("stack · mobile accordions", () => {
     await sheets.nth(3).locator("summary").click();
     await expect(sheets.nth(3)).toHaveAttribute("open", "");
     await expect.poll(() => litPlates(page)).toEqual(["data"]);
-    await expect.poll(() => litProjects(page)).toEqual(["example-project-03"]);
+    await expect.poll(() => litProjects(page)).toEqual(["ritema"]);
     await expect(sheets.nth(3).locator("li a").first()).toBeVisible();
 
     await sheets.nth(1).locator("summary").click();

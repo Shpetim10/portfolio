@@ -226,7 +226,7 @@ export function ContactForm({ endpoint, email, formId }: ContactFormProps) {
             >
               {status === "sending" ? "Sending…" : "Send message"}
             </Button>
-            {disabled && <Content value={todo("Form endpoint: set FORM_ENDPOINT at build")} />}
+            {disabled && <p className="contact__note">Unavailable for the moment</p>}
           </div>
 
           <div id={`${formId}-status`} className="contact__status" role="status" aria-live="polite">

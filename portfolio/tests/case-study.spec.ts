@@ -1,13 +1,26 @@
 import { expect, test, type Page } from "./fixtures";
 
 /*
- * T07 case study (/work/[slug]). The owner's projects are placeholders, so the
+ * T07 case study (/work/[slug]). Every project has a written story, so the
  * routes are checked for structure, reading order and generated output; the
  * system diagram, figure notes and counting outcomes run on /lab, which feeds
  * the same components design-system facts (this site's own architecture).
  */
 
-const SLUGS = ["example-project-01", "example-project-02", "example-project-03"];
+/** Every project in reading order (src/content/projects.ts); "next project" walks this list and wraps. */
+const SLUGS = [
+  "herisaga-history-as-playable-stories",
+  "herisaga-authoring",
+  "ritema",
+  "worktrezz",
+  "garbage-classifier",
+  "pyramidos",
+  "library-management-system",
+  "white-lies",
+];
+const FIRST = SLUGS[0];
+const SECOND = SLUGS[1];
+const LAST = SLUGS[SLUGS.length - 1];
 const CHAPTERS = ["Problem", "Constraints", "Architecture", "Key decisions", "Results", "Reflection"];
 
 /** Scrolls the shown diagram drawing so the scrubbed draw is at `progress` (0 → 1) and lets it settle. */
@@ -61,19 +74,20 @@ test.describe("case study · static output", () => {
     });
   }
 
-  test("missing facts are marked TODO, never filled in", async ({ page }) => {
-    await page.goto("/work/example-project-01/");
-    await expect(page.locator(".case-header [data-todo]")).not.toHaveCount(0);
+  test("supplied facts replace the TODO markers", async ({ page }) => {
+    await page.goto(`/work/${FIRST}/`);
+    await expect(page.locator(".case-header [data-todo]")).toHaveCount(0);
     await expect(page.locator(".case-header .case-header__cell")).toHaveCount(5);
-    await expect(page.locator(".outcomes [data-todo]")).toHaveCount(1);
-    await expect(page.locator(".story-todo")).toHaveCount(6);
-    await expect(page.locator(".diagram[data-todo]")).toHaveCount(1);
+    await expect(page.locator(".outcomes [data-todo]")).toHaveCount(0);
+    await expect(page.locator(".outcomes .outcome")).not.toHaveCount(0);
+    await expect(page.locator(".story-todo")).toHaveCount(0);
+    await expect(page.locator(".diagram[data-todo]")).toHaveCount(0);
   });
 });
 
 test.describe("case study · reading order", () => {
   test("headings and landmarks read in order", async ({ page }) => {
-    await page.goto("/work/example-project-02/");
+    await page.goto(`/work/${SECOND}/`);
     const article = page.locator("article.case-study");
     await expect(article).toHaveAttribute("aria-labelledby", "case-title");
     const headings = await article
@@ -89,7 +103,7 @@ test.describe("case study · reading order", () => {
   });
 
   test("DOM order is visual order", async ({ page }) => {
-    await page.goto("/work/example-project-01/");
+    await page.goto(`/work/${FIRST}/`);
     // Each block's top edge, in DOM order, must never move up the page.
     const tops = await page
       .locator(
@@ -116,7 +130,7 @@ test.describe("case study · reading order", () => {
     isMobile,
   }) => {
     test.skip(isMobile, "keyboard navigation is a desktop concern");
-    await page.goto("/work/example-project-01/");
+    await page.goto(`/work/${FIRST}/`);
     await expect(page.locator("article [tabindex]:not([tabindex='-1'], [tabindex='0'])")).toHaveCount(0);
     const next = page.locator(".next-project");
     // The panel is one stop (the title link); "All work" follows it.
@@ -131,8 +145,8 @@ test.describe("case study · reading order", () => {
 test.describe("case study · next project", () => {
   test("points forward and wraps after the last project", async ({ page }) => {
     for (const [from, to] of [
-      ["example-project-01", "example-project-02"],
-      ["example-project-03", "example-project-01"],
+      [FIRST, SECOND],
+      [LAST, FIRST],
     ]) {
       await page.goto(`/work/${from}/`);
       await expect(page.locator(".next-project__link")).toHaveAttribute("href", `/work/${to}/`);
@@ -142,15 +156,15 @@ test.describe("case study · next project", () => {
   });
 
   test("opening it lands on the next case study", async ({ page }) => {
-    await page.goto("/work/example-project-01/");
+    await page.goto(`/work/${FIRST}/`);
     await page.locator(".next-project__link").click();
-    await expect(page).toHaveURL(/\/work\/example-project-02\/$/);
+    await expect(page).toHaveURL(new RegExp(`/work/${SECOND}/$`));
     await expect(page.locator(".case-header__index")).toContainText("P/N 02");
   });
 
   test("the cover note shows without hover on touch", async ({ page, isMobile }) => {
     test.skip(!isMobile, "touch only");
-    await page.goto("/work/example-project-01/");
+    await page.goto(`/work/${FIRST}/`);
     await expect(page.locator(".next-project__note")).toHaveCSS("opacity", "1");
   });
 });

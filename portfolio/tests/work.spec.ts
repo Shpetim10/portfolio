@@ -2,10 +2,19 @@ import { expect, test, type Page } from "./fixtures";
 
 /*
  * T06 selected work. The work probe (src/components/sections/work/WorkStage.tsx)
- * reports the centred panel, the track's progress and its travel. The owner's
- * projects are placeholders with no layers, so strip lighting runs on /lab,
- * where the same projects carry specimen layer sets (1 · 3 · 5 layers).
+ * reports the centred panel, the track's progress and its travel. Strip lighting
+ * runs on /lab, where the featured projects carry specimen layer sets
+ * (1 · 3 · 5 layers, repeating), so each state is checked deterministically.
  */
+
+/** The featured projects, in track order (src/content/projects.ts). */
+const FEATURED = [
+  { slug: "herisaga-history-as-playable-stories", part: "P/N 01" },
+  { slug: "herisaga-authoring", part: "P/N 02" },
+  { slug: "ritema", part: "P/N 03" },
+  { slug: "worktrezz", part: "P/N 04" },
+  { slug: "pyramidos", part: "P/N 06" },
+];
 
 type Read = { active: number; progress: number; travel: number };
 type ProbeWindow = Window & { __WORK_PROBE__?: { read?: () => Read } };
@@ -52,28 +61,24 @@ const litLayers = (page: Page, scope: string) =>
     .evaluateAll((parts) => parts.map((part) => (part as HTMLElement).dataset.layer));
 
 test.describe("work · content", () => {
-  test("section [04] lists every featured project as one link, missing facts marked", async ({ page }) => {
+  test("section [04] lists every featured project as one link", async ({ page }) => {
     await page.goto("/");
     const section = page.locator("section#work");
     await expect(section).toHaveAttribute("aria-labelledby", "work-index");
     await expect(section.locator(".section-index")).toContainText("[04]");
 
     const panels = section.locator(".work-panel");
-    await expect(panels).toHaveCount(3);
-    await expect(section.locator("h3")).toHaveCount(3);
-    for (let i = 0; i < 3; i++) {
+    await expect(panels).toHaveCount(FEATURED.length);
+    await expect(section.locator("h3")).toHaveCount(FEATURED.length);
+    for (const [i, { slug }] of FEATURED.entries()) {
       const panel = panels.nth(i);
-      await expect(panel.locator("article")).toHaveAttribute("aria-labelledby", /^work-example-project-0\d$/);
+      await expect(panel.locator("article")).toHaveAttribute("aria-labelledby", `work-${slug}`);
       // One tab stop: the title link. The cover repeats it for the pointer only.
       await expect(panel.locator("a:not([tabindex='-1'])")).toHaveCount(1);
       await expect(panel.locator(".work-panel__cover-link")).toHaveAttribute("aria-hidden", "true");
-      await expect(panel.locator(".work-panel__link")).toHaveAttribute(
-        "href",
-        /^\/work\/example-project-0\d\/$/,
-      );
-      // Placeholders: title, year, role, outcome, layers and the cover are all marked TODO.
-      await expect(panel.locator("[data-todo]")).not.toHaveCount(0);
-      await expect(panel.locator(".project-cover")).toHaveAttribute("data-todo", "");
+      await expect(panel.locator(".work-panel__link")).toHaveAttribute("href", `/work/${slug}/`);
+      // Real content: nothing on a panel is a placeholder any more.
+      await expect(panel.locator("[data-todo]")).toHaveCount(0);
     }
   });
 });
@@ -94,8 +99,8 @@ test.describe("work · desktop track", () => {
 
     for (const [progress, index] of [
       [0, 0],
-      [0.5, 1],
-      [1, 2],
+      [0.5, 2],
+      [1, FEATURED.length - 1],
     ] as const) {
       await scrollTrack(page, progress);
       expect((await read(page)).active).toBe(index);
@@ -106,8 +111,10 @@ test.describe("work · desktop track", () => {
       expect(Math.abs(stageTop)).toBeLessThan(1); // pinned (sub-pixel scroll rounding aside)
     }
     // The readout names the centred project.
-    await expect(page.locator("#work [data-work='readout-part']")).toHaveText("P/N 03");
-    await expect(page.locator("#work [data-work='readout-index']")).toHaveText("03");
+    await expect(page.locator("#work [data-work='readout-part']")).toHaveText(FEATURED.at(-1)!.part);
+    await expect(page.locator("#work [data-work='readout-index']")).toHaveText(
+      String(FEATURED.length).padStart(2, "0"),
+    );
     expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBe(0);
   });
 
@@ -124,9 +131,9 @@ test.describe("work · desktop track", () => {
     await page.goto("/lab/");
     await scrollTrack(page, 0);
     expect(await litLayers(page, "#work .work__strip")).toEqual(["interface"]);
-    await scrollTrack(page, 0.5);
+    await scrollTrack(page, 0.25);
     expect(await litLayers(page, "#work .work__strip")).toEqual(["interface", "api", "services"]);
-    await scrollTrack(page, 1);
+    await scrollTrack(page, 0.5);
     expect(await litLayers(page, "#work .work__strip")).toHaveLength(5);
     // The lit stroke is the coolant diagram line, fully drawn.
     await page.waitForTimeout(400);
@@ -141,7 +148,7 @@ test.describe("work · desktop track", () => {
     await enableProbe(page);
     await page.goto("/");
     await page.locator("#work .work-panel__link").first().focus();
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < FEATURED.length; i++) {
       if (i > 0) await page.keyboard.press("Tab");
       await expect(page.locator("#work .work-panel__link").nth(i)).toBeFocused();
       await page.waitForTimeout(300);
@@ -213,11 +220,11 @@ test.describe("work · opening a project", () => {
     await page.goto("/");
     await scrollTrack(page, 0);
     await page.locator("#work .work-panel__link").first().click();
-    await page.waitForURL("**/work/example-project-01/");
+    await page.waitForURL(`**/work/${FEATURED[0].slug}/`);
     await expect(page.locator("h1")).toBeVisible();
     await page.waitForTimeout(1200);
     const seen = await page.evaluate(() => (window as unknown as { __seen: string[] }).__seen);
-    expect(seen).toContain("::view-transition-group(cover-example-project-01)");
+    expect(seen).toContain(`::view-transition-group(cover-${FEATURED[0].slug})`);
     await expect(page.locator(".page-wipe")).not.toHaveAttribute("data-state", /.+/);
   });
 
@@ -226,13 +233,13 @@ test.describe("work · opening a project", () => {
       delete (Document.prototype as Partial<Document>).startViewTransition;
     });
     await page.goto("/");
-    await scrollTrack(page, 0.5);
+    await scrollTrack(page, 0.25);
     await page.locator("#work .work-panel__link").nth(1).click();
     const plate = page.locator(".page-wipe");
     await expect(plate).toHaveAttribute("data-state", "covering");
     await expect(plate).toHaveText("P/N 02");
     await expect(plate).toHaveAttribute("data-surface", "paper");
-    await page.waitForURL("**/work/example-project-02/");
+    await page.waitForURL(`**/work/${FEATURED[1].slug}/`);
     // Retracts off the new page, then rests collapsed and inert.
     await expect(plate).not.toHaveAttribute("data-state", /.+/, { timeout: 2000 });
     await expect(plate).toHaveCSS("pointer-events", "none");
@@ -304,7 +311,7 @@ test.describe("work · no JavaScript", () => {
 
   test("every project is a plain link in reading order", async ({ page }) => {
     await page.goto("/");
-    await expect(page.locator("#work .work-panel__link")).toHaveCount(3);
+    await expect(page.locator("#work .work-panel__link")).toHaveCount(FEATURED.length);
     await expect(page.locator("#work .work__stage")).toHaveCSS("position", "static");
     await expect(page.locator("#work .project-cover").first()).toBeVisible();
   });

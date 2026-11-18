@@ -610,30 +610,31 @@
   }
 
   /*
-   * Organisation mark (OrgMark): a logo drawn as a one-colour stamp. The SVG is only a
-   * mask; the colour is Dust, so every brand reads the same. Fixed ratio and capped
-   * height, so the mark reserves its space before the file loads (no CLS). Static: it
-   * never moves on its own, only fades in with the cell that holds it.
+   * Organisation mark (OrgMark): a native lazy image drawn as a one-colour
+   * stamp by its alpha channel. Fixed ratio and capped height reserve space.
    */
   .org-mark {
     --mark-height: --spacing(5);
     display: block;
     width: min(100%, calc(var(--mark-height) * var(--mark-ratio)));
+    height: auto;
     aspect-ratio: var(--mark-ratio);
     margin-block-end: --spacing(3);
-    background-color: var(--color-dust);
-    mask: var(--mark-src) left center / contain no-repeat;
+    filter: url("#org-mark-ink");
+  }
+
+  .org-mark__ink {
+    flood-color: var(--color-dust);
   }
 
   .org-mark[data-shape="stacked"] {
     --mark-height: --spacing(14);
   }
 
-  /* Forced-colors mode ignores background colours: draw the stamp in the system text colour. */
+  /* Draw the stamp in the system text colour in forced-colors mode. */
   @media (forced-colors: active) {
-    .org-mark {
-      forced-color-adjust: none;
-      background-color: CanvasText;
+    .org-mark__ink {
+      flood-color: CanvasText;
     }
   }
 }
