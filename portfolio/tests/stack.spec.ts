@@ -18,99 +18,27 @@ const litPlates = (page: Page) => lit(page, ".instrument-drawing__plate", "data-
 const litProjects = (page: Page) => lit(page, ".stack__index-item", "data-slug");
 
 test.describe("stack · homepage", () => {
-  test("section [05] files every layer from the skills content", async ({ page, isMobile }) => {
+  test("section [05] files every layer from the skills content", async ({ page }) => {
     await page.goto("/");
     const section = page.locator("section#stack");
     await expect(section).toHaveAttribute("aria-labelledby", "stack-index");
     await expect(section.locator(".section-index")).toContainText("[05]");
     await expect(section.locator(".section-index")).toContainText("Stack");
     await expect(section.locator("h2")).toHaveText(/^Bill of materials · \d{2} parts$/);
-    const groups = isMobile ? section.locator("details") : section.locator("tbody");
+    const groups = section.locator("details");
     await expect(groups).toHaveCount(5);
     // No bars, no raster logos: nothing in the section is an image or a meter.
     await expect(section.locator("img, progress, meter")).toHaveCount(0);
   });
 });
 
-test.describe("stack · desktop table", () => {
-  test.skip(({ isMobile }) => isMobile, "the table is the desktop layout");
-
-  test("is a real table with column and row headers, grouped by layer", async ({ page }) => {
+test.describe("stack · accordions", () => {
+  test("all five groups start collapsed; one opens at a time and the drawing follows", async ({ page }) => {
     await page.goto("/lab/");
-    const table = page.locator("#stack table");
-    await expect(table).toBeVisible();
-    await expect(page.locator("#stack .stack__sheets")).toBeHidden();
-    await expect(table.locator("caption")).toHaveCount(1);
-    await expect(table.locator("thead th[scope='col']")).toHaveText(["Part no.", "Technology", "Where used"]);
-
-    const groups = await table
-      .locator("tbody")
-      .evaluateAll((nodes) => nodes.map((node) => (node as HTMLElement).dataset.layer));
-    expect(groups).toEqual(LAYERS);
-    await expect(table.locator("th[scope='rowgroup']")).toHaveCount(5);
-    await expect(table.locator("th[scope='rowgroup']").nth(1)).toContainText("P/N 02");
-
-    const next = table.locator("tr", { has: page.locator("th[scope='row']", { hasText: "Next.js" }) });
-    await expect(next.locator("td").first()).toHaveText("02.01");
-    await expect(next.locator("a")).toHaveCount(3);
-    await expect(next.locator("a").first()).toHaveAttribute("href", "/work/herisaga-authoring/");
-    // The empty layer says so instead of inventing parts.
-    await expect(table.locator("tbody[data-layer='services'] [data-todo]")).toHaveCount(1);
-  });
-
-  test("hovering a row lights its plate and the projects that use it; leaving rests", async ({ page }) => {
-    await page.goto("/lab/");
-    await page.locator("#stack table").scrollIntoViewIfNeeded();
-    const figure = page.locator("#stack .stack__figure");
-
-    await page.locator("#stack tr[data-name='next/og']").hover();
-    await expect.poll(() => litPlates(page)).toEqual(["api"]);
-    await expect.poll(() => litProjects(page)).toEqual(["herisaga-authoring", "ritema", "pyramidos"]);
-    await expect(figure.locator("[data-stack='readout-part']")).toHaveText("02.02");
-    await expect(figure.locator("[data-stack='readout-name']")).toHaveText("next/og");
-    await expect(
-      page.locator("#stack .instrument-drawing__plate[data-layer='api'] .instrument-drawing__line--lit"),
-    ).toHaveCSS("opacity", "1");
-
-    // A group header lights the whole layer.
-    await page.locator("#stack tr.bom__group-head[data-layer='interface']").hover();
-    await expect.poll(() => litPlates(page)).toEqual(["interface"]);
-    await expect.poll(() => litProjects(page)).toHaveLength(5);
-
-    await page.mouse.move(5, 5);
-    await expect.poll(() => litPlates(page)).toEqual([]);
-    await expect(figure.locator("[data-stack='readout-part']")).toHaveText("05 layers");
-  });
-
-  test("keyboard focus into a row lights it too", async ({ page }) => {
-    await page.goto("/lab/");
-    await page.locator("#stack tr[data-name='Playwright'] a").first().focus();
-    await expect.poll(() => litPlates(page)).toEqual(["infrastructure"]);
-    await expect(page.locator("#stack [data-stack='readout-name']")).toHaveText("Playwright");
-  });
-
-  test("the drawing stays beside the table while it scrolls", async ({ page }) => {
-    await page.goto("/lab/");
-    const top = async () =>
-      page.locator("#stack .stack__figure").evaluate((node) => node.getBoundingClientRect().top);
-    await page.locator("#stack tbody[data-layer='api']").evaluate((node) => node.scrollIntoView());
-    await page.waitForTimeout(300);
-    const first = await top();
-    // Mid-table: by the Data group the section's end is near and the figure rightly lets go.
-    await page.locator("#stack tbody[data-layer='services']").evaluate((node) => node.scrollIntoView());
-    await page.waitForTimeout(300);
-    expect(Math.abs((await top()) - first)).toBeLessThan(2);
-  });
-});
-
-test.describe("stack · mobile accordions", () => {
-  test.skip(({ isMobile }) => !isMobile, "accordions are the phone layout");
-
-  test("one accordion per layer, one open at a time; the drawing follows", async ({ page }) => {
-    await page.goto("/lab/");
-    await expect(page.locator("#stack table")).toBeHidden();
     const sheets = page.locator("#stack details");
     await expect(sheets).toHaveCount(5);
+    await expect(page.locator("#stack details[open]")).toHaveCount(0);
+    expect(await sheets.evaluateAll((nodes) => nodes.map((node) => node.dataset.layer))).toEqual(LAYERS);
 
     await sheets.nth(3).locator("summary").click();
     await expect(sheets.nth(3)).toHaveAttribute("open", "");
@@ -121,15 +49,132 @@ test.describe("stack · mobile accordions", () => {
     await sheets.nth(1).locator("summary").click();
     await expect(sheets.nth(3)).not.toHaveAttribute("open", "");
     await expect.poll(() => litPlates(page)).toEqual(["api"]);
+    const next = sheets.nth(1).locator(".bom-sheet__part[data-name='Next.js App Router']");
+    await expect(next.locator(".bom__part")).toHaveText("02.01");
+    await expect(next.locator("a")).toHaveCount(3);
+    await expect(next.locator("a").first()).toHaveAttribute("href", "/work/herisaga-authoring/");
 
     await sheets.nth(1).locator("summary").click();
     await expect.poll(() => litPlates(page)).toEqual([]);
+    await sheets.nth(2).locator("summary").click();
+    await expect(sheets.nth(2).locator("[data-todo]")).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBe(0);
+  });
+
+  test("opening reveals the contents with a short transform and opacity animation, including reopening", async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    await page.goto("/lab/");
+    const sheet = page.locator("#stack details[data-layer='api']");
+    await sheet.scrollIntoViewIfNeeded();
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const animation = await sheet.evaluate((node) => {
+        (node as HTMLDetailsElement).open = true;
+        const body = node.querySelector<HTMLElement>(".bom-sheet__body")!;
+        const animation = body.getAnimations()[0];
+        animation.pause();
+        const effect = animation.effect as KeyframeEffect;
+        const frames = effect.getKeyframes();
+        const duration = Number(effect.getTiming().duration);
+        animation.currentTime = duration / 2;
+        return { duration, properties: Object.keys(frames[0]), transform: getComputedStyle(body).transform };
+      });
+      expect(animation.duration).toBe(320);
+      expect(animation.properties).toEqual(expect.arrayContaining(["transform", "opacity"]));
+      expect(animation.transform).not.toBe("none");
+      await sheet.evaluate((node) => {
+        (node as HTMLDetailsElement).open = false;
+      });
+    }
+  });
+
+  test("320px and desktop: compact groups fit; open rows use the intended columns", async ({ page }) => {
+    for (const width of [320, 768, 1024, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("/");
+      const sheets = page.locator("#stack .stack__sheets");
+      expect((await sheets.boundingBox())!.height).toBeLessThan(500);
+      await sheets.locator("summary").nth(1).click();
+      const row = sheets.locator(".bom-sheet__part[data-name='Spring Boot']");
+      const layout = await row.evaluate((node) => {
+        const tech = node.querySelector(".bom__tech")!.getBoundingClientRect();
+        const where = node.querySelector(".bom-sheet__where")!.getBoundingClientRect();
+        return { tech: { x: tech.x, y: tech.y }, where: { x: where.x, y: where.y } };
+      });
+      if (width >= 1024) expect(layout.where.x).toBeGreaterThan(layout.tech.x);
+      else expect(layout.where.y).toBeGreaterThan(layout.tech.y);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBe(0);
+    }
+  });
+
+  test("keyboard opens and closes groups, reaches project links, and lights their plates", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "keyboard navigation is a desktop concern");
+    await page.goto("/lab/");
+    const sheet = page.locator("#stack details[data-layer='infrastructure']");
+    const summary = sheet.locator("summary");
+    await summary.focus();
+    await expect(summary).toBeFocused();
+    await expect(summary).toHaveCSS("outline-style", "solid");
+    await page.keyboard.press("Enter");
+    await expect(sheet).toHaveAttribute("open", "");
+    await page.keyboard.press("Tab");
+    await expect(sheet.locator("a").first()).toBeFocused();
+    await sheet.locator(".bom-sheet__part[data-name='Playwright'] a").first().focus();
+    await expect.poll(() => litPlates(page)).toEqual(["infrastructure"]);
+    await expect(page.locator("#stack [data-stack='readout-name']")).toHaveText("Playwright");
+    await summary.focus();
+    await page.keyboard.press("Space");
+    await expect(sheet).not.toHaveAttribute("open", "");
+    await expect(sheet.locator("a").first()).toBeHidden();
+  });
+
+  test("hovering an open row lights its plate and related projects", async ({ page, isMobile }) => {
+    test.skip(isMobile, "hover is a desktop interaction");
+    await page.goto("/lab/");
+    await page.locator("#stack details[data-layer='api'] summary").click();
+    await page.locator("#stack .bom-sheet__part[data-name='next/og']").hover();
+    await expect.poll(() => litPlates(page)).toEqual(["api"]);
+    await expect.poll(() => litProjects(page)).toEqual(["herisaga-authoring", "ritema", "pyramidos"]);
+    await expect(page.locator("#stack [data-stack='readout-name']")).toHaveText("next/og");
+    await page.mouse.move(5, 5);
+    await expect(page.locator("#stack [data-stack='readout-name']")).toHaveText("API");
   });
 });
 
 test.describe("stack · reduced motion", () => {
   test.use({ reducedMotion: "reduce" });
+
+  test("opening fades without translating, and respects live preference changes", async ({ page }) => {
+    await page.goto("/");
+    const sheet = page.locator("#stack details[data-layer='api']");
+    await sheet.scrollIntoViewIfNeeded();
+    const check = async () =>
+      sheet.evaluate((node) => {
+        (node as HTMLDetailsElement).open = true;
+        const body = node.querySelector<HTMLElement>(".bom-sheet__body")!;
+        const animation = body.getAnimations()[0];
+        animation.pause();
+        const effect = animation.effect as KeyframeEffect;
+        return {
+          duration: effect.getTiming().duration,
+          frames: effect.getKeyframes(),
+          transform: getComputedStyle(body).transform,
+        };
+      });
+    const opening = await check();
+    expect(opening.duration).toBe(200);
+    expect(opening.transform).toBe("none");
+    expect(opening.frames.every((frame) => !("transform" in frame))).toBe(true);
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    await expect(sheet.locator(".bom-sheet__body")).toHaveCSS("animation-name", "bom-unfold");
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await expect(sheet.locator(".bom-sheet__body")).toHaveCSS("animation-name", "bom-fade");
+    await expect(sheet.locator(".bom-sheet__body")).toHaveCSS("transform", "none");
+  });
 
   test("groups appear in place, unmoved", async ({ page }) => {
     await page.goto("/lab/");
@@ -145,7 +190,7 @@ test.describe("stack · reduced motion", () => {
 
 /*
  * T08b · Assembly line. Five conveyor tracks over the bill of materials, built
- * from the same Skill[] — the table rows are the reference for every check.
+ * from the same Skill[] — the accordion rows are the reference for every check.
  */
 const assembly = "#stack .assembly";
 
@@ -183,7 +228,7 @@ test.describe("stack · assembly line", () => {
     await page.goto("/");
     await enter(page); // the labels decode during the entrance
     const expected = await page
-      .locator("#stack tr[data-skill]")
+      .locator("#stack .bom-sheet__part[data-skill]")
       .evaluateAll((rows) =>
         rows.map((row) => [(row as HTMLElement).dataset.layer, (row as HTMLElement).dataset.skill]),
       );
@@ -335,12 +380,10 @@ test.describe("stack · assembly line", () => {
     const part = await partInView(page, 3); // Data
     if (isMobile) await page.touchscreen.tap(part.x, part.y);
     else await page.mouse.click(part.x, part.y);
-    const row = page.locator(
-      isMobile ? `.bom-sheet__part[data-skill='${part.key}']` : `tr[data-skill='${part.key}']`,
-    );
+    const row = page.locator(`.bom-sheet__part[data-skill='${part.key}']`);
     await expect(row).toHaveAttribute("data-flash", "", { timeout: 4000 });
     await expect(row).toBeInViewport();
-    if (isMobile) await expect(page.locator("#stack details[data-layer='data']")).toHaveAttribute("open", "");
+    await expect(page.locator("#stack details[data-layer='data']")).toHaveAttribute("open", "");
     const { name, projects } = await row.evaluate((row) => ({
       name: (row as HTMLElement).dataset.name!,
       projects: (row as HTMLElement).dataset.projects!.split(" ").filter(Boolean),

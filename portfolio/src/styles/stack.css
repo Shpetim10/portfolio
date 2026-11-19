@@ -4,10 +4,9 @@
  * parts with data-lit, which crossfades strokes (opacity). Tokens only.
  *
  * Layout
- *   < 64rem   label · sticky figure bar (drawing beside its readout) · one
- *             accordion per layer. The table is not rendered.
- *   ≥ 64rem   12 columns: label + table on 1–8, the figure sticky on 9–12.
- *             The accordions are not rendered.
+ *   < 64rem   label · sticky figure bar · one accordion per layer.
+ *   ≥ 64rem   12 columns: label + accordions on 1–8, sticky figure on 10–12;
+ *             parts use three columns inside each open group.
  *
  * Assembly line (T08b), above the bill of materials
  *   < 48rem   each track's label on one line above it ("P/N 01 · INTERFACE · 07"),
@@ -467,7 +466,6 @@
   }
 
   /* Shared group header: P/N · layer · count ------------------------------ */
-  .bom__group-line,
   .bom-sheet__head {
     display: grid;
     grid-template-columns: var(--bom-part-col) minmax(0, 1fr) auto;
@@ -527,81 +525,22 @@
     color: var(--color-dust);
   }
 
-  /* Table (≥ 64rem) ------------------------------------------------------- */
-  .bom {
-    display: none;
-    width: 100%;
-    border-collapse: collapse;
-    text-align: start;
-  }
-
-  .bom__col-part {
-    width: var(--bom-part-col);
-  }
-
-  .bom__col-tech {
-    width: 34%;
-  }
-
-  .bom thead th {
-    padding: 0 0 --spacing(3);
-    border-bottom: var(--line) solid var(--color-dust);
-    color: var(--color-dust);
-    font-family: var(--font-mono);
-    font-size: var(--text-micro);
-    font-weight: var(--font-weight-regular);
-    line-height: var(--text-micro--line-height);
-    letter-spacing: var(--text-micro--letter-spacing);
-    text-align: start;
-    text-transform: uppercase;
-  }
-
-  /* The table's PART NO. column already ends in its cell padding: no extra gap. */
-  .bom__group-line {
-    column-gap: 0;
-  }
-
-  .bom__group-head th {
-    padding: --spacing(8) 0 --spacing(3);
-    border-bottom: var(--line) solid var(--color-hairline);
-    font-weight: var(--font-weight-regular);
-    text-align: start;
-  }
-
-  .bom__group[data-lit] .bom__group-number {
-    color: var(--color-bone);
-  }
-
-  .bom__row > * {
-    padding: --spacing(3) 0;
-    padding-inline-end: --spacing(4);
-    border-bottom: var(--line) solid var(--color-hairline);
-    text-align: start;
-    vertical-align: baseline;
-  }
-
-  /* The row in hand (pointer or keyboard). Background swaps; nothing moves. */
-  .bom__row:focus-within > * {
+  /* A row in hand: a static surface swap, with the drawing answering beside it. */
+  .bom-sheet__part:focus-within {
     background-color: var(--color-gunmetal);
   }
 
-  @media (hover: hover) {
-    .bom__row:hover > * {
+  @media (hover: hover) and (pointer: fine) {
+    .bom-sheet__part:hover {
       background-color: var(--color-gunmetal);
     }
   }
 
-  .bom__row[data-stack="row"]:is(:hover, :focus-within) .bom__part {
-    color: var(--color-bone);
-  }
-
-  /* T08b: a part located from the assembly line, marked for --assembly-flash. */
-  .bom__row > :first-child,
+  /* A part located from the assembly line. */
   .bom-sheet__part {
     position: relative;
   }
 
-  .bom__row > :first-child::before,
   .bom-sheet__part::before {
     content: "";
     position: absolute;
@@ -613,21 +552,19 @@
     transition: opacity var(--duration-small) var(--ease-snap);
   }
 
-  .bom__row[data-flash] > *,
   .bom-sheet__part[data-flash] {
     background-color: var(--color-gunmetal);
   }
 
-  .bom__row[data-flash] > :first-child::before,
   .bom-sheet__part[data-flash]::before {
     opacity: 1;
   }
 
-  .bom__row[data-flash] .bom__part {
+  .bom-sheet__part:is([data-flash], :focus-within) .bom__part {
     color: var(--color-bone);
   }
 
-  /* Accordions (< 64rem) -------------------------------------------------- */
+  /* Accordions (all sizes) -------------------------------------------------- */
   .stack__sheets {
     margin-top: --spacing(6);
     border-bottom: var(--line) solid var(--color-hairline);
@@ -654,6 +591,34 @@
 
   .bom-sheet[open] .bom__group-number {
     color: var(--color-bone);
+  }
+
+  /* On phones, put the layer beneath its part number so long names stay clear of the count. */
+  @media (width < 48rem) {
+    .bom-sheet__head {
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      gap: --spacing(2) --spacing(4);
+    }
+
+    .bom-sheet__head > .bom__group-number {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .bom-sheet__head > .bom__group-name {
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    .bom-sheet__head > .bom__group-count {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+    }
+
+    .bom-sheet__toggle {
+      grid-column: 3;
+      grid-row: 1 / span 2;
+    }
   }
 
   /* A drawn plus; the vertical stroke folds away when open. */
@@ -687,6 +652,31 @@
     transform: scaleY(0);
   }
 
+  /* Native disclosure changes layout instantly; only the contents fade and move. */
+  .bom-sheet[open] > .bom-sheet__body {
+    animation: bom-unfold var(--duration-small) var(--ease-settle);
+  }
+
+  @keyframes bom-unfold {
+    from {
+      opacity: 0;
+      transform: translateY(--spacing(3));
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes bom-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
   .bom-sheet__parts {
     margin: 0;
     padding: 0 0 --spacing(4);
@@ -713,6 +703,10 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .bom-sheet[open] > .bom-sheet__body {
+      animation: bom-fade var(--duration-reduced) linear;
+    }
+
     .stack .instrument-drawing__line,
     .bom-sheet__toggle::after {
       transition: opacity var(--duration-reduced) linear;
@@ -723,7 +717,6 @@
       opacity: 0;
     }
 
-    .bom__row > :first-child::before,
     .bom-sheet__part::before {
       transition: opacity var(--duration-reduced) linear;
     }
@@ -796,14 +789,24 @@
       grid-row: 2;
     }
 
-    .bom {
-      display: table;
+    .stack__sheets {
+      min-width: 0;
+      margin-top: 0;
+      align-self: start;
       grid-column: 1 / span 8;
       grid-row: 3;
     }
 
-    .stack__sheets {
-      display: none;
+    .bom-sheet__head {
+      scroll-margin-top: calc(var(--header-height) + --spacing(8));
+    }
+
+    .bom-sheet__part {
+      grid-template-columns: var(--bom-part-col) minmax(0, 1fr) minmax(0, 1.5fr);
+    }
+
+    .bom-sheet__where {
+      grid-column: 3;
     }
 
     .stack__figure {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
-import { gsap } from "@/motion/gsap";
+import { gsap, ScrollTrigger } from "@/motion/gsap";
 import { useLenis } from "@/motion/MotionProvider";
 import { EASE, motionTokens } from "@/motion/tokens";
 import { fadeIn, renderedIn, useScrollMotion, type MotionBuilder } from "@/motion/useScrollMotion";
@@ -16,19 +16,18 @@ import { LOCATE_EVENT, type LocateDetail } from "./AssemblyLine";
  *   …same                          layer groups     opacity + y       0, 12px → 1, 0       settle  medium, items    accordions, same          (in the fade)
  *   row hovered / focused within   its plate        lit stroke        crossfade (opacity)  settle  small (320ms)    —                         200ms linear
  *   …same                          project index    colour            dust → bone          —       instant          —                         same
- *   accordion opened               its plate        lit stroke        crossfade (opacity)  settle  small            (mobile only)             200ms linear
+ *   accordion opened               its plate        lit stroke        crossfade (opacity)  settle  small            all sizes                 200ms linear
  * The hero moment: a row in hand and its plate answering in coolant beside it.
  * Longest path: 4 × 60ms + 600ms = 0.84s, under the 1.6s UI cap.
  *
  * Lighting is plain DOM attributes (data-lit) read by CSS, so it costs no
- * React render. A group header row lights the whole layer. Leaving the table
- * (pointer and focus) returns the figure to its rest reading; on phones the
- * figure follows whichever accordion is open. Without JS the figure rests and
- * every fact is in the table.
+ * React render. A group header row lights the whole layer. Leaving the list
+ * (pointer and focus) returns the figure to the open group, or its rest reading. Without JS the figure rests and
+ * every fact is in the accordions.
  *
  * T08b · Locating a part. A part tapped on the assembly line (LOCATE_EVENT)
  * scrolls its row to the middle of the viewport (Lenis, settle · cinematic;
- * a jump under reduced motion), opening its accordion on phones, then marks
+ * a jump under reduced motion), opening its accordion, then marks
  * it for --assembly-flash: gunmetal ground and a signal tick at its left edge,
  * with its plate and projects lit in the figure as if pointed at.
  */
@@ -68,14 +67,13 @@ export function StackStage({ children }: { children: ReactNode }) {
   useEffect(() => {
     const root = ref.current;
     if (!root) return;
-    const table = root.querySelector<HTMLElement>('[data-stack="table"]')!;
+    const list = root.querySelector<HTMLElement>('[data-stack="sheets"]')!;
     const sheets = [...root.querySelectorAll<HTMLDetailsElement>("details[data-stack='group']")];
     const plates = [
       ...root.querySelectorAll<SVGGElement | HTMLElement>(
         ".instrument-drawing__plate[data-layer], .stack__plate-number[data-layer]",
       ),
     ];
-    const groups = [...table.querySelectorAll<HTMLElement>("tbody[data-layer]")];
     const index = [...root.querySelectorAll<HTMLElement>(".stack__index-item")];
     const readPart = root.querySelector<HTMLElement>('[data-stack="readout-part"]')!;
     const readName = root.querySelector<HTMLElement>('[data-stack="readout-name"]')!;
@@ -89,39 +87,45 @@ export function StackStage({ children }: { children: ReactNode }) {
       const projects = new Set(reading?.projects);
       root.toggleAttribute("data-lit", !!reading);
       plates.forEach((plate) => plate.toggleAttribute("data-lit", plate.dataset.layer === reading?.layer));
-      groups.forEach((group) => group.toggleAttribute("data-lit", group.dataset.layer === reading?.layer));
+      sheets.forEach((group) => group.toggleAttribute("data-lit", group.dataset.layer === reading?.layer));
       index.forEach((item) => item.toggleAttribute("data-lit", projects.has(item.dataset.slug!)));
       readPart.textContent = reading ? reading.part : rest.part;
       readName.textContent = reading ? reading.name : rest.name;
     };
 
     const rowOf = (target: EventTarget | null) =>
-      target instanceof Element ? target.closest<HTMLElement>('[data-stack="row"]') : null;
+      target instanceof Element
+        ? target.closest<HTMLElement>('.bom-sheet__part, details[data-stack="group"]')
+        : null;
 
     const onOver = (event: PointerEvent) => {
       const row = rowOf(event.target);
       if (row) light(row);
     };
     const onLeave = () => {
-      if (!table.contains(document.activeElement)) light(null);
+      const focused = list.contains(document.activeElement) ? rowOf(document.activeElement) : null;
+      light(focused ?? sheets.find((sheet) => sheet.open) ?? null);
     };
     const onFocusIn = (event: FocusEvent) => light(rowOf(event.target));
     const onFocusOut = (event: FocusEvent) => {
-      if (!table.contains(event.relatedTarget as Node | null)) light(null);
+      if (!list.contains(event.relatedTarget as Node | null))
+        light(sheets.find((sheet) => sheet.open) ?? null);
     };
     // `toggle` doesn't bubble: listen in the capture phase.
     const onToggle = (event: Event) => {
       const sheet = event.target as HTMLDetailsElement;
       if (!sheets.includes(sheet)) return;
+      // Opening a group changes the positions of every section below it.
+      ScrollTrigger.refresh();
       // A sheet opened to show a located part keeps that part lit (T08b).
       if (sheet.open && !(flashed && sheet.contains(flashed))) light(sheet);
-      else if (current === sheet) light(sheets.find((other) => other.open) ?? null);
+      else if (current && sheet.contains(current)) light(sheets.find((other) => other.open) ?? null);
     };
 
-    table.addEventListener("pointerover", onOver);
-    table.addEventListener("pointerleave", onLeave);
-    table.addEventListener("focusin", onFocusIn);
-    table.addEventListener("focusout", onFocusOut);
+    list.addEventListener("pointerover", onOver);
+    list.addEventListener("pointerleave", onLeave);
+    list.addEventListener("focusin", onFocusIn);
+    list.addEventListener("focusout", onFocusOut);
     root.addEventListener("toggle", onToggle, true);
     // A sheet left open across a reload or a back navigation.
     light(sheets.find((sheet) => sheet.open) ?? null);
@@ -148,8 +152,7 @@ export function StackStage({ children }: { children: ReactNode }) {
     };
     const onLocate = (event: Event) => {
       const { skill } = (event as CustomEvent<LocateDetail>).detail;
-      const onTable = table.getClientRects().length > 0;
-      const selector = `${onTable ? "tr" : ".bom-sheet__part"}[data-skill="${CSS.escape(skill)}"]`;
+      const selector = `.bom-sheet__part[data-skill="${CSS.escape(skill)}"]`;
       const target = root.querySelector<HTMLElement>(selector);
       if (!target) return;
       const sheet = target.closest("details");
@@ -173,10 +176,10 @@ export function StackStage({ children }: { children: ReactNode }) {
     root.addEventListener(LOCATE_EVENT, onLocate);
 
     return () => {
-      table.removeEventListener("pointerover", onOver);
-      table.removeEventListener("pointerleave", onLeave);
-      table.removeEventListener("focusin", onFocusIn);
-      table.removeEventListener("focusout", onFocusOut);
+      list.removeEventListener("pointerover", onOver);
+      list.removeEventListener("pointerleave", onLeave);
+      list.removeEventListener("focusin", onFocusIn);
+      list.removeEventListener("focusout", onFocusOut);
       root.removeEventListener("toggle", onToggle, true);
       root.removeEventListener(LOCATE_EVENT, onLocate);
       clearFlash();
