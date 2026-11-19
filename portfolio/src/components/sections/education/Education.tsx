@@ -135,10 +135,10 @@ function Row({ entry, awards }: { entry: Entry; awards: Award[] }) {
           </p>
         </div>
 
-        {entry.featured && projects.length > 0 && (
+        {projects.length > 0 && (
           <div className="schooling__projects" data-edu="cell">
             <p className="schooling__projects-label" id={`${entry.id}-projects`}>
-              Thesis and course work behind these projects:
+              {entry.featured ? "Thesis and course work behind these projects:" : "Related projects:"}
             </p>
             <ul className="schooling__project-list" aria-labelledby={`${entry.id}-projects`}>
               {projects.map((project) => (
@@ -162,17 +162,6 @@ function Row({ entry, awards }: { entry: Entry; awards: Award[] }) {
                 linkSuffix="View award"
               >
                 {distinction.label}
-              </Tag>
-            ))}
-          </ul>
-        )}
-
-        {/* Other entries file their projects as tags, each opening its case study. */}
-        {!entry.featured && projects.length > 0 && (
-          <ul className="schooling__tags" aria-label="Projects" data-edu="cell">
-            {projects.map((project) => (
-              <Tag key={project.slug} as="li" href={`/work/${project.slug}/`} linkSuffix="View case study">
-                {shortTitle(project.title)}
               </Tag>
             ))}
           </ul>
@@ -208,9 +197,6 @@ function Row({ entry, awards }: { entry: Entry; awards: Award[] }) {
     </li>
   );
 }
-
-/** A project's name without its subtitle ("White Lies — Is…" → "White Lies"), as in the work register. */
-const shortTitle = (title: string) => title.split(" — ")[0];
 
 /* Dates ------------------------------------------------------------------ */
 

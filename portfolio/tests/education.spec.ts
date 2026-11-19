@@ -106,12 +106,16 @@ test.describe("education · homepage", () => {
     for (const href of hrefs) expect((await page.request.get(href!)).status()).toBe(200);
   });
 
-  test("other entries file their projects as linked tags", async ({ page }) => {
+  test("Holberton uses the same project presentation as Epoka", async ({ page }) => {
     await page.goto("/");
-    const tag = rows(page).nth(0).locator("ul[aria-label='Projects'] a.tag--link");
+    const projects = rows(page).first().locator(".schooling__projects");
+    await expect(projects.locator(".schooling__projects-label")).toHaveText("Related projects:");
+    const tag = projects.locator(".schooling__project-list a.schooling__project");
     await expect(tag).toHaveCount(1);
     await expect(tag).toHaveAttribute("href", "/work/white-lies/");
     await expect(tag).toContainText("White Lies");
+    await expect(tag.locator(".schooling__part")).toHaveText(/^P\/N \d+$/);
+    await expect(rows(page).first().locator("ul[aria-label='Projects']")).toHaveCount(0);
     expect((await page.request.get("/work/white-lies/")).status()).toBe(200);
   });
 
